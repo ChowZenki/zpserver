@@ -80,16 +80,18 @@ void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
     int nsz = m_vec_NetTransThreads.size();
     int nMinPay = 0x7fffffff;
     int nMinIdx = -1;
-    for (int i=0;i<nsz && nMinIdx!=0;i++)
+    for (int i=0;i<nsz && nMinPay!=0;i++)
     {
         if (m_vec_NetTransThreads[i]->isActive()==false)
             continue;
         int nPat = m_vec_NetTransThreads[i]->CurrentClients();
+
         if (nPat<nMinPay)
         {
             nMinPay = nPat;
             nMinIdx = i;
         }
+        //qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
     }
     if (nMinIdx>=0 && nMinIdx<nsz)
         emit evt_EstablishConnection(m_vec_NetTransThreads[nMinIdx],socketDescriptor);

@@ -17,10 +17,11 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
-
+    void timerEvent(QTimerEvent *);
 private:
     Ui::ZPMainFrame *ui;
     zp_net_ThreadPool * m_pool;
+    int m_nTimerId;
 public slots:
     //These Message is nessery.-------------------------------------
     void on_evt_Message(const QString &);

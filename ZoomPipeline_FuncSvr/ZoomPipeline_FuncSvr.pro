@@ -26,3 +26,6 @@ HEADERS  += zpmainframe.h \
     network/zp_net_threadpool.h
 
 FORMS    += zpmainframe.ui
+
+RESOURCES += \
+    resource.qrc

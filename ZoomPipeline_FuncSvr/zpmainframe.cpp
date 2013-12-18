@@ -6,7 +6,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
+    m_nTimerId = startTimer(500);
     m_pool = new zp_net_ThreadPool (4096);
 
     connect (m_pool,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_Message);
@@ -18,7 +18,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
     m_pool->AddListeningAddress("10302",QHostAddress::Any,10302);
     m_pool->AddListeningAddress("10202",QHostAddress::Any,10202);
-    m_pool->AddClientTransThreads(2);
+    m_pool->AddClientTransThreads(4);
 }
 
 ZPMainFrame::~ZPMainFrame()
@@ -79,4 +79,22 @@ void  ZPMainFrame::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray
 void  ZPMainFrame::on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/)
 {
 
+}
+
+void  ZPMainFrame::timerEvent(QTimerEvent * e)
+{
+    if (e->timerId()==m_nTimerId)
+    {
+        QString strNetStatus;
+        QStringList lstListeners = m_pool->ListenerNames();
+        strNetStatus += tr("Current Listen Threads: %1\n").arg(lstListeners.size());
+        for (int i=0;i<lstListeners.size();i++)
+            strNetStatus += tr("\tListen Threads %1: %2\n").arg(i+1).arg(lstListeners.at(i));
+        int nClientThreads = m_pool->TransThreadNum();
+
+        strNetStatus += tr("Current Trans Threads: %1\n").arg(nClientThreads);
+        for (int i=0;i<nClientThreads;i++)
+            strNetStatus += tr("\tTrans Threads %1 hold %2 Client Sockets.\n").arg(i+1).arg(m_pool->totalClients(i));
+        ui->plainTextEdit_status_net->setPlainText(strNetStatus);
+    }
 }

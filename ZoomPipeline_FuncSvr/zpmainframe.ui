@@ -6,29 +6,72 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>452</width>
+    <height>310</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ZPMainFrame</string>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_network">
+       <attribute name="icon">
+        <iconset resource="resource.qrc">
+         <normaloff>:/icons/Resources/Alienware (27).png</normaloff>:/icons/Resources/Alienware (27).png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Network</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPlainTextEdit" name="plainTextEdit_status_net"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_task">
+       <attribute name="icon">
+        <iconset resource="resource.qrc">
+         <normaloff>:/icons/Resources/Backup drive.png</normaloff>:/icons/Resources/Backup drive.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Task</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
-     <height>19</height>
+     <width>452</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Control">
     <property name="title">
      <string>&amp;Control</string>
     </property>
+    <addaction name="action_Start_Stop"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
    </widget>
    <addaction name="menu_Control"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -37,10 +80,45 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Start_Stop"/>
+   <addaction name="separator"/>
+   <addaction name="action_About"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="action_Start_Stop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/Resources/cn11.png</normaloff>
+     <normalon>:/icons/Resources/cn6.png</normalon>:/icons/Resources/cn11.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Start/Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Start or stop the server</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/Resources/4013.png</normaloff>:/icons/Resources/4013.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

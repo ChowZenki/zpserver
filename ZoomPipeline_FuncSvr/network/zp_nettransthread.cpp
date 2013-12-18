@@ -67,13 +67,10 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
             {
                 QSslSocket * psslsock = qobject_cast<QSslSocket *>(sock_client);
                 assert(psslsock!=nullptr);
-                 QList<QSslCertificate> lstCerts = (QSslSocket::defaultCaCertificates());
-                 if (lstCerts.size())
-                 {
-                     QString strCerPath =  QCoreApplication::applicationDirPath() + "/cert.pem";
-                     psslsock->setLocalCertificate(strCerPath);
-                     psslsock->setPrivateKey(strCerPath);
-                 }
+                QString strCerPath =  QCoreApplication::applicationDirPath() + "/svr_cert.pem";
+                QString strPkPath =  QCoreApplication::applicationDirPath() + "/svr_privkey.pem";
+                psslsock->setLocalCertificate(strCerPath);
+                psslsock->setPrivateKey(strPkPath);
                 connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
                 psslsock->startServerEncryption();
             }

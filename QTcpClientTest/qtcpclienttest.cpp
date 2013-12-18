@@ -125,10 +125,9 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             connect(client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
             connect(client, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
             connect(client, SIGNAL(encrypted()), this, SLOT(on_client_connected()));
-            QString strCerPath =  QCoreApplication::applicationDirPath() + "/cert.pem";
-             client->setLocalCertificate(strCerPath);
-             client->setPrivateKey(strCerPath);
-            client->setPeerVerifyMode(QSslSocket::VerifyNone);
+            QString strCerPath =  QCoreApplication::applicationDirPath() + "/ca_cert.pem";
+            QList<QSslCertificate> lstCas = QSslCertificate::fromPath(strCerPath);
+            client->setCaCertificates(lstCas);
             client->connectToHostEncrypted(ui.lineEdit_ip->text(),ui.lineEdit_Port->text().toUShort());
         }
     }

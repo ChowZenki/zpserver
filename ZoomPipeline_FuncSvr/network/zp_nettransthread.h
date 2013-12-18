@@ -18,9 +18,12 @@ public:
     bool isActive(){return m_bActivated;}
 
     bool CanExit();
+    bool SSLConnection(){return m_bSSLConnection ;}
+    void SetSSLConnection(bool bssl){ m_bSSLConnection = bssl;}
 
 private:
     bool m_bActivated;
+    bool m_bSSLConnection;
     QMap<QObject *,QList<QByteArray> > m_buffer_sending;
     QMap<QObject *,QList<qint64> > m_buffer_sending_offset;
     QMap<QObject*,int> m_clientList;
@@ -48,6 +51,8 @@ protected slots:
     void some_data_sended(qint64);
     //客户端错误
     void displayError(QAbstractSocket::SocketError socketError);
+    //SSL加密开始
+    void on_encrypted();
 signals:
     //错误信息
     void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);

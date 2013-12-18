@@ -1,11 +1,15 @@
 #include "zp_nettransthread.h"
 #include <QTcpSocket>
+#include <QSslSocket>
 #include <assert.h>
+#include <QDebug>
+#include <QCoreApplication>
 zp_netTransThread::zp_netTransThread(int nPayLoad,QObject *parent) :
     QObject(parent)
 {
     m_nPayLoad = nPayLoad;
     m_bActivated = true;
+    m_bSSLConnection = true;
     assert(m_nPayLoad>=256 && m_nPayLoad<=16*1024*1024);
 }
 QList <QObject *> zp_netTransThread::clientsList()
@@ -43,7 +47,11 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
 {
     if (threadid!=this)
         return;
-    QTcpSocket * sock_client = new QTcpSocket(this);
+    QTcpSocket * sock_client = 0;
+    if (m_bSSLConnection)
+        sock_client =  new QSslSocket(this);
+    else
+        sock_client =  new QTcpSocket(this);
     if (sock_client)
     {
         if (true ==sock_client->setSocketDescriptor(socketDescriptor))
@@ -55,25 +63,56 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
             m_mutex_protect.lock();
             m_clientList[sock_client] = 0;
             m_mutex_protect.unlock();
-            emit evt_NewClientConnected(sock_client);
+            if (m_bSSLConnection)
+            {
+                QSslSocket * psslsock = qobject_cast<QSslSocket *>(sock_client);
+                assert(psslsock!=nullptr);
+                 QList<QSslCertificate> lstCerts = (QSslSocket::defaultCaCertificates());
+                 if (lstCerts.size())
+                 {
+                     QString strCerPath =  QCoreApplication::applicationDirPath() + "/cert.pem";
+                     psslsock->setLocalCertificate(strCerPath);
+                     psslsock->setPrivateKey(strCerPath);
+                 }
+                connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+                psslsock->startServerEncryption();
+            }
+            else
+                emit evt_NewClientConnected(sock_client);
         }
         else
             sock_client->deleteLater();
     }
 
 }
+void zp_netTransThread::on_encrypted()
+{
+     QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
+     emit evt_NewClientConnected(pSock);
+}
+
 void zp_netTransThread::client_closed()
 {
     QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
     if (pSock)
     {
-        emit evt_ClientDisconnected(pSock);
-        m_buffer_sending.remove(pSock);
+        if (m_bSSLConnection)
+        {
+            QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
+            if (psslsock)
+                disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+        }
+        disconnect(pSock, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
+        disconnect(pSock, SIGNAL(disconnected()),this,SLOT(client_closed()));
+        disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+        disconnect(pSock, SIGNAL(bytesWritten(qint64)), this, SLOT(some_data_sended(qint64)));
+         m_buffer_sending.remove(pSock);
         m_buffer_sending_offset.remove(pSock);
         m_mutex_protect.lock();
         m_clientList.remove(pSock);
         m_mutex_protect.unlock();
         pSock->deleteLater();
+        emit evt_ClientDisconnected(pSock);
     }
 }
 void zp_netTransThread::new_data_recieved()
@@ -114,6 +153,7 @@ void zp_netTransThread::displayError(QAbstractSocket::SocketError socketError)
     if (pSock)
     {
         emit evt_SocketError(pSock,socketError);
+        qDebug()<<(pSock->errorString());
         pSock->disconnectFromHost();
     }
 }

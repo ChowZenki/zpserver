@@ -1,11 +1,12 @@
 #include "zpmainframe.h"
 #include "ui_zpmainframe.h"
-
 ZPMainFrame::ZPMainFrame(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ZPMainFrame)
 {
     ui->setupUi(this);
+
+
     m_pool = new zp_net_ThreadPool (4096);
 
     connect (m_pool,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_Message);

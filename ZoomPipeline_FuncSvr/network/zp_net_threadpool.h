@@ -9,6 +9,9 @@
 #include <QThread>
 #include "zp_netlistenthread.h"
 #include "zp_nettransthread.h"
+
+namespace ZPNetwork{
+
 class zp_net_ThreadPool : public QObject
 {
     Q_OBJECT
@@ -92,5 +95,5 @@ public slots:
     void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
 
 };
-
+}
 #endif // ZP_NET_THREADPOOL_H

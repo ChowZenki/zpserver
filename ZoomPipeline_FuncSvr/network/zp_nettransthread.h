@@ -6,6 +6,7 @@
 #include <QList>
 #include <QAbstractSocket>
 #include <QMutex>
+namespace ZPNetwork{
 class zp_netTransThread : public QObject
 {
     Q_OBJECT
@@ -65,5 +66,5 @@ signals:
     //一批数据被发送
     void evt_Data_transferred(QObject * client,qint64);
 };
-
+}
 #endif // ZP_NETTRANSTHREAD_H

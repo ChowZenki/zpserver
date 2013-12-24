@@ -2,10 +2,10 @@
 #define ZP_TcpServer_H
 
 #include <QTcpServer>
-
+namespace ZPNetwork{
 class ZP_TcpServer : public QTcpServer
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
     ZP_TcpServer(QObject *parent);
@@ -14,5 +14,5 @@ protected:
 signals:
     void evt_NewClientArrived(qintptr socketDescriptor);
 };
-
+}
 #endif // ZP_TcpServer_H

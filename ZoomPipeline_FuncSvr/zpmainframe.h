@@ -20,7 +20,7 @@ protected:
     void timerEvent(QTimerEvent *);
 private:
     Ui::ZPMainFrame *ui;
-    zp_net_ThreadPool * m_pool;
+    ZPNetwork::zp_net_ThreadPool * m_pool;
     int m_nTimerId;
 public slots:
     //These Message is nessery.-------------------------------------

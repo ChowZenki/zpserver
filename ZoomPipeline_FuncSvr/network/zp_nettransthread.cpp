@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <QDebug>
 #include <QCoreApplication>
+namespace ZPNetwork{
 zp_netTransThread::zp_netTransThread(int nPayLoad,QObject *parent) :
     QObject(parent)
 {
@@ -238,4 +239,5 @@ bool zp_netTransThread::CanExit()
     if (CurrentClients())
         return false;
     return true;
+}
 }

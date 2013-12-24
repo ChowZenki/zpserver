@@ -1,5 +1,5 @@
 #include "zp_net_threadpool.h"
-
+namespace ZPNetwork{
 zp_net_ThreadPool::zp_net_ThreadPool(int nPayLoad,QObject *parent) :
     QObject(parent)
 {
@@ -240,4 +240,5 @@ bool zp_net_ThreadPool::CanExit()
         res= false;
     //m_mutex_listen.unlock();
     return res;
+}
 }

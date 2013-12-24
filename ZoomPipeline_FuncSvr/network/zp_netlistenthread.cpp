@@ -1,5 +1,5 @@
 #include "zp_netlistenthread.h"
-
+namespace ZPNetwork{
 zp_netListenThread::zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,QObject *parent)
     :QObject(parent)
     ,m_tcpServer(0)
@@ -45,4 +45,5 @@ void zp_netListenThread::stopListen(const QString & id)
             emit evt_ListenClosed(m_id);
         }
     }
+}
 }

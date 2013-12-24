@@ -1,5 +1,6 @@
 #include "zpmainframe.h"
 #include "ui_zpmainframe.h"
+using namespace ZPNetwork;
 ZPMainFrame::ZPMainFrame(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ZPMainFrame)

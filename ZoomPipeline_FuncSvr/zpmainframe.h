@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "network/zp_net_threadpool.h"
+#include "pipeline/zp_pipeline.h"
 namespace Ui {
 class ZPMainFrame;
 }
@@ -20,7 +21,8 @@ protected:
     void timerEvent(QTimerEvent *);
 private:
     Ui::ZPMainFrame *ui;
-    ZPNetwork::zp_net_ThreadPool * m_pool;
+    ZPNetwork::zp_net_ThreadPool * m_netEngine;
+    ZPTaskEngine::zp_pipeline * m_taskEngine;
     int m_nTimerId;
 public slots:
     //These Message is nessery.-------------------------------------

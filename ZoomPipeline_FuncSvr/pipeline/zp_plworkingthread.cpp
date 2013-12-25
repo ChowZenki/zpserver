@@ -30,7 +30,11 @@ void zp_plWorkingThread::run()
         else
             this->msleep(500);
     }
+    m_pipeline->m_mutex_protect.lock();
+    m_pipeline->m_nExistingThreads--;
+    m_pipeline->m_mutex_protect.unlock();
     this->deleteLater();
+
 }
 
 }

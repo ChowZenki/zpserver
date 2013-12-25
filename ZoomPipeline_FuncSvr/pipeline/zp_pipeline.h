@@ -31,6 +31,8 @@ public:
     int threadsCount();
     int payload();
 
+    bool canClose() {return m_nExistingThreads==0?true:false;}
+
 protected:
     //Mutex
     QMutex m_mutex_protect;
@@ -39,7 +41,7 @@ protected:
     //This is a C++11 function pool.
     //return -1,the function will be kept in list, return 0 , will be removed.
     std::list< zptaskfunc > m_list_tasks;
-
+    int m_nExistingThreads;
 protected:
     //Threads call this function to get next task, task will be popped from list.
     zptaskfunc popTask( bool * bValid);

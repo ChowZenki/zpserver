@@ -3,6 +3,7 @@ namespace ZPTaskEngine{
 zp_pipeline::zp_pipeline(QObject *parent) :
     QObject(parent)
 {
+    m_nExistingThreads = 0;
 }
 
 int zp_pipeline::addThreads(int nThreads)
@@ -14,6 +15,9 @@ int zp_pipeline::addThreads(int nThreads)
             zp_plWorkingThread * thread = new zp_plWorkingThread(this);
             m_vec_workingThreads.push_back(thread);
             thread->start();
+            m_mutex_protect.lock();
+            m_nExistingThreads++;
+            m_mutex_protect.unlock();
         }
     }
      return m_vec_workingThreads.size();

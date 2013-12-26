@@ -92,7 +92,7 @@ void  ZPMainFrame::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray
     this->m_netEngine->SendDataToClient(clientHandle,datablock);
     //push some tasks
     m_taskEngine->pushTask([](void)->int {
-        QThread::currentThread()->msleep(50);
+        //QThread::currentThread()->msleep(20);
         return 0;
     });
 }

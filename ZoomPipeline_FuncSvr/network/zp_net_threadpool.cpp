@@ -1,4 +1,6 @@
 #include "zp_net_threadpool.h"
+#include <QCoreApplication>
+
 namespace ZPNetwork{
 zp_net_ThreadPool::zp_net_ThreadPool(int nPayLoad,QObject *parent) :
     QObject(parent)
@@ -9,6 +11,7 @@ zp_net_ThreadPool::zp_net_ThreadPool(int nPayLoad,QObject *parent) :
         qRegisterMetaType<qintptr>("qintptr");
     if (false==QMetaType::isRegistered(QMetaType::type("QAbstractSocket::SocketError")))
         qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
+
 }
 QStringList zp_net_ThreadPool::ListenerNames()
 {
@@ -127,7 +130,7 @@ void zp_net_ThreadPool::AddClientTransThreads(int nThreads)
     {
         for (int i=0;i<nThreads;i++)
         {
-            zp_netTransThread * clientTH = new zp_netTransThread(m_nPayLoad);
+            zp_netTransThread * clientTH = new zp_netTransThread(this,m_nPayLoad);
             QThread * pThread = new QThread(this);
             //m_mutex_trans.lock();
             m_vec_netInternalTransThreads.push_back(pThread);

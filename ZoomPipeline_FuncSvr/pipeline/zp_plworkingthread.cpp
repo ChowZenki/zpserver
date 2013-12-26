@@ -2,11 +2,11 @@
 #include <assert.h>
 #include "zp_pipeline.h"
 namespace ZPTaskEngine{
-zp_plWorkingThread::zp_plWorkingThread(QObject *parent) :
-    QThread(parent)
+zp_plWorkingThread::zp_plWorkingThread(zp_pipeline * pipl,QObject *parent) :
+    QObject(parent)
 {
     m_bRuning = true;
-    m_pipeline = qobject_cast<zp_pipeline *>(parent);
+    m_pipeline = pipl;
     assert(m_pipeline != nullptr);
 }
 
@@ -15,9 +15,11 @@ void zp_plWorkingThread::setStopMark()
     m_bRuning = false;
 }
 
-void zp_plWorkingThread::run()
+void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj)
 {
-    while (m_bRuning)
+    if (obj != this)
+        return;
+    if (m_bRuning)
     {
         bool bValid = false;
         zptaskfunc funcobj = m_pipeline->popTask(&bValid);
@@ -26,14 +28,23 @@ void zp_plWorkingThread::run()
             int res = funcobj();
             if (res!=0)
                   m_pipeline->pushTask(funcobj);
+            emit taskFinished(this);
         }
         else
-            this->msleep(500);
+        {
+            QThread::currentThread()->msleep(500);
+            emit taskFinished(this);
+        }
     }
-    m_pipeline->m_mutex_protect.lock();
-    m_pipeline->m_nExistingThreads--;
-    m_pipeline->m_mutex_protect.unlock();
-    this->deleteLater();
+    else
+    {
+        m_pipeline->m_mutex_protect.lock();
+        m_pipeline->m_nExistingThreads--;
+        m_pipeline->m_mutex_protect.unlock();
+        this->deleteLater();
+        QThread::currentThread()->quit();
+    }
+
 
 }
 

@@ -5,8 +5,9 @@
 #include <QDebug>
 #include <QCoreApplication>
 namespace ZPNetwork{
-zp_netTransThread::zp_netTransThread(int nPayLoad,QObject *parent) :
+zp_netTransThread::zp_netTransThread(zp_net_ThreadPool *pThreadPool,int nPayLoad,QObject *parent) :
     QObject(parent)
+  ,m_pThreadPool(pThreadPool)
 {
     m_nPayLoad = nPayLoad;
     m_bActivated = true;

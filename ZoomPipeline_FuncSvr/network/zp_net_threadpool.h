@@ -7,6 +7,9 @@
 #include <QVector>
 #include <QMutex>
 #include <QThread>
+#include <QSslCertificate>
+#include <QSslKey>
+#include <QFile>
 #include "zp_netlistenthread.h"
 #include "zp_nettransthread.h"
 

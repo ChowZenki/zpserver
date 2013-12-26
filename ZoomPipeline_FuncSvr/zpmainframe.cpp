@@ -44,7 +44,7 @@ ZPMainFrame::~ZPMainFrame()
     while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false)
     {
         QCoreApplication::processEvents();
-        thread()->msleep(200);
+        QThread::currentThread()->msleep(200);
         //_sleep(100);
     }
 
@@ -92,7 +92,7 @@ void  ZPMainFrame::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray
     this->m_netEngine->SendDataToClient(clientHandle,datablock);
     //push some tasks
     m_taskEngine->pushTask([](void)->int {
-        QThread::currentThread()->msleep(200);
+        QThread::currentThread()->msleep(50);
         return 0;
     });
 }

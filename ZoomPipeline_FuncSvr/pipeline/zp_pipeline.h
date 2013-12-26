@@ -38,6 +38,7 @@ protected:
     QMutex m_mutex_protect;
     //working threads
     QVector<zp_plWorkingThread *> m_vec_workingThreads;
+     QVector<QThread *> m_vec_InternalworkingThreads;
     //This is a C++11 function pool.
     //return -1,the function will be kept in list, return 0 , will be removed.
     std::list< zptaskfunc > m_list_tasks;
@@ -47,10 +48,11 @@ protected:
     zptaskfunc popTask( bool * bValid);
 
 
-
+signals:
+    void evt_start_work(zp_plWorkingThread * task);
 
 public slots:
-
+    void on_finished_task (zp_plWorkingThread * task);
 };
 }
 #endif // ZP_PIPELINE_H

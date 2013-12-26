@@ -1,30 +1,32 @@
 #ifndef ZP_PLWORKINGTHREAD_H
 #define ZP_PLWORKINGTHREAD_H
 
-#include <QThread>
+#include <QObject>
 namespace ZPTaskEngine{
 
 class zp_pipeline;
 //Working thread, reading functions from queue,
 //running tasks
-class zp_plWorkingThread : public QThread
+class zp_plWorkingThread : public QObject
 {
     Q_OBJECT
 public:
-    explicit zp_plWorkingThread(QObject *parent = 0);
+    explicit zp_plWorkingThread(zp_pipeline * pipl,QObject *parent = 0);
 
 protected:
     zp_pipeline * m_pipeline;
 
     bool m_bRuning;
 
-    virtual void run();
 
-public:
+public slots:
     void setStopMark();
 
+    void FetchNewTask(zp_plWorkingThread *);
 
+signals:
 
+    void taskFinished(zp_plWorkingThread *);
 
 };
 }

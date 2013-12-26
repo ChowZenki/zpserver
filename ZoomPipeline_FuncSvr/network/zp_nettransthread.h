@@ -7,11 +7,12 @@
 #include <QAbstractSocket>
 #include <QMutex>
 namespace ZPNetwork{
+class zp_net_ThreadPool;
 class zp_netTransThread : public QObject
 {
     Q_OBJECT
 public:
-    explicit zp_netTransThread(int nPayLoad = 4096,QObject *parent = 0);
+    explicit zp_netTransThread(zp_net_ThreadPool * pThreadPool,int nPayLoad = 4096,QObject *parent = 0);
 
     QList <QObject *> clientsList();
     int CurrentClients();
@@ -30,6 +31,7 @@ private:
     QMap<QObject*,int> m_clientList;
     int m_nPayLoad;
     QMutex m_mutex_protect;
+    zp_net_ThreadPool * m_pThreadPool;
 public slots:
     //新的客户连接到来
     void incomingConnection(QObject * threadid,qintptr socketDescriptor);

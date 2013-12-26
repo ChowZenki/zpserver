@@ -14,11 +14,18 @@ int zp_pipeline::addThreads(int nThreads)
         {
             zp_plWorkingThread * thread = new zp_plWorkingThread(this);
             m_vec_workingThreads.push_back(thread);
-            thread->start();
+            QThread * pTh = new QThread(this);
+            m_vec_InternalworkingThreads.push_back(pTh);
+            thread->moveToThread(pTh);
+            connect (this,&zp_pipeline::evt_start_work,thread,&zp_plWorkingThread::FetchNewTask);
+            connect (thread,&zp_plWorkingThread::taskFinished,this,&zp_pipeline::on_finished_task);
+            pTh->start();
             m_mutex_protect.lock();
             m_nExistingThreads++;
             m_mutex_protect.unlock();
+            emit evt_start_work(thread);
         }
+
     }
      return m_vec_workingThreads.size();
 }
@@ -34,6 +41,7 @@ int zp_pipeline::removeThreads(int nThreads)
     {
         m_vec_workingThreads.last()->setStopMark();
         m_vec_workingThreads.pop_back();
+        m_vec_InternalworkingThreads.pop_back();
     }
     return m_vec_workingThreads.size();
 }
@@ -77,5 +85,8 @@ int  zp_pipeline::payload()
 
     return res;
 }
-
+void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
+{
+    emit evt_start_work(task);
+}
 }

@@ -26,46 +26,41 @@ public:
 private:
     bool m_bActivated;
     bool m_bSSLConnection;
+    //sending buffer, hold byteArraies.
     QMap<QObject *,QList<QByteArray> > m_buffer_sending;
+
     QMap<QObject *,QList<qint64> > m_buffer_sending_offset;
     QMap<QObject*,int> m_clientList;
     int m_nPayLoad;
     QMutex m_mutex_protect;
     zp_net_ThreadPool * m_pThreadPool;
 public slots:
-    //新的客户连接到来
+    //This slot dealing with multi-thread client socket accept.
     void incomingConnection(QObject * threadid,qintptr socketDescriptor);
-    //向客户端发送数据
+    //sending dtarray to objClient. dtarray will be pushed into m_buffer_sending
     void SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
-    //向客户端广播数据，不包括 objFromClient
+    //Broadcast dtarray to every client except objFromClient itself
     void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
-    //让本线程不再接受新的连接
+    //Set terminate mark, the thread will quit after last client quit.
     void Deactivate(){m_bActivated = true;}
-    //立刻终止本线程的所有连接
+    //terminate this thread immediately
     void DeactivateImmediately(zp_netTransThread *);
-    //踢出所有客户
+    //Kick all clients .
     void KickAllClients(zp_netTransThread *);
 protected slots:
-    //客户连接被关闭
+    //when client closed, this slot will be activated.
     void client_closed();
-    //新的数据到来
     void new_data_recieved();
-    //一批数据发送完毕
     void some_data_sended(qint64);
-    //客户端错误
     void displayError(QAbstractSocket::SocketError socketError);
-    //SSL加密开始
+    //SSL Encrypted started
     void on_encrypted();
 signals:
-    //错误信息
+
     void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
-    //新的客户端连接
     void evt_NewClientConnected(QObject * client);
-    //客户端退出
     void evt_ClientDisconnected(QObject * client);
-    //收到一批数据
     void evt_Data_recieved(QObject * ,const QByteArray &  );
-    //一批数据被发送
     void evt_Data_transferred(QObject * client,qint64);
 };
 }

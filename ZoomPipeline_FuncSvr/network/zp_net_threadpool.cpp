@@ -222,7 +222,7 @@ void zp_net_ThreadPool::SendDataToClient(QObject * objClient,const QByteArray & 
     emit evt_SendDataToClient(objClient,dtarray);
 }
 
-//向客户端广播数据，不包括 objFromClient
+
 void zp_net_ThreadPool::BroadcastData(QObject * objFromClient,const QByteArray &  dtarray)
 {
     emit evt_BroadcastData(objFromClient,dtarray);

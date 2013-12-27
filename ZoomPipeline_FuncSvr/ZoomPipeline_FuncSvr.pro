@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     pipeline/zp_pipeline.cpp \
     dynhash/dynhash.cpp \
     smartlink/st_client_table.cpp \
-    pipeline/zp_plworkingthread.cpp
+    pipeline/zp_plworkingthread.cpp \
+    smartlink/st_clientnode.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \
@@ -31,7 +32,8 @@ HEADERS  += zpmainframe.h \
     pipeline/zp_pipeline.h \
     dynhash/dynhash.h \
     smartlink/st_client_table.h \
-    pipeline/zp_plworkingthread.h
+    pipeline/zp_plworkingthread.h \
+    smartlink/st_clientnode.h
 
 FORMS    += zpmainframe.ui
 

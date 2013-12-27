@@ -14,10 +14,6 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
     connect (m_netEngine,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_Message);
     connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
-    connect (m_netEngine,&zp_net_ThreadPool::evt_NewClientConnected,this,&ZPMainFrame::on_evt_NewClientConnected);
-    connect (m_netEngine,&zp_net_ThreadPool::evt_ClientDisconnected,this,&ZPMainFrame::on_evt_ClientDisconnected);
-    connect (m_netEngine,&zp_net_ThreadPool::evt_Data_recieved,this,&ZPMainFrame::on_evt_Data_recieved);
-    connect (m_netEngine,&zp_net_ThreadPool::evt_Data_transferred,this,&ZPMainFrame::on_evt_Data_transferred);
 
     m_netEngine->AddListeningAddress("10302",QHostAddress::Any,10302);
     m_netEngine->AddListeningAddress("10202",QHostAddress::Any,10202);
@@ -26,6 +22,9 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     //Create TaskEngine
     m_taskEngine = new zp_pipeline(this);
     m_taskEngine->addThreads(4);
+
+
+    m_clientTable = new SmartLink::st_client_table (m_netEngine,m_taskEngine,this);
 
 
 
@@ -74,34 +73,6 @@ void  ZPMainFrame::on_evt_SocketError(QObject * /*senderSock*/ ,QAbstractSocket:
 
 }
 
-//this event indicates new client connected.
-void  ZPMainFrame::on_evt_NewClientConnected(QObject * /*clientHandle*/)
-{
-
-}
-
-//this event indicates a client disconnected.
-void  ZPMainFrame::on_evt_ClientDisconnected(QObject * /*clientHandle*/)
-{
-
-}
-
-//some data arrival
-void  ZPMainFrame::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray & datablock )
-{
-    this->m_netEngine->SendDataToClient(clientHandle,datablock);
-    //push some tasks
-    m_taskEngine->pushTask([](void)->int {
-        //QThread::currentThread()->msleep(20);
-        return 0;
-    });
-}
-
-//a block of data has been successfuly sent
-void  ZPMainFrame::on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/)
-{
-
-}
 
 void  ZPMainFrame::timerEvent(QTimerEvent * e)
 {

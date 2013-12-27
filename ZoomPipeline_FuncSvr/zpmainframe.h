@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "network/zp_net_threadpool.h"
 #include "pipeline/zp_pipeline.h"
+#include "smartlink/st_client_table.h"
 namespace Ui {
 class ZPMainFrame;
 }
@@ -23,20 +24,13 @@ private:
     Ui::ZPMainFrame *ui;
     ZPNetwork::zp_net_ThreadPool * m_netEngine;
     ZPTaskEngine::zp_pipeline * m_taskEngine;
+    SmartLink::st_client_table * m_clientTable;
     int m_nTimerId;
 public slots:
     //These Message is nessery.-------------------------------------
     void on_evt_Message(const QString &);
     //The socket error message
     void on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
-    //this event indicates new client connected.
-    void on_evt_NewClientConnected(QObject * /*clientHandle*/);
-    //this event indicates a client disconnected.
-    void on_evt_ClientDisconnected(QObject * /*clientHandle*/);
-    //some data arrival
-    void on_evt_Data_recieved(QObject *  /*clientHandle*/,const QByteArray & /*datablock*/ );
-    //a block of data has been successfuly sent
-    void on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/);
 };
 
 #endif // ZPMAINFRAME_H

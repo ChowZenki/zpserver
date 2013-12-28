@@ -12,10 +12,9 @@ class st_client_table : public QObject
 public:
     explicit st_client_table( ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng,QObject *parent = 0);
     ~st_client_table();
-    static unsigned int BKDRHash(const char *str) ;
 protected:
-     ZPHashTable::CDYNHASHTB m_hash_id2sock;
-     ZPHashTable::CDYNHASHTB m_hash_sock2id;
+     ZPHashTable::CDYNHASHTB m_hash_uuid2node;
+     ZPHashTable::CDYNHASHTB m_hash_sock2node;
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
      ZPTaskEngine::zp_pipeline * m_pTaskEngine;
 signals:

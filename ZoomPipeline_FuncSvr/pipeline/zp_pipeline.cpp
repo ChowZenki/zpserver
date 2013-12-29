@@ -23,7 +23,7 @@ int zp_pipeline::addThreads(int nThreads)
             m_mutex_protect.lock();
             m_nExistingThreads++;
             m_mutex_protect.unlock();
-            emit evt_start_work(thread);
+            emit evt_start_work(thread,0);
         }
 
     }
@@ -47,10 +47,11 @@ int zp_pipeline::removeThreads(int nThreads)
 }
 
 //Threads call this function to get next task, task will be popped from list.
-zptaskfunc zp_pipeline::popTask( bool * bValid)
+
+zp_plTaskBase * zp_pipeline::popTask( bool * bValid)
 {
     *bValid = false;
-    zptaskfunc funcres;
+    zp_plTaskBase * funcres = 0;
     m_mutex_protect.lock();
     if (m_list_tasks.empty()==false)
     {
@@ -63,7 +64,7 @@ zptaskfunc zp_pipeline::popTask( bool * bValid)
 }
 
 //Call this function to insert func
-void zp_pipeline::pushTask(zptaskfunc task)
+void zp_pipeline::pushTask(zp_plTaskBase * task)
 {
     m_mutex_protect.lock();
     m_list_tasks.push_back(task);
@@ -87,6 +88,14 @@ int  zp_pipeline::payload()
 }
 void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
 {
-    emit evt_start_work(task);
+    bool bValid = false;
+    zp_plTaskBase * funcobj = popTask(&bValid);
+    if (bValid)
+    {
+        funcobj->moveToThread(task->thread());
+        emit evt_start_work(task ,funcobj );
+    }
+    else
+        emit evt_start_work(task ,0 );
 }
 }

@@ -2,6 +2,7 @@
 #define ZP_PLWORKINGTHREAD_H
 
 #include <QObject>
+#include "zp_pltaskbase.h"
 namespace ZPTaskEngine{
 
 class zp_pipeline;
@@ -22,7 +23,7 @@ protected:
 public slots:
     void setStopMark();
 
-    void FetchNewTask(zp_plWorkingThread *);
+    void FetchNewTask(zp_plWorkingThread *,zp_plTaskBase * ptr);
 
 signals:
 

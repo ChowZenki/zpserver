@@ -15,27 +15,27 @@ void zp_plWorkingThread::setStopMark()
     m_bRuning = false;
 }
 
-void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj)
+void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj,zp_plTaskBase * ptr)
 {
     if (obj != this)
         return;
     if (m_bRuning)
     {
-        bool bValid = false;
-        zptaskfunc funcobj = m_pipeline->popTask(&bValid);
-        if (bValid)
-        {
-            int res = funcobj();
-            if (res!=0)
-                  m_pipeline->pushTask(funcobj);
-            emit taskFinished(this);
-        }
-        else
+        if (!ptr)
         {
             QThread::currentThread()->msleep(500);
             emit taskFinished(this);
         }
+        else
+        {
+            int res = ptr->run();
+            if (res!=0)
+                m_pipeline->pushTask(ptr);
+            ptr->moveToThread(m_pipeline->thread());
+            emit taskFinished(this);
+        }
     }
+
     else
     {
         m_pipeline->m_mutex_protect.lock();

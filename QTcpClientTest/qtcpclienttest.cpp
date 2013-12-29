@@ -34,7 +34,7 @@ void QTcpClientTest::on_action_Connect_triggered(bool bConn)
     settings.setValue("Payload",ui.horizontalSlider->value());
     if (bConn==true)
     {
-        nTimer = startTimer(300);
+        nTimer = startTimer(500);
     }
     else
         killTimer(nTimer);
@@ -53,7 +53,7 @@ void QTcpClientTest::on_client_connected()
     QGHTcpClient * pSock = qobject_cast<QGHTcpClient*>(sender());
     if (pSock)
     {
-        displayMessage(QString("client %1 disconnected.").arg((quintptr)pSock));
+        displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
         pSock->SendData(QByteArray(qrand()%1024+1024,qrand()%(128-32)+32));
     }
 

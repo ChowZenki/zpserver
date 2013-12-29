@@ -13,7 +13,7 @@ class zp_plWorkingThread : public QObject
     Q_OBJECT
 public:
     explicit zp_plWorkingThread(zp_pipeline * pipl,QObject *parent = 0);
-
+    bool m_bBusy;
 protected:
     zp_pipeline * m_pipeline;
 
@@ -21,7 +21,7 @@ protected:
 
 
 public slots:
-    void setStopMark();
+    void setStopMark(zp_plWorkingThread *);
 
     void FetchNewTask(zp_plWorkingThread *,zp_plTaskBase * ptr);
 

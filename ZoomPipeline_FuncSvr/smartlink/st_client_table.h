@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QMutex>
-#include "../dynhash/dynhash.h"
+#include <QMap>
 #include "../network/zp_net_threadpool.h"
 #include "../pipeline/zp_pipeline.h"
 #include "./st_message.h"
@@ -20,8 +20,8 @@ public:
 
 protected:
      QMutex m_hash_mutex;
-     ZPHashTable::CDYNHASHTB m_hash_uuid2node;
-     ZPHashTable::CDYNHASHTB m_hash_sock2node;
+     QMap<QString,st_clientNode *> m_hash_uuid2node;
+     QMap<QObject *,st_clientNode *> m_hash_sock2node;
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
      ZPTaskEngine::zp_pipeline * m_pTaskEngine;
 signals:

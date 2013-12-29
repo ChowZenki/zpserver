@@ -6,40 +6,16 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
 {
     m_bUUIDRecieved = false;
     m_pClientSock = pClientSock;
-    m_uuid [0] = 0;
-    m_nUuidHashKey =0;
-    m_nSockHashKey = IntegerHash(m_pClientSock);
-    m_pCurrentWorker = 0;
+    m_uuid = "";
     m_btermLater = false;
     m_pClientTable = pClientTable;
 
-}
-unsigned int st_clientNode::BKDRHash(const char *str)
-{
-    register unsigned int hash = 0;
-    while (unsigned int ch = (unsigned int)*(str++))
-        hash = hash * 131 + ch;
-    return hash;
-}
-unsigned int st_clientNode::IntegerHash(void * ptr)
-{
-    register unsigned int hash = 0;
-    unsigned int sz = sizeof (void *);
-    unsigned int val = (unsigned int) ptr;
-    for (int i=0;i<sz;i++)
-        hash = hash * 131 + (unsigned int)((val>>((sz-1-i)*8)) & 0x0ff);
-    return hash;
 }
 
 //The main functional method, will run in thread pool
 int st_clientNode::run()
 {
-    if (m_pCurrentWorker!=QThread::currentThread())
-    {
 
-        this->moveToThread(QThread::currentThread());
-        this->m_pCurrentWorker = QThread::currentThread();
-    }
     int nCurrSz = -1;
     int nMessage = m_nMessageBlockSize;
     while (--nMessage>=0 && nCurrSz!=0 )

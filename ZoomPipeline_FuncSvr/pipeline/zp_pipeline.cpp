@@ -18,12 +18,13 @@ int zp_pipeline::addThreads(int nThreads)
             m_vec_InternalworkingThreads.push_back(pTh);
             thread->moveToThread(pTh);
             connect (this,&zp_pipeline::evt_start_work,thread,&zp_plWorkingThread::FetchNewTask);
+            connect (this,&zp_pipeline::evt_stop_work,thread,&zp_plWorkingThread::setStopMark);
             connect (thread,&zp_plWorkingThread::taskFinished,this,&zp_pipeline::on_finished_task);
             pTh->start();
             m_mutex_protect.lock();
             m_nExistingThreads++;
             m_mutex_protect.unlock();
-            emit evt_start_work(thread,0);
+
         }
 
     }
@@ -39,7 +40,7 @@ int zp_pipeline::removeThreads(int nThreads)
 
     for (int i=0;i<nThreads;i++ )
     {
-        m_vec_workingThreads.last()->setStopMark();
+        emit evt_stop_work( m_vec_workingThreads.last());
         m_vec_workingThreads.pop_back();
         m_vec_InternalworkingThreads.pop_back();
     }
@@ -70,6 +71,16 @@ void zp_pipeline::pushTask(zp_plTaskBase * task)
     m_list_tasks.push_back(task);
     m_mutex_protect.unlock();
 
+    int nsz =  m_vec_workingThreads.size();
+    for (int i=0;i<nsz;i++ )
+    {
+        if (m_vec_workingThreads[i]->m_bBusy==false)
+        {
+            on_finished_task (m_vec_workingThreads[i]);
+            break;
+        }
+    }
+
 }
 
 int zp_pipeline::threadsCount()
@@ -95,7 +106,5 @@ void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
         funcobj->moveToThread(task->thread());
         emit evt_start_work(task ,funcobj );
     }
-    else
-        emit evt_start_work(task ,0 );
 }
 }

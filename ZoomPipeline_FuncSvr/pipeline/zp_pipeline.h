@@ -52,7 +52,7 @@ protected:
 
 signals:
     void evt_start_work(zp_plWorkingThread * task, zp_plTaskBase * ptr);
-
+    void evt_stop_work(zp_plWorkingThread * task);
 public slots:
     void on_finished_task (zp_plWorkingThread * task);
 };

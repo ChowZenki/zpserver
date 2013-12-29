@@ -43,7 +43,6 @@ void zp_netTransThread::SetPayload(int nPayload)
     m_nPayLoad = nPayload;
     assert(m_nPayLoad>=256 && m_nPayLoad<=16*1024*1024);
 }
-//新的客户连接到来
 
 void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDescriptor)
 {
@@ -56,6 +55,7 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
         sock_client =  new QTcpSocket(this);
     if (sock_client)
     {
+        //Initial content
         if (true ==sock_client->setSocketDescriptor(socketDescriptor))
         {
             connect(sock_client, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));

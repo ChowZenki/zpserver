@@ -30,7 +30,7 @@ public:
     QObject * sock() {return m_pClientSock;}
 
 
-    void TerminateLater(){m_btermLater = true;}
+    void TerminateLater();
 
     bool uuidValid(){return m_bUUIDRecieved;}
 

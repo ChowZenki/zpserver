@@ -34,7 +34,7 @@ void QTcpClientTest::on_action_Connect_triggered(bool bConn)
     settings.setValue("Payload",ui.horizontalSlider->value());
     if (bConn==true)
     {
-        nTimer = startTimer(500);
+        nTimer = startTimer(50);
     }
     else
         killTimer(nTimer);
@@ -96,15 +96,16 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
     if (evt->timerId()==nTimer)
     {
         int nTotalClients = ui.dial->value();
+        int nPayload = ui.horizontalSlider->value();
         QList<QGHTcpClient*> listObj = m_clients.keys();
         foreach(QGHTcpClient * sock,listObj)
         {
-            if (rand()%10<3)
+            if (rand()%100<1)
                 //3/10 possibility to send a data block to server
-                sock->SendData(QByteArray(qrand()%1024+1024,qrand()%(128-32)+32));
+                sock->SendData(QByteArray(qrand()%(512)+nPayload-512,qrand()%(128-32)+32));
         }
         //
-        if (rand()%10 <1)
+        if (rand()%100 <1)
         {
             //1/10 chance to make new connections.
             if (m_clients.size()>nTotalClients)
@@ -128,6 +129,8 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             QString strCerPath =  QCoreApplication::applicationDirPath() + "/ca_cert.pem";
             QList<QSslCertificate> lstCas = QSslCertificate::fromPath(strCerPath);
             client->setCaCertificates(lstCas);
+            //debug
+            client->setPeerVerifyMode(QSslSocket::VerifyNone);
             client->connectToHostEncrypted(ui.lineEdit_ip->text(),ui.lineEdit_Port->text().toUShort());
         }
     }

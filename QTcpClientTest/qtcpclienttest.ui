@@ -39,7 +39,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>19</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -121,10 +121,10 @@
         </size>
        </property>
        <property name="minimum">
-        <number>1</number>
+        <number>2</number>
        </property>
        <property name="maximum">
-        <number>128</number>
+        <number>2048</number>
        </property>
        <property name="notchesVisible">
         <bool>true</bool>
@@ -154,7 +154,7 @@
      <item>
       <widget class="QSlider" name="horizontalSlider">
        <property name="minimum">
-        <number>256</number>
+        <number>1024</number>
        </property>
        <property name="maximum">
         <number>8192</number>

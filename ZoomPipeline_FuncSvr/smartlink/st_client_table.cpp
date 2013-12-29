@@ -49,6 +49,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
         if (pClientNode->uuidValid())
             m_hash_uuid2node.remove(pClientNode->uuid());
         m_hash_mutex.unlock();
+        pClientNode->deleteLater();
     }
 
 }

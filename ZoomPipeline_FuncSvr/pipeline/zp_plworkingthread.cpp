@@ -32,11 +32,8 @@ void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj,zp_plTaskBase * p
     {
         m_bBusy = true;
         int res = ptr->run();
-        if (res!=0)
-            m_pipeline->pushTask(ptr);
-        ptr->moveToThread(m_pipeline->thread());
         m_bBusy = false;
-        emit taskFinished(this);
+        emit taskFinished(this,ptr,res);
 
     }
 

@@ -27,8 +27,7 @@ public slots:
 
 signals:
 
-    void taskFinished(zp_plWorkingThread *);
-
+    void taskFinished(zp_plWorkingThread *, zp_plTaskBase * taskObj , int nRes);
 };
 }
 #endif // ZP_PLWORKINGTHREAD_H

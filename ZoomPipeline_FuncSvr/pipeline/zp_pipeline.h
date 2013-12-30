@@ -27,9 +27,6 @@ public:
     int addThreads(int nThreads);
     //remove n threads and kill them.nthreads=-1 means kill all.
     int removeThreads(int nThreads);
-    //Call this function to insert func
-    void pushTask(zp_plTaskBase * task);
-    void cancelPendingTask(zp_plTaskBase * task);
     int threadsCount();
     int payload();
     int idleThreads();
@@ -55,7 +52,11 @@ signals:
     void evt_start_work(zp_plWorkingThread * task, zp_plTaskBase * ptr);
     void evt_stop_work(zp_plWorkingThread * task);
 public slots:
-    void on_finished_task (zp_plWorkingThread * task);
+    void on_finished_task (zp_plWorkingThread * task, zp_plTaskBase * taskObj,int nRes);
+    //Call this function to insert func
+    void pushTask(zp_plTaskBase * task);
+    void cancelPendingTask(zp_plTaskBase * task);
+
 };
 }
 #endif // ZP_PIPELINE_H

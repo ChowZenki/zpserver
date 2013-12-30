@@ -76,7 +76,7 @@ void zp_pipeline::pushTask(zp_plTaskBase * task)
     {
         if (m_vec_workingThreads[i]->m_bBusy==false)
         {
-            on_finished_task (m_vec_workingThreads[i]);
+            on_finished_task (m_vec_workingThreads[i],0,0);
             break;
         }
     }
@@ -116,14 +116,13 @@ int  zp_pipeline::idleThreads()
     return idle;
 }
 
-void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
+void  zp_pipeline::on_finished_task (zp_plWorkingThread * task,zp_plTaskBase * obj, int nRes)
 {
     bool bValid = false;
+    if (nRes!=0 && task !=nullptr)
+        this->pushTask(obj);
     zp_plTaskBase * funcobj = popTask(&bValid);
     if (bValid)
-    {
-        funcobj->moveToThread(task->thread());
         emit evt_start_work(task ,funcobj );
-    }
 }
 }

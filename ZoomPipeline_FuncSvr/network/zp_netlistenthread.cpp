@@ -16,7 +16,7 @@ void zp_netListenThread::startListen(const QString & id)
         if (!m_tcpServer)
         {
             m_tcpServer = new ZP_TcpServer(this);
-            connect (m_tcpServer,&ZP_TcpServer::evt_NewClientArrived,this,&zp_netListenThread::evt_NewClientArrived);
+            connect (m_tcpServer,&ZP_TcpServer::evt_NewClientArrived,this,&zp_netListenThread::evt_NewClientArrived,Qt::QueuedConnection);
             if (false==m_tcpServer->listen(m_address,m_port))
             {
                 disconnect (m_tcpServer,&ZP_TcpServer::evt_NewClientArrived,this,&zp_netListenThread::evt_NewClientArrived);

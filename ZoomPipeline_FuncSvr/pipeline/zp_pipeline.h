@@ -54,7 +54,7 @@ signals:
 public slots:
     void on_finished_task (zp_plWorkingThread * task, zp_plTaskBase * taskObj,int nRes);
     //Call this function to insert func
-    void pushTask(zp_plTaskBase * task);
+    void pushTask(zp_plTaskBase * task,bool bFire = true);
     void cancelPendingTask(zp_plTaskBase * task);
 
 };

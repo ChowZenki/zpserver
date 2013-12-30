@@ -58,10 +58,10 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
         //Initial content
         if (true ==sock_client->setSocketDescriptor(socketDescriptor))
         {
-            connect(sock_client, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
-            connect(sock_client, SIGNAL(disconnected()),this,SLOT(client_closed()));
-            connect(sock_client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
-            connect(sock_client, SIGNAL(bytesWritten(qint64)), this, SLOT(some_data_sended(qint64)));
+            connect(sock_client, SIGNAL(readyRead()),this, SLOT(new_data_recieved()),Qt::QueuedConnection);
+            connect(sock_client, SIGNAL(disconnected()),this,SLOT(client_closed()),Qt::QueuedConnection);
+            connect(sock_client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)),Qt::QueuedConnection);
+            connect(sock_client, SIGNAL(bytesWritten(qint64)), this, SLOT(some_data_sended(qint64)),Qt::QueuedConnection);
             m_mutex_protect.lock();
             m_clientList[sock_client] = 0;
             m_mutex_protect.unlock();
@@ -73,7 +73,7 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
                 QString strPkPath =  QCoreApplication::applicationDirPath() + "/svr_privkey.pem";
                 psslsock->setLocalCertificate(strCerPath);
                 psslsock->setPrivateKey(strPkPath);
-                connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+                connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
                 psslsock->startServerEncryption();
             }
             else

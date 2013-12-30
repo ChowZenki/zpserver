@@ -17,9 +17,9 @@ int zp_pipeline::addThreads(int nThreads)
             QThread * pTh = new QThread(this);
             m_vec_InternalworkingThreads.push_back(pTh);
             thread->moveToThread(pTh);
-            connect (this,&zp_pipeline::evt_start_work,thread,&zp_plWorkingThread::FetchNewTask);
-            connect (this,&zp_pipeline::evt_stop_work,thread,&zp_plWorkingThread::setStopMark);
-            connect (thread,&zp_plWorkingThread::taskFinished,this,&zp_pipeline::on_finished_task);
+            connect (this,&zp_pipeline::evt_start_work,thread,&zp_plWorkingThread::FetchNewTask,Qt::QueuedConnection);
+            connect (this,&zp_pipeline::evt_stop_work,thread,&zp_plWorkingThread::setStopMark,Qt::QueuedConnection);
+            connect (thread,&zp_plWorkingThread::taskFinished,this,&zp_pipeline::on_finished_task,Qt::QueuedConnection);
             pTh->start();
             m_mutex_protect.lock();
             m_nExistingThreads++;
@@ -65,13 +65,14 @@ zp_plTaskBase * zp_pipeline::popTask( bool * bValid)
 }
 
 //Call this function to insert func
-void zp_pipeline::pushTask(zp_plTaskBase * task)
+void zp_pipeline::pushTask(zp_plTaskBase * task,bool bFire )
 {
     m_mutex_protect.lock();
     m_list_tasks.push_back(task);
     m_mutex_protect.unlock();
 
     int nsz =  m_vec_workingThreads.size();
+    if (bFire==true)
     for (int i=0;i<nsz;i++ )
     {
         if (m_vec_workingThreads[i]->m_bBusy==false)
@@ -119,8 +120,8 @@ int  zp_pipeline::idleThreads()
 void  zp_pipeline::on_finished_task (zp_plWorkingThread * task,zp_plTaskBase * obj, int nRes)
 {
     bool bValid = false;
-    if (nRes!=0 && task !=nullptr)
-        this->pushTask(obj);
+    if (nRes!=0 && obj !=nullptr)
+        this->pushTask(obj,false);
     zp_plTaskBase * funcobj = popTask(&bValid);
     if (bValid)
         emit evt_start_work(task ,funcobj );

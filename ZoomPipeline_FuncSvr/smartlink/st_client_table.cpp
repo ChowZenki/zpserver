@@ -8,10 +8,10 @@ st_client_table::st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngi
   ,m_pThreadPool(pool)
   ,m_pTaskEngine(taskeng)
 {
-    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected);
-    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected);
-    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved);
-    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred);
+    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
+    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
+    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
+    connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
 
 }
  st_client_table::~st_client_table()
@@ -66,8 +66,9 @@ void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteA
     if (false==nHashContains)
     {
         st_clientNode * pnode = new st_clientNode(this,clientHandle,0);
-        connect (pnode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
-        connect (pnode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
+        //using queued connection of send and revieve;
+        connect (pnode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
         m_hash_mutex.lock();
         m_hash_sock2node[clientHandle] = pnode;
         m_hash_mutex.unlock();

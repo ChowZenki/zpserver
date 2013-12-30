@@ -46,11 +46,11 @@ void zp_net_ThreadPool::AddListeningAddress(const QString & id,const QHostAddres
         m_map_netListenThreads[id] = pListenObj;
         //m_mutex_listen.unlock();
         //Bind Object to New thread
-        connect(this,&zp_net_ThreadPool::startListen,pListenObj,&zp_netListenThread::startListen);
-        connect(this,&zp_net_ThreadPool::stopListen,pListenObj,&zp_netListenThread::stopListen);
-        connect(pListenObj,&zp_netListenThread::evt_Message,this,&zp_net_ThreadPool::evt_Message);
-        connect(pListenObj,&zp_netListenThread::evt_ListenClosed,this,&zp_net_ThreadPool::on_ListenClosed);
-        connect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_ThreadPool::on_New_Arrived_Client);
+        connect(this,&zp_net_ThreadPool::startListen,pListenObj,&zp_netListenThread::startListen,Qt::QueuedConnection);
+        connect(this,&zp_net_ThreadPool::stopListen,pListenObj,&zp_netListenThread::stopListen,Qt::QueuedConnection);
+        connect(pListenObj,&zp_netListenThread::evt_Message,this,&zp_net_ThreadPool::evt_Message,Qt::QueuedConnection);
+        connect(pListenObj,&zp_netListenThread::evt_ListenClosed,this,&zp_net_ThreadPool::on_ListenClosed,Qt::QueuedConnection);
+        connect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_ThreadPool::on_New_Arrived_Client,Qt::QueuedConnection);
 
         pListenObj->moveToThread(pThread);
         //Start Listen Immediately
@@ -138,16 +138,16 @@ void zp_net_ThreadPool::AddClientTransThreads(int nThreads)
             //m_mutex_trans.unlock();
             pThread->start();
             //Connect signals
-            connect (clientTH,&zp_netTransThread::evt_ClientDisconnected,this,&zp_net_ThreadPool::evt_ClientDisconnected);
-            connect (clientTH,&zp_netTransThread::evt_Data_recieved,this,&zp_net_ThreadPool::evt_Data_recieved);
-            connect (clientTH,&zp_netTransThread::evt_Data_transferred,this,&zp_net_ThreadPool::evt_Data_transferred);
-            connect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected);
-            connect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError);
-            connect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection);
-            connect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData);
-            connect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient);
-            connect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
-            connect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately);
+            connect (clientTH,&zp_netTransThread::evt_ClientDisconnected,this,&zp_net_ThreadPool::evt_ClientDisconnected,Qt::QueuedConnection);
+            connect (clientTH,&zp_netTransThread::evt_Data_recieved,this,&zp_net_ThreadPool::evt_Data_recieved,Qt::QueuedConnection);
+            connect (clientTH,&zp_netTransThread::evt_Data_transferred,this,&zp_net_ThreadPool::evt_Data_transferred,Qt::QueuedConnection);
+            connect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected,Qt::QueuedConnection);
+            connect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately,Qt::QueuedConnection);
 
             clientTH->moveToThread(pThread);
         }

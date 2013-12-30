@@ -48,8 +48,8 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
         m_hash_sock2node.remove(clientHandle);
         if (pClientNode->uuidValid())
             m_hash_uuid2node.remove(pClientNode->uuid());
+        m_pTaskEngine->cancelPendingTask(pClientNode);
         m_hash_mutex.unlock();
-        pClientNode->deleteLater();
     }
 
 }

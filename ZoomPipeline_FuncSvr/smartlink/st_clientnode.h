@@ -39,6 +39,7 @@ protected:
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
     QMutex m_mutex;
+    QMutex m_mutex_run;
     //UUID of this equipment
     bool m_bUUIDRecieved;
     QString m_uuid;

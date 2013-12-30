@@ -29,9 +29,10 @@ public:
     int removeThreads(int nThreads);
     //Call this function to insert func
     void pushTask(zp_plTaskBase * task);
-
+    void cancelPendingTask(zp_plTaskBase * task);
     int threadsCount();
     int payload();
+    int idleThreads();
 
     bool canClose() {return m_nExistingThreads==0?true:false;}
 

@@ -82,6 +82,13 @@ void zp_pipeline::pushTask(zp_plTaskBase * task)
     }
 
 }
+void  zp_pipeline::cancelPendingTask(zp_plTaskBase * task)
+{
+    m_mutex_protect.lock();
+    m_list_tasks.remove(task);
+    m_mutex_protect.unlock();
+
+}
 
 int zp_pipeline::threadsCount()
 {
@@ -97,6 +104,18 @@ int  zp_pipeline::payload()
 
     return res;
 }
+int  zp_pipeline::idleThreads()
+{
+    int idle = 0;
+    int nsz =  m_vec_workingThreads.size();
+    for (int i=0;i<nsz;i++ )
+    {
+        if (m_vec_workingThreads[i]->m_bBusy==false)
+           idle++;
+    }
+    return idle;
+}
+
 void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
 {
     bool bValid = false;

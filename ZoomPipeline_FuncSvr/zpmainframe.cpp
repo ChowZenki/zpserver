@@ -93,6 +93,7 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
         //recording task status
         str_msg += tr("Current Task Threads: %1\n").arg(m_taskEngine->threadsCount());
         str_msg += tr("Current Task Payload: %1\n").arg(m_taskEngine->payload());
+        str_msg += tr("Current Task Idle Threads: %1\n").arg(m_taskEngine->idleThreads());
         ui->plainTextEdit_status_net->setPlainText(str_msg);
     }
 }

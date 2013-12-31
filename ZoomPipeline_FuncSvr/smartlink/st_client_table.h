@@ -19,6 +19,7 @@ public:
     ~st_client_table();
 
 protected:
+     QList<st_clientNode *> m_nodeToBeDel;
      QMutex m_hash_mutex;
      QMap<QString,st_clientNode *> m_hash_uuid2node;
      QMap<QObject *,st_clientNode *> m_hash_sock2node;

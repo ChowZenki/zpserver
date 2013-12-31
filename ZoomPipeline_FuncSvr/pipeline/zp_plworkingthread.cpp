@@ -23,17 +23,29 @@ void zp_plWorkingThread::setStopMark(zp_plWorkingThread * obj)
     QThread::currentThread()->quit();
 }
 
-void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj,zp_plTaskBase * ptr)
+void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj)
 {
+
 
     if (obj != this)
         return;
     if (m_bRuning)
     {
-        m_bBusy = true;
-        int res = ptr->run();
-        m_bBusy = false;
-        emit taskFinished(this,ptr,res);
+
+        bool bValid = false;
+        zp_plTaskBase * ptr = this->m_pipeline->popTask(&bValid);
+
+        if (bValid==true && ptr!=nullptr)
+        {
+            m_bBusy = true;
+            int res = ptr->run();
+            ptr->refCount--;
+            m_bBusy = false;
+            if (res!=0 )
+                this->m_pipeline->pushTask(ptr,false);
+        }
+
+        emit taskFinished(this);
 
     }
 

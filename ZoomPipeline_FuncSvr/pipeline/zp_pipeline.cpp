@@ -69,6 +69,7 @@ void zp_pipeline::pushTask(zp_plTaskBase * task,bool bFire )
 {
     m_mutex_protect.lock();
     m_list_tasks.push_back(task);
+    task->refCount++;
     m_mutex_protect.unlock();
 
     int nsz =  m_vec_workingThreads.size();
@@ -77,17 +78,10 @@ void zp_pipeline::pushTask(zp_plTaskBase * task,bool bFire )
     {
         if (m_vec_workingThreads[i]->m_bBusy==false)
         {
-            on_finished_task (m_vec_workingThreads[i],0,0);
+            on_finished_task (m_vec_workingThreads[i]);
             break;
         }
     }
-
-}
-void  zp_pipeline::cancelPendingTask(zp_plTaskBase * task)
-{
-    m_mutex_protect.lock();
-    m_list_tasks.remove(task);
-    m_mutex_protect.unlock();
 
 }
 
@@ -117,13 +111,13 @@ int  zp_pipeline::idleThreads()
     return idle;
 }
 
-void  zp_pipeline::on_finished_task (zp_plWorkingThread * task,zp_plTaskBase * obj, int nRes)
+void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
 {
-    bool bValid = false;
-    if (nRes!=0 && obj !=nullptr)
-        this->pushTask(obj,false);
-    zp_plTaskBase * funcobj = popTask(&bValid);
-    if (bValid)
-        emit evt_start_work(task ,funcobj );
+    int res = 0;
+    m_mutex_protect.lock();
+    res = m_list_tasks.size();
+    m_mutex_protect.unlock();
+    if (res)
+        emit evt_start_work(task );
 }
 }

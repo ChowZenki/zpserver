@@ -7,37 +7,27 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_bUUIDRecieved = false;
     m_pClientSock = pClientSock;
     m_uuid = "";
-    m_btermLater = false;
     m_pClientTable = pClientTable;
-
-}
-void st_clientNode::TerminateLater()
-{
-
-    m_mutex_run.lock();
-     m_btermLater = true;
-     m_mutex.lock();
-
-     if ( m_list_RawData.size()==0)
-     {
-         this->deleteLater();
-     }
-
-     m_mutex.unlock();
-
-     m_mutex_run.unlock();
+    bTermSet = false;
 }
 
 //The main functional method, will run in thread pool
 int st_clientNode::run()
 {
-    m_mutex_run.lock();
+    if (bTermSet==true)
+    {
+        qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(refCount);
+        return 0;
+    }
     int nCurrSz = -1;
     int nMessage = m_nMessageBlockSize;
-    while (--nMessage>=0 && nCurrSz!=0 && m_btermLater==false )
+    while (--nMessage>=0 && nCurrSz!=0  )
     {
         QByteArray block;
         m_mutex.lock();
+        //Limit max pending blocks.if blocks too long, memory will be low
+        while (m_list_RawData.size()>=256)
+            m_list_RawData.pop_front();
         if (m_list_RawData.size())
         {
 
@@ -47,25 +37,15 @@ int st_clientNode::run()
         nCurrSz = m_list_RawData.size();
         m_mutex.unlock();
         //Simulate process time cost
-        QThread::currentThread()->msleep(rand()%50+20);
+        QThread::currentThread()->msleep(rand()%20+40);
         if (block.isEmpty()==false && block.isNull()==false)
             emit evt_SendDataToClient(this->sock(),block);
     }
     m_mutex.lock();
     nCurrSz = m_list_RawData.size();
     m_mutex.unlock();
-
-    if ( m_btermLater==true)
-    {
-        this->deleteLater();
-    }
-
-    if (nCurrSz==0 || m_btermLater==true)
-    {
-        m_mutex_run.unlock();
+    if (nCurrSz==0)
         return 0;
-    }
-    m_mutex_run.unlock();
     return -1;
 }
 

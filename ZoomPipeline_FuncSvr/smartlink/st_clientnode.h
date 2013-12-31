@@ -29,8 +29,7 @@ public:
     const QString & uuid(){return m_uuid;}
     QObject * sock() {return m_pClientSock;}
 
-
-    void TerminateLater();
+    bool bTermSet;
 
     bool uuidValid(){return m_bUUIDRecieved;}
 
@@ -39,14 +38,12 @@ protected:
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
     QMutex m_mutex;
-    QMutex m_mutex_run;
     //UUID of this equipment
     bool m_bUUIDRecieved;
     QString m_uuid;
     //Client socket handle of this connection
     QObject * m_pClientSock;
 
-    bool m_btermLater;
     st_client_table * m_pClientTable;
 
 signals:

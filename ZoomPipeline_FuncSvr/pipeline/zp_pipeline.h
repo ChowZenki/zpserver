@@ -33,6 +33,8 @@ public:
 
     bool canClose() {return m_nExistingThreads==0?true:false;}
 
+
+
 protected:
     //Mutex
     QMutex m_mutex_protect;
@@ -49,13 +51,12 @@ protected:
 
 
 signals:
-    void evt_start_work(zp_plWorkingThread * task, zp_plTaskBase * ptr);
+    void evt_start_work(zp_plWorkingThread * task);
     void evt_stop_work(zp_plWorkingThread * task);
 public slots:
-    void on_finished_task (zp_plWorkingThread * task, zp_plTaskBase * taskObj,int nRes);
+    void on_finished_task (zp_plWorkingThread * task);
     //Call this function to insert func
     void pushTask(zp_plTaskBase * task,bool bFire = true);
-    void cancelPendingTask(zp_plTaskBase * task);
 
 };
 }

@@ -3,6 +3,7 @@ namespace ZPTaskEngine{
 zp_plTaskBase::zp_plTaskBase(QObject *parent) :
     QObject(parent)
 {
+    refCount = 0;
 }
 
 }

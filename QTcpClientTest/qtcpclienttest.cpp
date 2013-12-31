@@ -34,7 +34,7 @@ void QTcpClientTest::on_action_Connect_triggered(bool bConn)
     settings.setValue("Payload",ui.horizontalSlider->value());
     if (bConn==true)
     {
-        nTimer = startTimer(50);
+        nTimer = startTimer(500);
     }
     else
         killTimer(nTimer);
@@ -100,12 +100,12 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
         QList<QGHTcpClient*> listObj = m_clients.keys();
         foreach(QGHTcpClient * sock,listObj)
         {
-            if (rand()%100<1)
+            if (rand()%100<10)
                 //3/10 possibility to send a data block to server
                 sock->SendData(QByteArray(qrand()%(512)+nPayload-512,qrand()%(128-32)+32));
         }
         //
-        if (rand()%100 <1)
+        if (rand()%100 <10)
         {
             //1/10 chance to make new connections.
             if (m_clients.size()>nTotalClients)

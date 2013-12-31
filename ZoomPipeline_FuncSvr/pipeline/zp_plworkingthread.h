@@ -23,11 +23,11 @@ protected:
 public slots:
     void setStopMark(zp_plWorkingThread *);
 
-    void FetchNewTask(zp_plWorkingThread *,zp_plTaskBase * ptr);
+    void FetchNewTask(zp_plWorkingThread *);
 
 signals:
 
-    void taskFinished(zp_plWorkingThread *, zp_plTaskBase * taskObj , int nRes);
+    void taskFinished(zp_plWorkingThread *);
 };
 }
 #endif // ZP_PLWORKINGTHREAD_H

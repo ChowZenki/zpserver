@@ -11,6 +11,7 @@ public:
 
     virtual int run() = 0;
 
+     int refCount;
 signals:
 
 public slots:

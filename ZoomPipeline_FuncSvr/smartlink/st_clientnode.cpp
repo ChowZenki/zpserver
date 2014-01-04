@@ -37,7 +37,7 @@ int st_clientNode::run()
         nCurrSz = m_list_RawData.size();
         m_mutex.unlock();
         //Simulate process time cost
-        QThread::currentThread()->msleep(rand()%20+40);
+        //QThread::currentThread()->msleep(rand()%20+40);
         if (block.isEmpty()==false && block.isNull()==false)
             emit evt_SendDataToClient(this->sock(),block);
     }

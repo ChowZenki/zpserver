@@ -7,7 +7,7 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = ZoomPipeline_FuncSvr
+TARGET = QTcpClientTest
 TEMPLATE = app
 # Input
 HEADERS += qghtcpclient.h qtcpclienttest.h

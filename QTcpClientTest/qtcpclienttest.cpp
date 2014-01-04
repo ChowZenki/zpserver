@@ -130,7 +130,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             QList<QSslCertificate> lstCas = QSslCertificate::fromPath(strCerPath);
             client->setCaCertificates(lstCas);
             //debug
-            client->setPeerVerifyMode(QSslSocket::VerifyNone);
+            //client->setPeerVerifyMode(QSslSocket::VerifyNone);
             client->connectToHostEncrypted(ui.lineEdit_ip->text(),ui.lineEdit_Port->text().toUShort());
         }
     }

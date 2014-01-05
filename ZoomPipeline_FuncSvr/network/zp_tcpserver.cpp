@@ -1,4 +1,4 @@
-#include "ZP_TcpServer.h"
+#include "zp_tcpserver.h"
 #include <assert.h>
 namespace ZPNetwork{
 ZP_TcpServer::ZP_TcpServer(QObject *parent )

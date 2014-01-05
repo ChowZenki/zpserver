@@ -68,7 +68,7 @@ void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDesc
             if (m_bSSLConnection)
             {
                 QSslSocket * psslsock = qobject_cast<QSslSocket *>(sock_client);
-                assert(psslsock!=nullptr);
+                assert(psslsock!=NULL);
                 QString strCerPath =  QCoreApplication::applicationDirPath() + "/svr_cert.pem";
                 QString strPkPath =  QCoreApplication::applicationDirPath() + "/svr_privkey.pem";
                 psslsock->setLocalCertificate(strCerPath);

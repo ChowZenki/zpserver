@@ -7,7 +7,7 @@ zp_plWorkingThread::zp_plWorkingThread(zp_pipeline * pipl,QObject *parent) :
 {
     m_bRuning = true;
     m_pipeline = pipl;
-    assert(m_pipeline != nullptr);
+    assert(m_pipeline != NULL);
     m_bBusy = false;
 }
 
@@ -35,7 +35,7 @@ void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj)
         bool bValid = false;
         zp_plTaskBase * ptr = this->m_pipeline->popTask(&bValid);
 
-        if (bValid==true && ptr!=nullptr)
+        if (bValid==true && ptr!=NULL)
         {
             m_bBusy = true;
             int res = ptr->run();

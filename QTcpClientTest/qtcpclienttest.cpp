@@ -1,6 +1,7 @@
 ﻿#include "qtcpclienttest.h"
 #include <QSettings>
 #include <QCoreApplication>
+#include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
 QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
 {
@@ -98,11 +99,32 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
         int nTotalClients = ui.dial->value();
         int nPayload = ui.horizontalSlider->value();
         QList<QGHTcpClient*> listObj = m_clients.keys();
+        QGHTcpClient * sockDestin = 0;
         foreach(QGHTcpClient * sock,listObj)
         {
             if (rand()%10000<5)
+            {
+                int nMsgLen = qrand()%(32)+nPayload-32;
+                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
+                char * ptr = array.data();
+                SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+                pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
+                pMsg->version = 1;
+                pMsg->source_id = (quint32)sock;
+
+                if (sockDestin==0|| rand()%100<50)
+                    sockDestin = sock;
+
+
+
+                pMsg->destin_id = (quint32)sockDestin;
+
+                pMsg->payload.data_length = nMsgLen;
+                for (int i=0;i<nMsgLen;i++)
+                    pMsg->payload.data[i] = '0' + i%10;
                 //3/10 possibility to send a data block to server
-                sock->SendData(QByteArray(qrand()%(512)+nPayload-512,qrand()%(128-32)+32));
+                sock->SendData(array);
+            }
         }
         //
         if (rand()%100 <1)

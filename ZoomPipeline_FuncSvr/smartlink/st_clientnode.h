@@ -37,6 +37,7 @@ public:
 protected:
     //The current Read Offset
     int m_currentRed;
+
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
     QMutex m_mutex;

@@ -21,7 +21,7 @@ public:
 protected:
      QList<st_clientNode *> m_nodeToBeDel;
      QMutex m_hash_mutex;
-     QMap<QString,st_clientNode *> m_hash_uuid2node;
+     QMap<quint32,st_clientNode *> m_hash_uuid2node;
      QMap<QObject *,st_clientNode *> m_hash_sock2node;
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
      ZPTaskEngine::zp_pipeline * m_pTaskEngine;

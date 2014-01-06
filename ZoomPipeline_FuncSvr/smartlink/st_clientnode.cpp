@@ -5,8 +5,9 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     zp_plTaskBase(parent)
 {
     m_bUUIDRecieved = false;
+    m_currentRed = 0;
     m_pClientSock = pClientSock;
-    m_uuid = "";
+    m_uuid = 0xffffffff;//Not Valid
     m_pClientTable = pClientTable;
     bTermSet = false;
 }
@@ -26,11 +27,10 @@ int st_clientNode::run()
         QByteArray block;
         m_mutex.lock();
         //Limit max pending blocks.if blocks too long, memory will be low
-        while (m_list_RawData.size()>=256)
-            m_list_RawData.pop_front();
+        //while (m_list_RawData.size()>=16)
+        //    m_list_RawData.pop_front();
         if (m_list_RawData.size())
         {
-
             block =  *m_list_RawData.begin();
             m_list_RawData.pop_front();
         }

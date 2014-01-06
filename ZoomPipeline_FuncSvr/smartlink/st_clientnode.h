@@ -26,7 +26,7 @@ public:
     //push new binary data into queue
     int push_new_data(const  QByteArray &  dtarray);
 
-    const QString & uuid(){return m_uuid;}
+    quint32 uuid(){return m_uuid;}
     QObject * sock() {return m_pClientSock;}
 
     bool bTermSet;
@@ -35,12 +35,14 @@ public:
 
     //data items
 protected:
+    //The current Read Offset
+    int m_currentRed;
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
     QMutex m_mutex;
     //UUID of this equipment
     bool m_bUUIDRecieved;
-    QString m_uuid;
+    quint32 m_uuid;  //Client ID
     //Client socket handle of this connection
     QObject * m_pClientSock;
 

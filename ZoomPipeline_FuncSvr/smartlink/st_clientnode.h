@@ -16,11 +16,9 @@ public:
 
     explicit st_clientNode(st_client_table * pClientTable, QObject * pClientSock,QObject *parent = 0);
 
-    //deal at most m_nMessageBlockSize messages per deal_message();
+    //!deal at most m_nMessageBlockSize messages per deal_message();
     static const int m_nMessageBlockSize = 8;
-
-
-    //The main functional method, will run in thread pool
+    //!The main functional method, will run in thread pool
     int run();
 
     //push new binary data into queue
@@ -28,19 +26,25 @@ public:
 
     quint32 uuid(){return m_uuid;}
     QObject * sock() {return m_pClientSock;}
-
-    bool bTermSet;
-
     bool uuidValid(){return m_bUUIDRecieved;}
+    bool bTermSet;
+protected:
+    //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
+    //!return bytes Used.
+    int deal_one_message(const QByteArray &, int offset);
 
     //data items
 protected:
-    //The current Read Offset
-    int m_currentRed;
-
+    //The current Read Offset, from m_list_RawData's beginning
+    int m_currentReadOffset;
+    //Current Message Offset, according to m_currentHeader
+    int m_currentMessageSize;
+    //current Header
+    SMARTLINK_MSG m_currentHeader;
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
     QMutex m_mutex;
+
     //UUID of this equipment
     bool m_bUUIDRecieved;
     quint32 m_uuid;  //Client ID

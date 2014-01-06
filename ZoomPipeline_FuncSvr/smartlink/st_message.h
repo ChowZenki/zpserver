@@ -4,14 +4,15 @@
 #pragma  pack (push,1)
 
 #if defined(__GNUC__)
+#include <stdint.h>
 typedef struct tag_smartlink_message{
     unsigned char Mark[2];    //Always be "S" and "T" in upper case
-    unsigned int32_t version; //Structure Version
-    unsigned int32_t source_id ; //0xffffffff means from server
-    unsigned int32_t destin_id ; //0xffffffff means to server
+    unsigned __INT32_TYPE__ version; //Structure Version
+    unsigned __INT32_TYPE__ source_id ; //0xffffffff means from server
+    unsigned __INT32_TYPE__ destin_id ; //0xffffffff means to server
     struct tag_payload{
-        unsigned int32_t data_length; //Data at least have 2 byte, for heart-beating counter.
-        unsigned int8_t data[2];
+        unsigned __INT32_TYPE__ data_length; //Data at least have 2 byte, for heart-beating counter.
+        __UINT8_TYPE__ data[2];
     } payload;
    } SMARTLINK_MSG;
 #endif

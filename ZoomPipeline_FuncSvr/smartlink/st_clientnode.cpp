@@ -5,7 +5,8 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     zp_plTaskBase(parent)
 {
     m_bUUIDRecieved = false;
-    m_currentRed = 0;
+    m_currentReadOffset = 0;
+    m_currentMessageSize = 0;
     m_pClientSock = pClientSock;
     m_uuid = 0xffffffff;//Not Valid
     m_pClientTable = pClientTable;
@@ -26,20 +27,20 @@ int st_clientNode::run()
     {
         QByteArray block;
         m_mutex.lock();
-        //Limit max pending blocks.if blocks too long, memory will be low
-        //while (m_list_RawData.size()>=16)
-        //    m_list_RawData.pop_front();
         if (m_list_RawData.size())
-        {
             block =  *m_list_RawData.begin();
-            m_list_RawData.pop_front();
-        }
-        nCurrSz = m_list_RawData.size();
         m_mutex.unlock();
-        //Simulate process time cost
-        //QThread::currentThread()->msleep(rand()%20+40);
         if (block.isEmpty()==false && block.isNull()==false)
-            emit evt_SendDataToClient(this->sock(),block);
+        {
+            m_currentReadOffset = deal_one_message(block,m_currentReadOffset);
+            if (m_currentReadOffset >= block.size())
+            {
+                m_mutex.lock();
+                m_list_RawData.pop_front();
+                m_currentReadOffset = 0;
+                m_mutex.unlock();
+            }
+        }
     }
     m_mutex.lock();
     nCurrSz = m_list_RawData.size();
@@ -60,5 +61,11 @@ int st_clientNode::push_new_data(const  QByteArray &  dtarray)
     m_mutex.unlock();
     return res;
 }
-
+//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
+//!return bytes Used.
+int st_clientNode::deal_one_message(const QByteArray & block, int offset)
+{
+    emit evt_SendDataToClient(this->sock(),block);
+    return offset + block.size();
+}
 }

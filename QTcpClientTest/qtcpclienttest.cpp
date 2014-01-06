@@ -110,14 +110,14 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
                 SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
                 pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
                 pMsg->version = 1;
-                pMsg->source_id = (quint32)sock;
+                pMsg->source_id = (quint64)(sock);
 
                 if (sockDestin==0|| rand()%100<50)
                     sockDestin = sock;
 
 
 
-                pMsg->destin_id = (quint32)sockDestin;
+                pMsg->destin_id = (quint64)sockDestin;
 
                 pMsg->payload.data_length = nMsgLen;
                 for (int i=0;i<nMsgLen;i++)

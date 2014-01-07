@@ -102,7 +102,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
         QGHTcpClient * sockDestin = 0;
         foreach(QGHTcpClient * sock,listObj)
         {
-            if (rand()%10000<5)
+            if (rand()%100<5)
             {
                 int nMsgLen = qrand()%(32)+nPayload-32-sizeof(SMARTLINK_MSG);
                 QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
@@ -127,7 +127,8 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             }
         }
         //
-        if (rand()%100 <1)
+        //if (rand()%100 <1)
+        if (m_clients.size()==0)
         {
             //1/10 chance to make new connections.
             if (m_clients.size()>nTotalClients)

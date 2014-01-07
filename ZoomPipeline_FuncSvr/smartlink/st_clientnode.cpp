@@ -41,6 +41,17 @@ int st_clientNode::run()
                 m_mutex.unlock();
             }
         }
+        else
+        {
+            m_mutex.lock();
+            //pop empty cabs
+            if (m_list_RawData.empty()==false)
+                m_list_RawData.pop_front();
+            m_mutex.unlock();
+        }
+        m_mutex.lock();
+        nCurrSz = m_list_RawData.size();
+        m_mutex.unlock();
     }
     m_mutex.lock();
     nCurrSz = m_list_RawData.size();

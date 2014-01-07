@@ -55,7 +55,7 @@ void QTcpClientTest::on_client_connected()
     if (pSock)
     {
         displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
-        pSock->SendData(QByteArray(qrand()%1024+1024,qrand()%(128-32)+32));
+        //pSock->SendData(QByteArray(qrand()%1024+1024,qrand()%(128-32)+32));
     }
 
 }
@@ -104,7 +104,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
         {
             if (rand()%10000<5)
             {
-                int nMsgLen = qrand()%(32)+nPayload-32;
+                int nMsgLen = qrand()%(32)+nPayload-32-sizeof(SMARTLINK_MSG);
                 QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
                 char * ptr = array.data();
                 SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;

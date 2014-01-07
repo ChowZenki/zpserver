@@ -32,7 +32,7 @@ int st_clientNode::run()
         m_mutex.unlock();
         if (block.isEmpty()==false && block.isNull()==false)
         {
-            m_currentReadOffset = deal_one_message(block,m_currentReadOffset);
+            m_currentReadOffset = filter_message(block,m_currentReadOffset);
             if (m_currentReadOffset >= block.size())
             {
                 m_mutex.lock();
@@ -63,9 +63,79 @@ int st_clientNode::push_new_data(const  QByteArray &  dtarray)
 }
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
-int st_clientNode::deal_one_message(const QByteArray & block, int offset)
+int st_clientNode::filter_message(const QByteArray & block, int offset)
 {
-    emit evt_SendDataToClient(this->sock(),block);
-    return offset + block.size();
+    while (block.length()>offset)
+    {
+        const char * dataptr = block.constData();
+        while (m_currentMessageSize< sizeof(SMARTLINK_MSG))
+        {
+            m_currentBlock.push_back(dataptr[offset++]);
+            m_currentMessageSize++;
+            if (offset >= block.length())
+                break;
+        }
+        if (m_currentMessageSize < sizeof(SMARTLINK_MSG)) //Header not completed.
+            continue;
+        else if (m_currentMessageSize == sizeof(SMARTLINK_MSG))//Header just  completed.
+        {
+            const char * headerptr = m_currentBlock.constData();
+            memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG));
+            //continue reading if there is data left behind
+            if (block.length()>offset)
+            {
+                qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
+                        -m_currentMessageSize ;
+                while (bitLeft>0 && block.length()>offset)
+                {
+                    m_currentBlock.push_back(dataptr[offset++]);
+                    m_currentMessageSize++;
+                    bitLeft--;
+                }
+                //deal block, may be send data as soon as possible;
+                deal_current_message_block();
+                if (bitLeft>0)
+                    continue;
+                //This Message is Over. Start a new one.
+                m_currentMessageSize = 0;
+                m_currentBlock.clear();
+                continue;
+            }
+        }
+        else
+        {
+            if (block.length()>offset)
+            {
+                qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
+                        -m_currentMessageSize ;
+                while (bitLeft>0 && block.length()>offset)
+                {
+                    m_currentBlock.push_back(dataptr[offset++]);
+                    m_currentMessageSize++;
+                    bitLeft--;
+                }
+                //deal block, may be send data as soon as possible;
+                deal_current_message_block();
+                if (bitLeft>0)
+                    continue;
+                //This Message is Over. Start a new one.
+                m_currentMessageSize = 0;
+                m_currentBlock.clear();
+                continue;
+            }
+        }
+
+    }
+
+    return offset;
+}
+
+int st_clientNode::deal_current_message_block()
+{
+    qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
+            -m_currentMessageSize ;
+    if (bitLeft<=0)
+        emit evt_SendDataToClient(this->sock(),m_currentBlock);
+    return 0;
 }
 }

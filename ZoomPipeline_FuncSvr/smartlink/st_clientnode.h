@@ -31,14 +31,15 @@ public:
 protected:
     //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
     //!return bytes Used.
-    int deal_one_message(const QByteArray &, int offset);
-
+    int filter_message(const QByteArray &, int offset);
+    int deal_current_message_block();
     //data items
 protected:
     //The current Read Offset, from m_list_RawData's beginning
     int m_currentReadOffset;
     //Current Message Offset, according to m_currentHeader
     int m_currentMessageSize;
+    QByteArray m_currentBlock;
     //current Header
     SMARTLINK_MSG m_currentHeader;
     //The raw data queue and its mutex

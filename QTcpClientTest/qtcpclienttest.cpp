@@ -127,8 +127,8 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             }
         }
         //
-        //if (rand()%100 <1)
-        if (m_clients.size()==0)
+        if (rand()%10000 <2)
+        //if (m_clients.size()==0)
         {
             //1/10 chance to make new connections.
             if (m_clients.size()>nTotalClients)

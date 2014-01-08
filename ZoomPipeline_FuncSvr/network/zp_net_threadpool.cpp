@@ -1,6 +1,6 @@
 #include "zp_net_threadpool.h"
 #include <QCoreApplication>
-
+#include <QStringList>
 namespace ZPNetwork{
 zp_net_ThreadPool::zp_net_ThreadPool(int nPayLoad,QObject *parent) :
     QObject(parent)

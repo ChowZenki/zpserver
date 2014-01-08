@@ -13,10 +13,13 @@ class st_clientNode;
 class st_client_table : public QObject
 {
     Q_OBJECT
-    friend class st_clientNode;
 public:
     explicit st_client_table( ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng,QObject *parent = 0);
     ~st_client_table();
+
+    bool regisitClientUUID(st_clientNode *);
+    st_clientNode * clientNodeFromUUID(quint32);
+    st_clientNode * clientNodeFromSocket(QObject *);
 
 protected:
      QList<st_clientNode *> m_nodeToBeDel;

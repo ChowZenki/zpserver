@@ -92,6 +92,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
         {
             const char * headerptr = m_currentBlock.constData();
             memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG));
+
             //continue reading if there is data left behind
             if (block.length()>offset)
             {
@@ -103,8 +104,9 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     m_currentMessageSize++;
                     bitLeft--;
                 }
-                //deal block, may be send data as soon as possible;
-                deal_current_message_block();
+                if (m_currentHeader.Mark[0]=='S' &&m_currentHeader.Mark[1] == 'T' )
+                    //deal block, may be send data as soon as possible;
+                    deal_current_message_block();
                 if (bitLeft>0)
                     continue;
                 //This Message is Over. Start a new one.
@@ -125,7 +127,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     m_currentMessageSize++;
                     bitLeft--;
                 }
-                //deal block, may be send data as soon as possible;
+                //deal block, may be processed as soon as possible;
                 deal_current_message_block();
                 if (bitLeft>0)
                     continue;
@@ -140,13 +142,60 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
 
     return offset;
 }
-
+//!deal current message
 int st_clientNode::deal_current_message_block()
 {
-    qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
-            -m_currentMessageSize ;
-    if (bitLeft<=0)
-        emit evt_SendDataToClient(this->sock(),m_currentBlock);
+
+    /*qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
+            -m_currentMessageSize ;*/
+
+    //First, get uuid as soon as possible
+    if (m_bUUIDRecieved==false)
+    {
+        if (m_currentHeader.source_id!=0xffffffff)
+        {
+            m_bUUIDRecieved = true;
+            m_uuid =  m_currentHeader.source_id;
+            //regisit client node to hash-table;
+            m_pClientTable->regisitClientUUID(this);
+        }
+        else //Invalid
+            return 0;
+    }
+
+    //then , Start deal to-server messages
+    if (m_currentHeader.destin_id==0xffffffff)
+    {
+        //need furture works.
+        if (m_currentHeader.payload.data_length==2) //heart-beating
+        {
+            emit evt_SendDataToClient(this->sock(),m_currentBlock);
+            m_currentBlock.clear();
+        }
+        else
+        {
+
+        }
+    }
+    //deal client-to-client messages
+    else
+    {
+        //find Destin Client using Hash.
+        st_clientNode * destin_node = m_pClientTable->clientNodeFromUUID(m_currentHeader.destin_id);
+        if (destin_node==NULL)
+        {
+            //need further dev, insert into db, or catched on disk.
+            //destin client is un-reachable, or in another function server.
+            //need server-to-server channels to re-post this message.
+            qDebug()<<"Destin ID "<<m_currentHeader.destin_id<< "is not valid\n";
+        }
+        else
+        {
+            emit evt_SendDataToClient(destin_node->sock(),m_currentBlock);
+            m_currentBlock.clear();
+        }
+
+    }
     return 0;
 }
 }

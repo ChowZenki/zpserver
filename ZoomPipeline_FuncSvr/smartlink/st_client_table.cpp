@@ -18,6 +18,41 @@ st_client_table::st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngi
 {
 }
 
+ bool st_client_table::regisitClientUUID(st_clientNode * c)
+ {
+     if (c->uuidValid()==false)
+         return false;
+     m_hash_mutex.lock();
+     m_hash_uuid2node[c->uuid()] = c;
+     m_hash_mutex.unlock();
+     return true;
+ }
+
+ st_clientNode *  st_client_table::clientNodeFromUUID(quint32 uuid)
+ {
+     m_hash_mutex.lock();
+     if (m_hash_uuid2node.contains(uuid))
+     {
+         m_hash_mutex.unlock();
+         return m_hash_uuid2node[uuid];
+     }
+     m_hash_mutex.unlock();
+
+     return NULL;
+ }
+
+ st_clientNode *  st_client_table::clientNodeFromSocket(QObject * sock)
+ {
+     m_hash_mutex.lock();
+     if (m_hash_sock2node.contains(sock))
+     {
+         m_hash_mutex.unlock();
+         return m_hash_sock2node[sock];
+     }
+     m_hash_mutex.unlock();
+     return NULL;
+
+ }
 
 
 //this event indicates new client connected.

@@ -15,8 +15,8 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     connect (m_netEngine,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_Message);
     connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
 
-    m_netEngine->AddListeningAddress("10302",QHostAddress::Any,10302);
-    m_netEngine->AddListeningAddress("10202",QHostAddress::Any,10202);
+    m_netEngine->AddListeningAddress("23456",QHostAddress::Any,23456);
+    m_netEngine->AddListeningAddress("23457",QHostAddress::Any,23457);
     m_netEngine->AddClientTransThreads(4);
 
     //Create TaskEngine

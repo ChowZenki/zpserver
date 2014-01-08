@@ -9,11 +9,11 @@ QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
     //Paramenters
     QSettings settings("goldenhawking club","QTcpClientTest",this);
     ui.lineEdit_ip->setText(settings.value("ip","localhost").toString());
-    ui.lineEdit_Port->setText(settings.value("port","23").toString());
-    ui.dial->setValue(settings.value("clientNum","2").toInt());
-    ui.lcdNumber->display(settings.value("clientNum","2").toInt());
-    ui.horizontalSlider->setValue(settings.value("Payload","4096").toInt());
-    ui.label_load->setText(QString("Payload = %1").arg(settings.value("Payload","4096").toInt()));
+    ui.lineEdit_Port->setText(settings.value("port","23456").toString());
+    ui.dial->setValue(settings.value("clientNum","32").toInt());
+    ui.lcdNumber->display(settings.value("clientNum","32").toInt());
+    ui.horizontalSlider->setValue(settings.value("Payload","2048").toInt());
+    ui.label_load->setText(QString("Payload = %1").arg(settings.value("Payload","2048").toInt()));
     ui.listView_msg->setModel(&model);
 }
 
@@ -55,7 +55,24 @@ void QTcpClientTest::on_client_connected()
     if (pSock)
     {
         displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
-        //pSock->SendData(QByteArray(qrand()%1024+1024,qrand()%(128-32)+32));
+        //send heart-beating
+        {
+            int nMsgLen = 2;
+            QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
+            char * ptr = array.data();
+            SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+            pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
+            pMsg->version = 1;
+            pMsg->source_id = (quint64)(pSock);
+
+            pMsg->destin_id = (quint64)0x0ffffffff;
+
+            pMsg->payload.data_length = nMsgLen;
+            for (int i=0;i<nMsgLen;i++)
+                pMsg->payload.data[i] = '0' + i%10;
+            //3/10 possibility to send a data block to server
+            (pSock)->SendData(array);
+        }
     }
 
 }
@@ -99,9 +116,12 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
         int nTotalClients = ui.dial->value();
         int nPayload = ui.horizontalSlider->value();
         QList<QGHTcpClient*> listObj = m_clients.keys();
-        QGHTcpClient * sockDestin = 0;
         foreach(QGHTcpClient * sock,listObj)
         {
+            QGHTcpClient * sockDestin = listObj.at(rand() % listObj.size());
+
+
+
             if (rand()%1000<5)
             {
                 int nMsgLen = qrand()%(32)+nPayload-32-sizeof(SMARTLINK_MSG);
@@ -111,11 +131,6 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
                 pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
                 pMsg->version = 1;
                 pMsg->source_id = (quint64)(sock);
-
-                if (sockDestin==0|| rand()%100<50)
-                    sockDestin = sock;
-
-
 
                 pMsg->destin_id = (quint64)sockDestin;
 
@@ -127,7 +142,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             }
         }
         //
-        if (rand()%100 <5)
+        if (rand()%100 <1)
         //if (m_clients.size()==0)
         {
             //1/10 chance to make new connections.

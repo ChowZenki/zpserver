@@ -39,6 +39,9 @@ protected:
     int m_currentReadOffset;
     //Current Message Offset, according to m_currentHeader
     int m_currentMessageSize;
+    //Current un-procssed message block.for large blocks,
+    //this array will be re-setted as soon as some part of data has been
+    //dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
     QByteArray m_currentBlock;
     //current Header
     SMARTLINK_MSG m_currentHeader;

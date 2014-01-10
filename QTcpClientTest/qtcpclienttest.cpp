@@ -55,24 +55,7 @@ void QTcpClientTest::on_client_connected()
     if (pSock)
     {
         displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
-        //send heart-beating
-        {
-            int nMsgLen = 2;
-            QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
-            char * ptr = array.data();
-            SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
-            pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
-            pMsg->version = 1;
-            pMsg->source_id = (quint64)(pSock);
 
-            pMsg->destin_id = (quint64)0x0ffffffff;
-
-            pMsg->payload.data_length = nMsgLen;
-            for (int i=0;i<nMsgLen;i++)
-                pMsg->payload.data[i] = '0' + i%10;
-            //3/10 possibility to send a data block to server
-            (pSock)->SendData(array);
-        }
     }
 
 }
@@ -111,11 +94,35 @@ void QTcpClientTest::new_data_recieved()
 
 void QTcpClientTest::timerEvent(QTimerEvent * evt)
 {
+    static int nCount = 0;
     if (evt->timerId()==nTimer)
     {
         int nTotalClients = ui.dial->value();
         int nPayload = ui.horizontalSlider->value();
         QList<QGHTcpClient*> listObj = m_clients.keys();
+        nCount++;
+        if (nCount % 100 == 0)
+        {
+            //send heart-beating
+            foreach(QGHTcpClient * pSock,listObj)
+            {
+                int nMsgLen = 2;
+                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
+                char * ptr = array.data();
+                SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+                pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
+                pMsg->version = 1;
+                pMsg->source_id = (quint64)(pSock);
+
+                pMsg->destin_id = (quint64)0x0ffffffffffffffff;
+
+                pMsg->payload.data_length = nMsgLen;
+                for (int i=0;i<nMsgLen;i++)
+                    pMsg->payload.data[i] = '0' + i%10;
+                //3/10 possibility to send a data block to server
+                (pSock)->SendData(array);
+            }
+        }
         foreach(QGHTcpClient * sock,listObj)
         {
             QGHTcpClient * sockDestin = listObj.at(rand() % listObj.size());

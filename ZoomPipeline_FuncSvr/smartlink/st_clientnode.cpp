@@ -8,7 +8,7 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_currentReadOffset = 0;
     m_currentMessageSize = 0;
     m_pClientSock = pClientSock;
-    m_uuid = 0xffffffff;//Not Valid
+    m_uuid = 0xffffffffffffffff;//Not Valid
     m_pClientTable = pClientTable;
     bTermSet = false;
 }
@@ -152,7 +152,7 @@ int st_clientNode::deal_current_message_block()
     //First, get uuid as soon as possible
     if (m_bUUIDRecieved==false)
     {
-        if (m_currentHeader.source_id!=0xffffffff)
+        if (m_currentHeader.source_id!=0xffffffffffffffff)
         {
             m_bUUIDRecieved = true;
             m_uuid =  m_currentHeader.source_id;
@@ -164,7 +164,7 @@ int st_clientNode::deal_current_message_block()
     }
 
     //then , Start deal to-server messages
-    if (m_currentHeader.destin_id==0xffffffff)
+    if (m_currentHeader.destin_id==0xffffffffffffffff)
     {
         //need furture works.
         if (m_currentHeader.payload.data_length==2) //heart-beating

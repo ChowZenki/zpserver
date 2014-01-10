@@ -152,7 +152,7 @@ void zp_netTransThread::displayError(QAbstractSocket::SocketError socketError)
     if (pSock)
     {
         emit evt_SocketError(pSock,socketError);
-        //qDebug()<<(pSock->errorString());
+        qDebug()<<(pSock->errorString());
         pSock->disconnectFromHost();
     }
 }

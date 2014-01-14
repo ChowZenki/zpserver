@@ -85,6 +85,7 @@ signals:
     //Trans Control,for intenal thread usage
     void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
     void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+    void evt_KickClient(QObject *);
     void evt_DeactivteImmediately(zp_netTransThread *);
     void evt_KickAll(zp_netTransThread *);
 
@@ -96,6 +97,9 @@ public slots:
     void SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
     //Call this function to send data to client
     void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+
+    //Close client Immediatele
+    void KickClients(QObject * object);
 
 };
 }

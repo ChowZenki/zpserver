@@ -104,9 +104,13 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     m_currentMessageSize++;
                     bitLeft--;
                 }
-                if (m_currentHeader.Mark[0]=='S' &&m_currentHeader.Mark[1] == 'T' )
+                if (m_currentHeader.Mark==0xAA55 )
                     //deal block, may be send data as soon as possible;
                     deal_current_message_block();
+                else //Bad MSG!
+                {
+                    emit evt_close_client(this->sock());
+                }
                 if (bitLeft>0)
                     continue;
                 //This Message is Over. Start a new one.
@@ -152,7 +156,7 @@ int st_clientNode::deal_current_message_block()
     //First, get uuid as soon as possible
     if (m_bUUIDRecieved==false)
     {
-        if (m_currentHeader.source_id!=0xffffffffffffffff)
+        if (m_currentHeader.source_id!=0xffffffff)
         {
             m_bUUIDRecieved = true;
             m_uuid =  m_currentHeader.source_id;
@@ -164,7 +168,7 @@ int st_clientNode::deal_current_message_block()
     }
 
     //then , Start deal to-server messages
-    if (m_currentHeader.destin_id==0xffffffffffffffff)
+    if (m_currentHeader.destin_id==0xffffffff)
     {
         //need furture works.
         if (m_currentHeader.payload.data_length==2) //heart-beating

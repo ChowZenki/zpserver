@@ -79,6 +79,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
         pClientNode->bTermSet = true;
         disconnect (pClientNode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
         disconnect (pClientNode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
+        disconnect (pClientNode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
 
         m_nodeToBeDel.push_back(pClientNode);
         //qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->refCount);
@@ -121,6 +122,7 @@ void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteA
         //using queued connection of send and revieve;
         connect (pnode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
         connect (pnode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
         m_hash_sock2node[clientHandle] = pnode;
         nHashContains = true;
         pClientNode = pnode;

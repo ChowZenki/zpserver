@@ -233,6 +233,23 @@ void zp_netTransThread::KickAllClients(zp_netTransThread * ptr)
     }
 
 }
+
+void zp_netTransThread::KickClient(QObject * objClient)
+{
+    m_mutex_protect.lock();
+    if (m_clientList.find(objClient)==m_clientList.end())
+    {
+        m_mutex_protect.unlock();
+        return;
+    }
+    m_mutex_protect.unlock();
+    QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
+    if (pSock)
+    {
+        pSock->close();
+    }
+}
+
 bool zp_netTransThread::CanExit()
 {
     if (m_bActivated==true)

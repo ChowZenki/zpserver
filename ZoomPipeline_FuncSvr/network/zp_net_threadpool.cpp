@@ -163,6 +163,7 @@ void zp_net_ThreadPool::AddClientTransThreads(int nThreads,bool bSSL)
             connect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient,Qt::QueuedConnection);
             connect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients,Qt::QueuedConnection);
             connect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_KickClient,clientTH,&zp_netTransThread::KickClient,Qt::QueuedConnection);
 
             clientTH->moveToThread(pThread);
         }
@@ -192,6 +193,7 @@ bool zp_net_ThreadPool::TransThreadDel(zp_netTransThread * pThreadObj)
         disconnect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient);
         disconnect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
         disconnect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately);
+        disconnect (this,&zp_net_ThreadPool::evt_KickClient,clientTH,&zp_netTransThread::KickClient);
         m_vec_netInternalTransThreads[idx]->quit();
         m_vec_netInternalTransThreads[idx]->deleteLater();
         m_vec_NetTransThreads[idx]->deleteLater();
@@ -244,6 +246,10 @@ void zp_net_ThreadPool::SendDataToClient(QObject * objClient,const QByteArray & 
     emit evt_SendDataToClient(objClient,dtarray);
 }
 
+void zp_net_ThreadPool::KickClients(QObject * object)
+{
+    emit evt_KickClient(object);
+}
 
 void zp_net_ThreadPool::BroadcastData(QObject * objFromClient,const QByteArray &  dtarray)
 {

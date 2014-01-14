@@ -47,6 +47,9 @@ public slots:
     void DeactivateImmediately(zp_netTransThread *);
     //Kick all clients .
     void KickAllClients(zp_netTransThread *);
+    //Kick client.
+    void KickClient(QObject *);
+
 protected slots:
     //when client closed, this slot will be activated.
     void client_closed();

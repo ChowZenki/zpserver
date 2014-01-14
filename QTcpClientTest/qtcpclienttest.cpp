@@ -110,11 +110,12 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
                 QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
                 char * ptr = array.data();
                 SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
-                pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
+                pMsg->Mark=0xAA55;
                 pMsg->version = 1;
-                pMsg->source_id = (quint64)(pSock);
+                pMsg->SerialNum = 0;
+                pMsg->source_id = (quint32)(pSock);
 
-                pMsg->destin_id = (quint64)0x0ffffffffffffffff;
+                pMsg->destin_id = (quint32)0xffffffff;
 
                 pMsg->payload.data_length = nMsgLen;
                 for (int i=0;i<nMsgLen;i++)
@@ -135,11 +136,12 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
                 QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
                 char * ptr = array.data();
                 SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
-                pMsg->Mark[0] = 'S'; pMsg->Mark[1] = 'T';
+                pMsg->Mark = 0xAA55;
                 pMsg->version = 1;
-                pMsg->source_id = (quint64)(sock);
+                pMsg->SerialNum = 0;
+                pMsg->source_id = (quint32)((quint64)(sock) & 0xffffffff );
 
-                pMsg->destin_id = (quint64)sockDestin;
+                pMsg->destin_id = (quint32)((quint64)(sockDestin) & 0xffffffff );;
 
                 pMsg->payload.data_length = nMsgLen;
                 for (int i=0;i<nMsgLen;i++)

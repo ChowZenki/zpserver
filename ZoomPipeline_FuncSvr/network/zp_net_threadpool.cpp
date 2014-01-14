@@ -33,13 +33,13 @@ int zp_net_ThreadPool::totalClients(int idxThread)
 }
 
 //Begin a listening socket at special address and port. The socket will be activated as soon as possible
-void zp_net_ThreadPool::AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort)
+void zp_net_ThreadPool::AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn /*= true*/)
 {
     if (m_map_netListenThreads.find(id)==m_map_netListenThreads.end())
     {
         //Start Thread
         QThread * pThread = new QThread(this);
-        zp_netListenThread * pListenObj = new zp_netListenThread(id,address,nPort);
+        zp_netListenThread * pListenObj = new zp_netListenThread(id,address,nPort,bSSLConn);
         pThread->start();
         //m_mutex_listen.lock();
         m_map_netInternalListenThreads[id] = pThread;
@@ -78,6 +78,13 @@ void zp_net_ThreadPool::RemoveAllAddresses()
 
 void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
 {
+    zp_netListenThread * pSource = qobject_cast<zp_netListenThread *>(sender());
+    if (!pSource)
+    {
+        emit evt_Message("Waring>"+QString(tr("Non-zp_netListenThread type detected.")));
+        return;
+    }
+
     emit evt_Message("Info>"+QString(tr("New Client Arriverd.")));
     //m_mutex_trans.lock();
     int nsz = m_vec_NetTransThreads.size();
@@ -85,7 +92,10 @@ void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
     int nMinIdx = -1;
     for (int i=0;i<nsz && nMinPay!=0;i++)
     {
-        if (m_vec_NetTransThreads[i]->isActive()==false)
+
+        if (m_vec_NetTransThreads[i]->isActive()==false ||
+                m_vec_NetTransThreads[i]->SSLConnection()!=pSource->bSSLConn()
+                )
             continue;
         int nPat = m_vec_NetTransThreads[i]->CurrentClients();
 
@@ -98,6 +108,10 @@ void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
     }
     if (nMinIdx>=0 && nMinIdx<nsz)
         emit evt_EstablishConnection(m_vec_NetTransThreads[nMinIdx],socketDescriptor);
+    else
+    {
+        emit evt_Message("Waring>"+QString(tr("Need Trans Thread Object for clients.")));
+    }
     //m_mutex_trans.unlock();
 }
 void zp_net_ThreadPool::on_ListenClosed(const QString & id)
@@ -124,13 +138,14 @@ void zp_net_ThreadPool::on_ListenClosed(const QString & id)
     //m_mutex_listen.unlock();
 }
 //Add n client-Trans Thread(s).
-void zp_net_ThreadPool::AddClientTransThreads(int nThreads)
+void zp_net_ThreadPool::AddClientTransThreads(int nThreads,bool bSSL)
 {
     if (nThreads>0 && nThreads<256)
     {
         for (int i=0;i<nThreads;i++)
         {
             zp_netTransThread * clientTH = new zp_netTransThread(this,m_nPayLoad);
+            clientTH->SetSSLConnection(bSSL);
             QThread * pThread = new QThread(this);
             //m_mutex_trans.lock();
             m_vec_netInternalTransThreads.push_back(pThread);
@@ -204,14 +219,21 @@ void zp_net_ThreadPool::DeactiveImmediately()
 }
 
 //Remove n client-Trans Thread(s).a thread marked reomved will be terminated after its last client socket exited.
-void zp_net_ThreadPool::RemoveClientTransThreads(int nThreads)
+void zp_net_ThreadPool::RemoveClientTransThreads(int nThreads,bool bSSL)
 {
     if (nThreads>0)
     {
         //m_mutex_trans.lock();
         int nsz = m_vec_NetTransThreads.size();
-        for (int i=0;i<nsz && i<nThreads;i++)
-            m_vec_NetTransThreads[i]->Deactivate();
+        int nCount = 0;
+        for (int i=0;i<nsz && nCount<nThreads;i++)
+        {
+            if (m_vec_NetTransThreads[i]->SSLConnection()==bSSL)
+            {
+                m_vec_NetTransThreads[i]->Deactivate();
+                nCount ++;
+            }
+        }
         //m_mutex_trans.unlock();
     }
 

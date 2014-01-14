@@ -23,7 +23,7 @@ public:
 
     //Listening Ctrl
     //Begin a listening socket at special address and port. The socket will be activated as soon as possible
-    void AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort);
+    void AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn = true);
     //Remove a listening socket at special address and port.The socket will be deactivated as soon as possible
     void RemoveListeningAddress(const QString & id);
     //Remove all listening sockets
@@ -32,9 +32,9 @@ public:
 
     //Trans Control
     //Add n client-Trans Thread(s).
-    void AddClientTransThreads(int nThreads);
+    void AddClientTransThreads(int nThreads,bool bSSL=true);
     //Remove n client-Trans Thread(s).a thread marked reomved will be terminated after its last client socket exited.
-    void RemoveClientTransThreads(int nThreads);
+    void RemoveClientTransThreads(int nThreads,bool bSSL=true);
     //Kick All Clients
     void KickAllClients();
     //Deactive Immediately

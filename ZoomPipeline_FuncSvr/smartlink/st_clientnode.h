@@ -51,7 +51,7 @@ protected:
 
     //UUID of this equipment
     bool m_bUUIDRecieved;
-    quint32 m_uuid;  //Client ID
+    quint64 m_uuid;  //Client ID
     //Client socket handle of this connection
     QObject * m_pClientSock;
 

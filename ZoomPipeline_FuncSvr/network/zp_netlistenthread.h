@@ -16,9 +16,10 @@ protected:
     QString m_id;   //The listen ID
     QHostAddress m_address;
     quint16 m_port;
+    bool m_bSSLConn;
 public:
-    explicit zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,QObject *parent = 0);
-
+    explicit zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL = true,QObject *parent = 0);
+    bool bSSLConn(){return m_bSSLConn;}
 signals:
     void evt_Message(const QString &);
     void evt_ListenClosed(const QString &);

@@ -1,11 +1,12 @@
 #include "zp_netlistenthread.h"
 namespace ZPNetwork{
-zp_netListenThread::zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,QObject *parent)
+zp_netListenThread::zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL,QObject *parent)
     :QObject(parent)
     ,m_tcpServer(0)
     ,m_id(id)
     ,m_address(address)
     ,m_port(port)
+    ,m_bSSLConn (bSSL)
 {
 
 }

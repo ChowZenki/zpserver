@@ -6,7 +6,7 @@
 #if defined(__GNUC__)
 #include <stdint.h>
 typedef struct tag_smartlink_message{
-    unsigned __INT16_TYPE Mark;    //Always be "0xAA55"
+    unsigned __INT16_TYPE__ Mark;    //Always be "0xAA55"
     unsigned __INT16_TYPE__ version; //Structure Version
     unsigned __INT32_TYPE__ SerialNum;
     unsigned __INT32_TYPE__ source_id ; //0xffffffffffffffff means from server

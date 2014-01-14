@@ -113,7 +113,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
                 pMsg->Mark=0xAA55;
                 pMsg->version = 1;
                 pMsg->SerialNum = 0;
-                pMsg->source_id = (quint32)(pSock);
+                pMsg->source_id = (quint32)((quint64)(pSock) & 0xffffffff);
 
                 pMsg->destin_id = (quint32)0xffffffff;
 

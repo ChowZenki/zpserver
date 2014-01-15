@@ -9,7 +9,7 @@ QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
     //Paramenters
     QSettings settings("goldenhawking club","QTcpClientTest",this);
     ui.lineEdit_ip->setText(settings.value("ip","localhost").toString());
-    ui.lineEdit_Port->setText(settings.value("port","23456").toString());
+    ui.lineEdit_Port->setText(settings.value("port","23457").toString());
     ui.dial->setValue(settings.value("clientNum","32").toInt());
     ui.lcdNumber->display(settings.value("clientNum","32").toInt());
     ui.horizontalSlider->setValue(settings.value("Payload","2048").toInt());

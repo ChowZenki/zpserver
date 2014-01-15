@@ -26,7 +26,7 @@
          <normaloff>:/icons/Resources/Alienware (27).png</normaloff>:/icons/Resources/Alienware (27).png</iconset>
        </attribute>
        <attribute name="title">
-        <string>Network</string>
+        <string>Summary</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -40,8 +40,13 @@
          <normaloff>:/icons/Resources/Backup drive.png</normaloff>:/icons/Resources/Backup drive.png</iconset>
        </attribute>
        <attribute name="title">
-        <string>Task</string>
+        <string>Messages</string>
        </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QListView" name="listView_msg"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

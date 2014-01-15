@@ -1,6 +1,6 @@
 #include "zpmainframe.h"
 #include "ui_zpmainframe.h"
-#include <functional>
+#include <QDateTime>
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
 ZPMainFrame::ZPMainFrame(QWidget *parent) :
@@ -32,6 +32,9 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
     m_nTimerId = startTimer(500);
 
+    m_pMsgModel = new QStandardItemModel(this);
+    ui->listView_msg->setModel(m_pMsgModel);
+
 }
 
 ZPMainFrame::~ZPMainFrame()
@@ -46,7 +49,6 @@ ZPMainFrame::~ZPMainFrame()
     {
         QCoreApplication::processEvents();
         QThread::currentThread()->msleep(200);
-        //_sleep(100);
     }
 
     delete ui;
@@ -64,14 +66,26 @@ void ZPMainFrame::changeEvent(QEvent *e)
     }
 }
 //These Message is nessery.-------------------------------------
-void  ZPMainFrame::on_evt_Message(const QString &)
+void  ZPMainFrame::on_evt_Message(const QString & strMsg)
 {
-
+    QDateTime dtm = QDateTime::currentDateTime();
+    QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
+    int nrows = m_pMsgModel->rowCount();
+    m_pMsgModel->insertRow(0,new QStandardItem(msg));
+    while (nrows-- > 16384)
+        m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
 }
 
 //The socket error message
-void  ZPMainFrame::on_evt_SocketError(QObject * /*senderSock*/ ,QAbstractSocket::SocketError/* socketError*/)
+void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError)
 {
+    QDateTime dtm = QDateTime::currentDateTime();
+    QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + QString("SockError %1 with code %2")
+            .arg((quint64)senderSock).arg((quint32)socketError);
+    int nrows = m_pMsgModel->rowCount();
+    m_pMsgModel->insertRow(0,new QStandardItem(msg));
+    while (nrows-- > 16384)
+        m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
 
 }
 

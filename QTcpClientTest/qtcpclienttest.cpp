@@ -75,7 +75,7 @@ void QTcpClientTest::on_client_disconnected()
         pSock->deleteLater();
     }
 }
-void QTcpClientTest::displayError(QAbstractSocket::SocketError err)
+void QTcpClientTest::displayError(QAbstractSocket::SocketError /*err*/)
 {
     QGHTcpClient * sock = qobject_cast<QGHTcpClient *> (sender());
     if (sock)

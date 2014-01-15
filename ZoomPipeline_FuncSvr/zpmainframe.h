@@ -2,6 +2,7 @@
 #define ZPMAINFRAME_H
 
 #include <QMainWindow>
+#include <QStandardItemModel>
 #include "network/zp_net_threadpool.h"
 #include "pipeline/zp_pipeline.h"
 #include "smartlink/st_client_table.h"
@@ -20,6 +21,7 @@ public:
 protected:
     void changeEvent(QEvent *e);
     void timerEvent(QTimerEvent *);
+    QStandardItemModel * m_pMsgModel;
 private:
     Ui::ZPMainFrame *ui;
     ZPNetwork::zp_net_ThreadPool * m_netEngine;

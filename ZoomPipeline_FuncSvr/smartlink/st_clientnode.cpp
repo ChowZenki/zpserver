@@ -8,7 +8,7 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_currentReadOffset = 0;
     m_currentMessageSize = 0;
     m_pClientSock = pClientSock;
-    m_uuid = 0xffffffffffffffff;//Not Valid
+    m_uuid = 0xffffffff;//Not Valid
     m_pClientTable = pClientTable;
     bTermSet = false;
 }

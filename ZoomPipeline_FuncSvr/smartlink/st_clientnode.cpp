@@ -178,7 +178,8 @@ int st_clientNode::deal_current_message_block()
         }
         else
         {
-
+            //Do Nothing
+            m_currentBlock.clear();
         }
     }
     //deal client-to-client messages
@@ -192,6 +193,7 @@ int st_clientNode::deal_current_message_block()
             //destin client is un-reachable, or in another function server.
             //need server-to-server channels to re-post this message.
             qDebug()<<"Destin ID "<<m_currentHeader.destin_id<< "is not valid\n";
+            //Do Nothing
         }
         else
         {

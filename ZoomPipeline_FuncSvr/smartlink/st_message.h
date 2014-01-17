@@ -6,15 +6,15 @@
 #if defined(__GNUC__)
 #include <stdint.h>
 typedef struct tag_smartlink_message{
-    unsigned __INT16_TYPE__ Mark;    //Always be "0xAA55"
-    unsigned __INT16_TYPE__ version; //Structure Version
-    unsigned __INT8_TYPE__ Priority;
-    unsigned __INT8_TYPE__	Reserved1;
-    unsigned __INT32_TYPE__ SerialNum;
-    unsigned __INT32_TYPE__ source_id ; //0xffffffff means from server
-    unsigned __INT32_TYPE__ destin_id ; //0xffffffff means to server
-    unsigned __INT16_TYPE__ data_length; //Data at least have 2 byte, for heart-beating counter.
-    unsigned __INT16_TYPE__ Reserved2;
+    __UINT16_TYPE__ Mark;    //Always be "0xAA55"
+    __UINT16_TYPE__ version; //Structure Version
+    __UINT8_TYPE__ Priority;
+    __UINT8_TYPE__	Reserved1;
+    __UINT32_TYPE__ SerialNum;
+    __UINT32_TYPE__ source_id ; //0xffffffff means from server
+    __UINT32_TYPE__ destin_id ; //0xffffffff means to server
+    __UINT16_TYPE__ data_length; //Data at least have 2 byte, for heart-beating counter.
+    __UINT16_TYPE__ Reserved2;
     __UINT8_TYPE__ data[1];
    } SMARTLINK_MSG;
 #endif

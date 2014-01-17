@@ -18,8 +18,8 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
     m_netEngine->AddListeningAddress("23456_Plain",QHostAddress::Any,23456,false);
     m_netEngine->AddListeningAddress("23457_SSL",QHostAddress::Any,23457,true);
-    m_netEngine->AddClientTransThreads(2,false);
-    m_netEngine->AddClientTransThreads(2,true);
+    m_netEngine->AddClientTransThreads(4,false);
+    m_netEngine->AddClientTransThreads(4,true);
 
     //Create TaskEngine
     m_taskEngine = new zp_pipeline(this);

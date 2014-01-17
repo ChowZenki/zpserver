@@ -79,24 +79,24 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
     while (block.length()>offset)
     {
         const char * dataptr = block.constData();
-        while (m_currentMessageSize< sizeof(SMARTLINK_MSG))
+        while (m_currentMessageSize< sizeof(SMARTLINK_MSG)-1)
         {
             m_currentBlock.push_back(dataptr[offset++]);
             m_currentMessageSize++;
             if (offset >= block.length())
                 break;
         }
-        if (m_currentMessageSize < sizeof(SMARTLINK_MSG)) //Header not completed.
+        if (m_currentMessageSize < sizeof(SMARTLINK_MSG)-1) //Header not completed.
             continue;
-        else if (m_currentMessageSize == sizeof(SMARTLINK_MSG))//Header just  completed.
+        else if (m_currentMessageSize == sizeof(SMARTLINK_MSG)-1)//Header just  completed.
         {
             const char * headerptr = m_currentBlock.constData();
-            memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG));
+            memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG)-1);
 
             //continue reading if there is data left behind
             if (block.length()>offset)
             {
-                qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
+                qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
                         -m_currentMessageSize ;
                 while (bitLeft>0 && block.length()>offset)
                 {
@@ -104,7 +104,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     m_currentMessageSize++;
                     bitLeft--;
                 }
-                if (m_currentHeader.Mark==0xAA55 )
+                if (m_currentHeader.Mark==0x55AA )
                     //deal block, may be send data as soon as possible;
                     deal_current_message_block();
                 else //Bad MSG!
@@ -123,7 +123,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
         {
             if (block.length()>offset)
             {
-                qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
+                qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
                         -m_currentMessageSize ;
                 while (bitLeft>0 && block.length()>offset)
                 {
@@ -150,9 +150,6 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
 int st_clientNode::deal_current_message_block()
 {
 
-    /*qint32 bitLeft = m_currentHeader.payload.data_length + sizeof(SMARTLINK_MSG) - 2
-            -m_currentMessageSize ;*/
-
     //First, get uuid as soon as possible
     if (m_bUUIDRecieved==false)
     {
@@ -171,7 +168,7 @@ int st_clientNode::deal_current_message_block()
     if (m_currentHeader.destin_id==0xffffffff)
     {
         //need furture works.
-        if (m_currentHeader.payload.data_length==2) //heart-beating
+        if (m_currentHeader.data_length==0) //heart-beating
         {
             emit evt_SendDataToClient(this->sock(),m_currentBlock);
             m_currentBlock.clear();

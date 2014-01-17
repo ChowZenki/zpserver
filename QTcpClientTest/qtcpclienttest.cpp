@@ -106,20 +106,22 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             //send heart-beating
             foreach(QGHTcpClient * pSock,listObj)
             {
-                int nMsgLen = 2;
-                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
+                quint16 nMsgLen = 0;
+                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
                 char * ptr = array.data();
                 SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
-                pMsg->Mark=0xAA55;
+                pMsg->Mark=0x55AA;
                 pMsg->version = 1;
+                pMsg->Priority = 0;
+                pMsg->Reserved1 = 0;
                 pMsg->SerialNum = 0;
                 pMsg->source_id = (quint32)((quint64)(pSock) & 0xffffffff);
 
                 pMsg->destin_id = (quint32)0xffffffff;
-
-                pMsg->payload.data_length = nMsgLen;
+                pMsg->Reserved2 = 0;
+                pMsg->data_length = nMsgLen;
                 for (int i=0;i<nMsgLen;i++)
-                    pMsg->payload.data[i] = '0' + i%10;
+                    pMsg->data[i] = '0' + i%10;
                 //3/10 possibility to send a data block to server
                 (pSock)->SendData(array);
             }
@@ -132,20 +134,23 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 
             if (rand()%1000<5)
             {
-                int nMsgLen = qrand()%(32)+nPayload-32-sizeof(SMARTLINK_MSG);
-                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 2,0);
+                quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(SMARTLINK_MSG);
+                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
                 char * ptr = array.data();
                 SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
-                pMsg->Mark = 0xAA55;
+                pMsg->Mark = 0x55AA;
                 pMsg->version = 1;
                 pMsg->SerialNum = 0;
+                pMsg->Priority = 1;
+                pMsg->Reserved1 = 0;
                 pMsg->source_id = (quint32)((quint64)(sock) & 0xffffffff );
 
                 pMsg->destin_id = (quint32)((quint64)(sockDestin) & 0xffffffff );;
 
-                pMsg->payload.data_length = nMsgLen;
+                pMsg->data_length = nMsgLen;
+                pMsg->Reserved2 = 0;
                 for (int i=0;i<nMsgLen;i++)
-                    pMsg->payload.data[i] = '0' + i%10;
+                    pMsg->data[i] = '0' + i%10;
                 //3/10 possibility to send a data block to server
                 sock->SendData(array);
             }

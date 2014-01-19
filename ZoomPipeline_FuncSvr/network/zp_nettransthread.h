@@ -42,7 +42,7 @@ public slots:
     //Broadcast dtarray to every client except objFromClient itself
     void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
     //Set terminate mark, the thread will quit after last client quit.
-    void Deactivate(){m_bActivated = true;}
+    void Deactivate(){m_bActivated = false;}
     //terminate this thread immediately
     void DeactivateImmediately(zp_netTransThread *);
     //Kick all clients .

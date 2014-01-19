@@ -47,6 +47,7 @@ public:
     //The status
     QStringList ListenerNames();
     int TransThreadNum();
+    int TransThreadNum(bool bSSL);
     int totalClients(int idxThread);
 
 protected:

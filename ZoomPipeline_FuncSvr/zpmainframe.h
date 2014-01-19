@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QSet>
 #include "network/zp_net_threadpool.h"
 #include "pipeline/zp_pipeline.h"
 #include "smartlink/st_client_table.h"
@@ -22,17 +23,38 @@ protected:
     void changeEvent(QEvent *e);
     void timerEvent(QTimerEvent *);
     QStandardItemModel * m_pMsgModel;
+
+    //Config File Name
+    QString m_currentConffile;
+    //Listeners settings
+    QStandardItemModel * m_pListenerModel;
+    QSet<QString> m_set_listenerNames;
+
+
+
 private:
     Ui::ZPMainFrame *ui;
     ZPNetwork::zp_net_ThreadPool * m_netEngine;
     ZPTaskEngine::zp_pipeline * m_taskEngine;
     SmartLink::st_client_table * m_clientTable;
     int m_nTimerId;
+    void initUI();
+    void LoadSettings(const QString & config_file);
+    void SaveSettings(const QString & config_file);
+    void forkServer(const QString & config_file);
 public slots:
     //These Message is nessery.-------------------------------------
     void on_evt_Message(const QString &);
     //The socket error message
     void on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
+
+    void on_action_Start_Stop_triggered(bool);
+    void on_action_About_triggered();
+    void on_actionReload_config_file_triggered();
+    void on_pushButton_addListener_clicked();
+    void on_pushButton_delListener_clicked();
+    void on_pushButton_listerner_apply_clicked();
+    void on_pushButton_threadsApply_clicked();
 };
 
 #endif // ZPMAINFRAME_H

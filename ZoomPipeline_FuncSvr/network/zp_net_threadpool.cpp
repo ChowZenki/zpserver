@@ -22,6 +22,19 @@ int zp_net_ThreadPool::TransThreadNum()
 {
     return m_vec_NetTransThreads.size();
 }
+int zp_net_ThreadPool::TransThreadNum(bool bSSL)
+{
+    //m_mutex_trans.lock();
+    int nsz = m_vec_NetTransThreads.size();
+    int nCount = 0;
+    for (int i=0;i<nsz;i++)
+    {
+        if (m_vec_NetTransThreads[i]->SSLConnection()==bSSL)
+            nCount ++;
+    }
+    //m_mutex_trans.unlock();
+    return nCount;
+}
 
 int zp_net_ThreadPool::totalClients(int idxThread)
 {
@@ -223,22 +236,21 @@ void zp_net_ThreadPool::DeactiveImmediately()
 //Remove n client-Trans Thread(s).a thread marked reomved will be terminated after its last client socket exited.
 void zp_net_ThreadPool::RemoveClientTransThreads(int nThreads,bool bSSL)
 {
-    if (nThreads>0)
-    {
-        //m_mutex_trans.lock();
-        int nsz = m_vec_NetTransThreads.size();
-        int nCount = 0;
-        for (int i=0;i<nsz && nCount<nThreads;i++)
-        {
-            if (m_vec_NetTransThreads[i]->SSLConnection()==bSSL)
-            {
-                m_vec_NetTransThreads[i]->Deactivate();
-                nCount ++;
-            }
-        }
-        //m_mutex_trans.unlock();
-    }
 
+    //m_mutex_trans.lock();
+    int nsz = m_vec_NetTransThreads.size();
+    if (nThreads<0)
+        nThreads = nsz;
+    int nCount = 0;
+    for (int i=0;i<nsz && nCount<nThreads;i++)
+    {
+        if (m_vec_NetTransThreads[i]->SSLConnection()==bSSL)
+        {
+            m_vec_NetTransThreads[i]->Deactivate();
+            nCount ++;
+        }
+    }
+    //m_mutex_trans.unlock();
 }
 
 void zp_net_ThreadPool::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)

@@ -1,40 +1,94 @@
 #include "databaseresource.h"
 #include <QThread>
+#include <QMutexLocker>
+#include <QSqlError>
 DatabaseResource::DatabaseResource(QObject *parent) :
     QObject(parent)
 {
 }
 //!Get an database connection belong to current thread.
 //!if database does not exist, it will be added using dbtype
-QSqlDatabase & DatabaseResource::databse(const QString & strDBName, const QString & dbtype)
+QSqlDatabase & DatabaseResource::databse(const QString & strDBName)
 {
-    Qt::HANDLE handleThread =  QThread::currentThreadId();
-    QString internal_name = QString("%1_%2").arg(strDBName).arg((quint64)(handleThread));
-    if (false==m_map_databses.contains(internal_name))
-        m_map_databses[internal_name] = QSqlDatabase::addDatabase(dbtype,internal_name);
-    return  m_map_databses[internal_name];
+    QMutexLocker locker(&m_mutex_reg);
+    if (false==QSqlDatabase::contains(strDBName))
+    {
+        QString msg = tr(" Connection name ")+strDBName+ tr(" does not exist.");
+        emit evt_Message(msg);
+        return QSqlDatabase();
+    }
+    return  QSqlDatabase::database(strDBName);
 }
 
 //!Remove Database
-void DatabaseResource::remove_db(const QString & strDBName)
+void DatabaseResource::remove_connection(const QString & strDBName)
 {
-    Qt::HANDLE handleThread =  QThread::currentThreadId();
-    QString internal_name = QString("%1_%2").arg(strDBName).arg((quint64)(handleThread));
-    if (true==m_map_databses.contains(internal_name))
+    QMutexLocker locker(&m_mutex_reg);
+    if (true==QSqlDatabase::contains(strDBName))
     {
-        QSqlDatabase::removeDatabase(internal_name);
-        m_map_databses.remove(internal_name);
+        QSqlDatabase db = QSqlDatabase::database(strDBName);
+        if (db.isOpen()==true)
+            db.close();
+        QSqlDatabase::removeDatabase(strDBName);
+        QString msg = tr(" Connection removed ")+strDBName+ tr(" .");
+        emit evt_Message(msg);
+
+    }
+    else
+    {
+        QString msg = tr(" Connection name ")+strDBName+ tr(" does not exist.");
+        emit evt_Message(msg);
     }
 }
-
-//!Prepare for db connection operations.
-//!in multi-thread programs, db add, remove, conn should be protected with mutex,
-void DatabaseResource::PrepareDbReg()
+bool DatabaseResource::confirmConnection(
+        const QString & connName,
+        const QString & type,
+        const QString & HostAddr,
+        int port,
+        const QString & dbName,
+        const QString & User,
+        const QString & Pass,
+        const QString & ExtraOptions
+        )
 {
-    m_mutex_reg.lock();
-}
+    QMutexLocker locker(&m_mutex_reg);
+    if (true==QSqlDatabase::contains(strDBName))
+    {
+        QSqlDatabase db = QSqlDatabase::database(strDBName);
+        if (db.isOpen()==true)
+            return true;
+        QString msg = tr(" Connection ")+strDBName+ tr(" has not not opened.");
+        emit evt_Message(msg);
 
-void DatabaseResource::FinishDbReg()
-{
-    m_mutex_reg.unlock();
+        QSqlDatabase::removeDatabase(strDBName);
+        db = QSqlDatabase::addDatabase(type,connName);
+        db.setHostName(HostAddr);
+        db.setPort(port);
+        db.setDatabaseName(dbName);
+        db.setUserName(User);
+        db.setPassword(Pass);
+        db.setConnectOptions(ExtraOptions);
+        if (db.open()==true)
+            return true;
+        QString msg = tr(" Connection  ")+strDBName+ tr(" Can;t be opened. MSG=");
+        msg += db.lastError().text();
+        emit evt_Message(msg);
+
+        return false;
+    }
+
+    db = QSqlDatabase::addDatabase(type,connName);
+    db.setHostName(HostAddr);
+    db.setPort(port);
+    db.setDatabaseName(dbName);
+    db.setUserName(User);
+    db.setPassword(Pass);
+    db.setConnectOptions(ExtraOptions);
+    if (db.open()==true)
+        return true;
+    QString msg = tr(" Connection  ")+strDBName+ tr(" Can;t be opened. MSG=");
+    msg += db.lastError().text();
+    emit evt_Message(msg);
+    return false;
+
 }

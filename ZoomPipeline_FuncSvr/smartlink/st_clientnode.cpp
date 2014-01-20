@@ -18,7 +18,7 @@ int st_clientNode::run()
 {
     if (bTermSet==true)
     {
-        //qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(refCount);
+        //qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
         return 0;
     }
     int nCurrSz = -1;

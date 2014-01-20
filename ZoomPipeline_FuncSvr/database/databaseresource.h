@@ -17,22 +17,25 @@ public:
 
     //!Get an database connection belong to current thread.
     //!if database does not exist, it will be added using dbtype
-    QSqlDatabase & databse(const QString & strDBName, const QString & dbtype);
+    QSqlDatabase & databse(const QString & strDBName);
 
-    //!Remove Database
-    void remove_db(const QString & strDBName);
-
-    //!Prepare for db connection operations.
-    //!in multi-thread programs, db add, remove, conn should be protected with mutex,
-    void PrepareDbReg();
-    void FinishDbReg();
-
+    //!confire connection connName, return true if connection can be used.
+    bool confirmConnection(
+            const QString & connName,
+            const QString & type,
+            const QString & HostAddr,
+            int port,
+            const QString & dbName,
+            const QString & User,
+            const QString & Pass,
+            const QString & ExtraOptions
+            );
+    void remove_connection(const QString & strDBName);
 protected:
-    QMap<QString, QSqlDatabase> m_map_databses;
     QMutex m_mutex_reg;
 
 signals:
-
+    void evt_Message(const QString &);
 public slots:
 
 };

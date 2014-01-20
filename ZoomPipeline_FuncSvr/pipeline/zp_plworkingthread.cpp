@@ -39,7 +39,7 @@ void zp_plWorkingThread::FetchNewTask(zp_plWorkingThread * obj)
         {
             m_bBusy = true;
             int res = ptr->run();
-            ptr->refCount--;
+            ptr->delRef();
             m_bBusy = false;
             if (res!=0 )
                 this->m_pipeline->pushTask(ptr,false);

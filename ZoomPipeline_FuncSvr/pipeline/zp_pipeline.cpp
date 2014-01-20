@@ -69,7 +69,7 @@ void zp_pipeline::pushTask(zp_plTaskBase * task,bool bFire )
 {
     m_mutex_protect.lock();
     m_list_tasks.push_back(task);
-    task->refCount++;
+    task->addRef();
     m_mutex_protect.unlock();
 
     int nsz =  m_vec_workingThreads.size();

@@ -82,7 +82,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
         disconnect (pClientNode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
 
         m_nodeToBeDel.push_back(pClientNode);
-        //qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->refCount);
+        //qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
     }
     m_hash_mutex.unlock();
 
@@ -90,18 +90,18 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
     QList <st_clientNode *> toBedel;
     foreach(st_clientNode * pdelobj,m_nodeToBeDel)
     {
-        if (pdelobj->refCount ==0)
+        if (pdelobj->ref() ==0)
             toBedel.push_back(pdelobj);
         else
         {
-           //qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->refCount);
+           //qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
         }
     }
     foreach(st_clientNode * pdelobj,toBedel)
     {
         m_nodeToBeDel.removeAll(pdelobj);
 
-        //qDebug()<<QString("%1(ref %2) deleting.\n").arg((unsigned int)pdelobj).arg(pdelobj->refCount);
+        //qDebug()<<QString("%1(ref %2) deleting.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
         pdelobj->deleteLater();
 
     }

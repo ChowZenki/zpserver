@@ -8,7 +8,7 @@ DatabaseResource::DatabaseResource(QObject *parent) :
 }
 //!Get an database connection belong to current thread.
 //!if database does not exist, it will be added using dbtype
-QSqlDatabase & DatabaseResource::databse(const QString & strDBName)
+QSqlDatabase  DatabaseResource::databse(const QString & strDBName)
 {
     QMutexLocker locker(&m_mutex_reg);
     if (false==QSqlDatabase::contains(strDBName))
@@ -52,15 +52,15 @@ bool DatabaseResource::confirmConnection(
         )
 {
     QMutexLocker locker(&m_mutex_reg);
-    if (true==QSqlDatabase::contains(strDBName))
+    if (true==QSqlDatabase::contains(connName))
     {
-        QSqlDatabase db = QSqlDatabase::database(strDBName);
+        QSqlDatabase db = QSqlDatabase::database(connName);
         if (db.isOpen()==true)
             return true;
-        QString msg = tr(" Connection ")+strDBName+ tr(" has not not opened.");
+        QString msg = tr(" Connection ")+connName+ tr(" has not not opened.");
         emit evt_Message(msg);
 
-        QSqlDatabase::removeDatabase(strDBName);
+        QSqlDatabase::removeDatabase(connName);
         db = QSqlDatabase::addDatabase(type,connName);
         db.setHostName(HostAddr);
         db.setPort(port);
@@ -70,14 +70,14 @@ bool DatabaseResource::confirmConnection(
         db.setConnectOptions(ExtraOptions);
         if (db.open()==true)
             return true;
-        QString msg = tr(" Connection  ")+strDBName+ tr(" Can;t be opened. MSG=");
+        msg = tr(" Connection  ")+connName+ tr(" Can;t be opened. MSG=");
         msg += db.lastError().text();
         emit evt_Message(msg);
 
         return false;
     }
 
-    db = QSqlDatabase::addDatabase(type,connName);
+    QSqlDatabase db = QSqlDatabase::addDatabase(type,connName);
     db.setHostName(HostAddr);
     db.setPort(port);
     db.setDatabaseName(dbName);
@@ -86,7 +86,7 @@ bool DatabaseResource::confirmConnection(
     db.setConnectOptions(ExtraOptions);
     if (db.open()==true)
         return true;
-    QString msg = tr(" Connection  ")+strDBName+ tr(" Can;t be opened. MSG=");
+    QString msg = tr(" Connection  ")+connName+ tr(" Can;t be opened. MSG=");
     msg += db.lastError().text();
     emit evt_Message(msg);
     return false;

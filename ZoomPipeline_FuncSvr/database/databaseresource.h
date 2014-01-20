@@ -17,7 +17,7 @@ public:
 
     //!Get an database connection belong to current thread.
     //!if database does not exist, it will be added using dbtype
-    QSqlDatabase & databse(const QString & strDBName);
+    QSqlDatabase  databse(const QString & strDBName);
 
     //!confire connection connName, return true if connection can be used.
     bool confirmConnection(

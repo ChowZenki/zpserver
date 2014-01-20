@@ -318,10 +318,10 @@ void ZPMainFrame::on_pushButton_addListener_clicked()
 
 void ZPMainFrame::on_pushButton_delListener_clicked()
 {
-    auto ptr = ui->tableView_listen->selectionModel();
+    QItemSelectionModel * ptr = ui->tableView_listen->selectionModel();
     QModelIndexList lst = ptr->selectedIndexes();
     QSet<int> nRows;
-    foreach (auto item, lst)
+    foreach (QModelIndex item, lst)
         nRows.insert(item.row());
     int nct = 0;
     foreach (int row, nRows)

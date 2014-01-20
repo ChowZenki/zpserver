@@ -103,13 +103,13 @@ void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
     int nsz = m_vec_NetTransThreads.size();
     int nMinPay = 0x7fffffff;
     int nMinIdx = -1;
+
     for (int i=0;i<nsz && nMinPay!=0;i++)
     {
-
         if (m_vec_NetTransThreads[i]->isActive()==false ||
                 m_vec_NetTransThreads[i]->SSLConnection()!=pSource->bSSLConn()
                 )
-            continue;
+             continue;
         int nPat = m_vec_NetTransThreads[i]->CurrentClients();
 
         if (nPat<nMinPay)
@@ -119,6 +119,10 @@ void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
         }
         //qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
     }
+    for (int i=0;i<nsz;i++)
+        if (m_vec_NetTransThreads[i]->isActive()==false )
+            TransThreadDel(m_vec_NetTransThreads[i]);
+
     if (nMinIdx>=0 && nMinIdx<nsz)
         emit evt_EstablishConnection(m_vec_NetTransThreads[nMinIdx],socketDescriptor);
     else

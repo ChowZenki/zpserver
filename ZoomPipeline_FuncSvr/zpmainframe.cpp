@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QSqlDatabase>
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
 ZPMainFrame::ZPMainFrame(QWidget *parent) :
@@ -23,6 +24,10 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     //Create Smartlink client table
     m_clientTable = new SmartLink::st_client_table (m_netEngine,m_taskEngine,this);
 
+    //Create databases
+    m_pDatabases = new ZPDatabase::DatabaseResource(this);
+    connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
+
     m_nTimerId = startTimer(500);
 
     initUI();
@@ -34,7 +39,7 @@ ZPMainFrame::~ZPMainFrame()
     m_netEngine->RemoveAllAddresses();
     m_netEngine->KickAllClients();
     m_netEngine->DeactiveImmediately();
-
+    m_pDatabases->remove_connections();
     m_taskEngine->removeThreads(-1);
 
     while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false)
@@ -72,6 +77,23 @@ void ZPMainFrame::initUI()
     m_pListenerModel->setHeaderData(3,Qt::Horizontal,tr("SSL"));
     ui->tableView_listen->setModel(m_pListenerModel);
 
+    //database
+    m_pDbResModel = new QStandardItemModel(0,7,this);
+    m_pDbResModel->setHeaderData(0,Qt::Horizontal,tr("Name"));
+    m_pDbResModel->setHeaderData(1,Qt::Horizontal,tr("Type"));
+    m_pDbResModel->setHeaderData(2,Qt::Horizontal,tr("HostAddr"));
+    m_pDbResModel->setHeaderData(3,Qt::Horizontal,tr("Port"));
+    m_pDbResModel->setHeaderData(4,Qt::Horizontal,tr("Database"));
+    m_pDbResModel->setHeaderData(5,Qt::Horizontal,tr("Username"));
+    m_pDbResModel->setHeaderData(6,Qt::Horizontal,tr("Options"));
+    ui->tableView_dbconn->setModel(m_pDbResModel);
+    QStringList fdrivers = QSqlDatabase::drivers();
+    QStandardItemModel * pCombo = new QStandardItemModel(this);
+    foreach (QString str, fdrivers)
+    {
+        pCombo->appendRow(new QStandardItem(str));
+    }
+    ui->comboBox_db_type->setModel(pCombo);
 }
 
 //These Message is nessery.-------------------------------------
@@ -199,6 +221,32 @@ void ZPMainFrame::forkServer(const QString & config_file)
     else
         m_taskEngine->addThreads(-nDeltaWorking);
 
+    //database connections
+    m_pDatabases->remove_connections();
+    int nDBConns = settings.value("settings/dbresources",0).toInt();
+    if (nDBConns>=1024)
+        nDBConns = 1024;
+    for (int i=0;i<nDBConns;i++)
+    {
+        QString keyPrefix = QString ("dbres%1/").arg(i);
+        QString db_name = settings.value(keyPrefix+"name","").toString();
+        QString db_type = settings.value(keyPrefix+"type","").toString();
+        QString db_Address = settings.value(keyPrefix+"addr","").toString();
+        int nPort = settings.value(keyPrefix+"port",0).toInt();
+        QString db_Schema = settings.value(keyPrefix+"schema","").toString();
+        QString db_User = settings.value(keyPrefix+"user","").toString();
+        QString db_Pass = settings.value(keyPrefix+"pass","").toString();
+        QString db_Extra =  settings.value(keyPrefix+"extra","").toString();
+        if (db_name.length()<1 )
+            continue;
+        if (db_type.length()<1 || nPort==0)
+            continue;
+        m_pDatabases->addConnection(
+                    db_name,
+                    db_type,db_Address,nPort,db_Schema,db_User,db_Pass,db_Extra
+                    );
+
+    }
 }
 
 void ZPMainFrame::on_action_About_triggered()
@@ -248,6 +296,41 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
     ui->dial_plain_trans_threads->setValue(nPlainThreads);
     ui->dial_ssl_trans_threads->setValue(nSSLThreads);
     ui->dial_task_working_threads->setValue(nWorkingThreads);
+
+    //read db connections
+    m_set_DbResNames.clear();
+    m_pDbResModel->removeRows(0,m_pDbResModel->rowCount());
+    int nDBConns = settings.value("settings/dbresources",0).toInt();
+    if (nDBConns>=1024)
+        nDBConns = 1024;
+    nInserted = 0;
+    for (int i=0;i<nDBConns;i++)
+    {
+        QString keyPrefix = QString ("dbres%1/").arg(i);
+        QString db_name = settings.value(keyPrefix+"name","").toString();
+        QString db_type = settings.value(keyPrefix+"type","").toString();
+        QString db_Address = settings.value(keyPrefix+"addr","").toString();
+        int nPort = settings.value(keyPrefix+"port",0).toInt();
+        QString db_Schema = settings.value(keyPrefix+"schema","").toString();
+        QString db_User = settings.value(keyPrefix+"user","").toString();
+        QString db_Pass = settings.value(keyPrefix+"pass","").toString();
+        QString db_Extra =  settings.value(keyPrefix+"extra","").toString();
+        if (db_name.length()<1 || m_set_DbResNames.contains(db_name))
+            continue;
+        if (db_type.length()<1 || nPort==0)
+            continue;
+        m_set_DbResNames[db_name] = db_Pass;
+        m_pDbResModel->insertRow(nInserted);
+
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,0),db_name);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,1),db_type);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,2),db_Address);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,3),nPort);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,4),db_Schema);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,5),db_User);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,6),db_Extra);
+        nInserted++;
+    }
 }
 
 
@@ -284,8 +367,29 @@ void ZPMainFrame::SaveSettings(const QString & config_file)
     int nWorkingThreads = ui->dial_task_working_threads->value();
     settings.setValue("settings/nWorkingThreads",nWorkingThreads);
 
-
-
+    //Save Database Connections
+    int nDBRess = m_pDbResModel->rowCount();
+    settings.setValue("settings/dbresources",nDBRess);
+    for (int i=0;i<nDBRess;i++)
+    {
+        QString keyPrefix = QString ("dbres%1/").arg(i);
+        QString db_name = m_pDbResModel->data(m_pDbResModel->index(i,0)).toString();
+        settings.setValue(keyPrefix+"name",db_name);
+        QString db_type = m_pDbResModel->data(m_pDbResModel->index(i,1)).toString() ;
+        settings.setValue(keyPrefix+"type",db_type);
+        QString db_Address = m_pDbResModel->data(m_pDbResModel->index(i,2)).toString() ;
+        settings.setValue(keyPrefix+"addr",db_Address);
+        int nPort = m_pDbResModel->data(m_pDbResModel->index(i,3)).toInt();
+        settings.setValue(keyPrefix+"port",nPort);
+        QString db_Schema = m_pDbResModel->data(m_pDbResModel->index(i,4)).toString() ;
+        settings.setValue(keyPrefix+"schema",db_Schema);
+        QString db_User = m_pDbResModel->data(m_pDbResModel->index(i,5)).toString() ;
+        settings.setValue(keyPrefix+"user",db_User);
+        QString db_Pass = m_set_DbResNames[db_name];
+        settings.setValue(keyPrefix+"pass",db_Pass);
+        QString db_Extra = m_pDbResModel->data(m_pDbResModel->index(i,6)).toString() ;
+        settings.setValue(keyPrefix+"extra",db_Extra);
+    }
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {
@@ -333,12 +437,10 @@ void ZPMainFrame::on_pushButton_delListener_clicked()
 void ZPMainFrame::on_pushButton_listerner_apply_clicked()
 {
     SaveSettings(m_currentConffile);
-    //forkServer(m_currentConffile);
 }
 void ZPMainFrame::on_pushButton_threadsApply_clicked()
 {
     SaveSettings(m_currentConffile);
-    //forkServer(m_currentConffile);
 }
 void ZPMainFrame::on_actionReload_config_file_triggered()
 {
@@ -351,4 +453,52 @@ void ZPMainFrame::on_actionReload_config_file_triggered()
         LoadSettings(m_currentConffile);
         forkServer(m_currentConffile);
     }
+}
+void ZPMainFrame::on_pushButton_db_add_clicked()
+{
+    QString name = ui->lineEdit_db_name->text();
+    if (name.length()<=0)
+    {
+        QMessageBox::information(this,tr("Name can't be empty."),tr("Database name can not be empty."));
+        return;
+    }
+    if (m_set_DbResNames.contains(name)==true)
+    {
+        QMessageBox::information(this,tr("Name already exist."),tr("Database name already exist."));
+        return;
+    }
+    int nRow = m_pDbResModel->rowCount();
+    m_pDbResModel->insertRow(nRow);
+    m_pDbResModel->setData(m_pDbResModel->index(nRow,0),ui->lineEdit_db_name->text());
+    m_pDbResModel->setData(m_pDbResModel->index(nRow,1),ui->comboBox_db_type->currentText());
+    m_pDbResModel->setData(m_pDbResModel->index(nRow,2),ui->lineEdit_db_addr->text());
+    m_pDbResModel->setData(m_pDbResModel->index(nRow,3),ui->lineEdit_db_port->text().toInt());
+    m_pDbResModel->setData(m_pDbResModel->index(nRow,4),ui->lineEdit_db_schema->text());
+    m_pDbResModel->setData(m_pDbResModel->index(nRow,5),ui->lineEdit_db_user->text());
+    m_set_DbResNames[name] = ui->lineEdit_db_pass->text();
+}
+
+void ZPMainFrame::on_pushButton_db_del_clicked()
+{
+    QItemSelectionModel * ptr = ui->tableView_dbconn->selectionModel();
+    QModelIndexList lst = ptr->selectedIndexes();
+    QSet<int> nRows;
+    foreach (QModelIndex item, lst)
+        nRows.insert(item.row());
+    int nct = 0;
+    foreach (int row, nRows)
+    {
+        QString names = m_pDbResModel->data(
+                    m_pDbResModel->index(row,0)
+                    ).toString();
+        m_set_DbResNames.remove(names);
+        m_pDbResModel->removeRow(row - nct);
+        nct++;
+    }
+
+}
+
+void ZPMainFrame::on_pushButton_db_apply_clicked()
+{
+    SaveSettings(m_currentConffile);
 }

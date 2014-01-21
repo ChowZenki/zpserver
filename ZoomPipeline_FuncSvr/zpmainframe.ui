@@ -139,7 +139,7 @@
               <item>
                <widget class="QPushButton" name="pushButton_listerner_apply">
                 <property name="text">
-                 <string>Apply</string>
+                 <string>Save</string>
                 </property>
                 <property name="icon">
                  <iconset resource="resource.qrc">
@@ -292,7 +292,7 @@
             <item row="3" column="0">
              <widget class="QPushButton" name="pushButton_threadsApply">
               <property name="text">
-               <string>Apply</string>
+               <string>Save</string>
               </property>
               <property name="icon">
                <iconset resource="resource.qrc">
@@ -431,7 +431,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_db_pass"/>
+               <widget class="QLineEdit" name="lineEdit_db_pass">
+                <property name="echoMode">
+                 <enum>QLineEdit::PasswordEchoOnEdit</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <spacer name="horizontalSpacer_4">
@@ -480,7 +484,7 @@
               <item>
                <widget class="QPushButton" name="pushButton_db_apply">
                 <property name="text">
-                 <string>Apply</string>
+                 <string>Save</string>
                 </property>
                </widget>
               </item>

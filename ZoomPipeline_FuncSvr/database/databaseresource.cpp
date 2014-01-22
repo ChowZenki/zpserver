@@ -4,8 +4,9 @@
 #include <QSqlError>
 namespace ZPDatabase{
 DatabaseResource::DatabaseResource(QObject *parent) :
-    QObject(parent)
+    QThread(parent)
 {
+    bTerm = false;
 }
 //!Get an database connection belong to current thread.
 //!if database does not exist, it will be added using dbtype
@@ -22,7 +23,12 @@ QSqlDatabase  DatabaseResource::databse(const QString & strDBName)
 }
 void DatabaseResource::remove_connections()
 {
-    QMap<QString,tagConnectionPara> sets = currentDatabaseConnections();
+    QMap<QString,tagConnectionPara> sets;
+    {
+        QMutexLocker locker(&m_mutex_reg);
+        sets = currentDatabaseConnections();
+    }
+
     foreach (QString name, sets.keys())
         this->remove_connection(name);
 }
@@ -69,6 +75,7 @@ bool DatabaseResource::addConnection(
     para.dbName = dbName;
     para.User = User;
     para.Pass = Pass;
+    para.status = true;
     para.ExtraOptions = ExtraOptions;
 
     if (true==QSqlDatabase::contains(connName))
@@ -107,7 +114,7 @@ bool DatabaseResource::confirmConnection (const QString & connName)
         emit evt_Message(msg);
         return false;
     }
-    const tagConnectionPara & para = m_dbNames[connName];
+    tagConnectionPara & para = m_dbNames[connName];
     if (true==QSqlDatabase::contains(connName)  )
     {
         QSqlDatabase db = QSqlDatabase::database(connName);
@@ -123,11 +130,17 @@ bool DatabaseResource::confirmConnection (const QString & connName)
         db.setPassword(para.Pass);
         db.setConnectOptions(para.ExtraOptions);
         if (db.open()==true)
+        {
+            para.status = true;
+            para.lastError = "";
             return true;
+        }
         QSqlDatabase::removeDatabase(connName);
         msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
         msg += db.lastError().text();
         emit evt_Message(msg);
+        para.status = false;
+        para.lastError = db.lastError().text();
         return false;
     }
 
@@ -139,11 +152,40 @@ bool DatabaseResource::confirmConnection (const QString & connName)
     db.setPassword(para.Pass);
     db.setConnectOptions(para.ExtraOptions);
     if (db.open()==true)
+    {
+        para.status = true;
+        para.lastError = "";
         return true;
+    }
     QString msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
     msg += db.lastError().text();
     emit evt_Message(msg);
     QSqlDatabase::removeDatabase(connName);
+    para.status = false;
+    para.lastError = db.lastError().text();
     return false;
 }
+
+void DatabaseResource::run()
+{
+    while(bTerm==false)
+    {
+        QMap<QString,tagConnectionPara> sets;
+        {
+            QMutexLocker locker(&m_mutex_reg);
+            sets = currentDatabaseConnections();
+        }
+
+        foreach (QString name, sets.keys())
+        {
+            confirmConnection(name) ;
+            if (bTerm==true)
+                break;
+        }
+        if (bTerm==false)
+            QThread::currentThread()->msleep(30000);
+    }
+
+}
+
 };

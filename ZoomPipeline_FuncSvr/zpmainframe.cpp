@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSqlDatabase>
+#include <QMap>
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
 ZPMainFrame::ZPMainFrame(QWidget *parent) :
@@ -27,6 +28,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     //Create databases
     m_pDatabases = new ZPDatabase::DatabaseResource(this);
     connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
+    m_pDatabases->start();
 
     m_nTimerId = startTimer(500);
 
@@ -39,10 +41,13 @@ ZPMainFrame::~ZPMainFrame()
     m_netEngine->RemoveAllAddresses();
     m_netEngine->KickAllClients();
     m_netEngine->DeactiveImmediately();
+    //term the confirm check
+    m_pDatabases->TerminateMe();
     m_pDatabases->remove_connections();
     m_taskEngine->removeThreads(-1);
 
-    while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false)
+    while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false
+           || m_pDatabases->isRunning()==true)
     {
         QCoreApplication::processEvents();
         QThread::currentThread()->msleep(200);
@@ -141,6 +146,20 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
         str_msg += tr("Current Task Threads: %1\n").arg(m_taskEngine->threadsCount());
         str_msg += tr("Current Task Payload: %1\n").arg(m_taskEngine->payload());
         str_msg += tr("Current Task Idle Threads: %1\n").arg(m_taskEngine->idleThreads());
+
+        QMap<QString,ZPDatabase::DatabaseResource::tagConnectionPara> map_conns
+                = m_pDatabases->currentDatabaseConnections();
+        str_msg += tr("Database Connections: %1\n").arg(map_conns.size());
+        foreach (QString name,map_conns.keys() )
+        {
+            ZPDatabase::DatabaseResource::tagConnectionPara & para = map_conns[name];
+            str_msg += tr("\t%1 status = %2").arg(name).arg(para.status);
+            if (para.status==false)
+                str_msg += ", Msg=" + para.lastError;
+            str_msg += "\n";
+        }
+
+
         ui->plainTextEdit_status_net->setPlainText(str_msg);
     }
 }

@@ -6,11 +6,12 @@
 #include <QSqlDatabase>
 #include <QString>
 #include <QMutex>
+#include <QThread>
 //!this class provide an database reource,
 //!In different thread, workers can get existing db connections
 //! immediately without re-creation operations.
 namespace ZPDatabase{
-class DatabaseResource : public QObject
+class DatabaseResource : public QThread
 {
     Q_OBJECT
 public:
@@ -23,8 +24,8 @@ public:
         QString  User;
         QString  Pass;
         QString  ExtraOptions;
-
-
+        bool status;
+        QString lastError;
     } ;
 
 public:
@@ -49,9 +50,14 @@ public:
     void remove_connections();
     bool confirmConnection (const QString & connName);
 
-    const QMap <QString,tagConnectionPara> & currentDatabaseConnections(){return m_dbNames;}
+    QMap <QString,tagConnectionPara> currentDatabaseConnections(){return m_dbNames;}
+
+    void run();
+
+    void TerminateMe(){bTerm = true;}
 
 protected:
+    bool bTerm;
     QMutex m_mutex_reg;
     QMap <QString,tagConnectionPara> m_dbNames;
 signals:

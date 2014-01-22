@@ -24,8 +24,10 @@ public:
         QString  User;
         QString  Pass;
         QString  ExtraOptions;
+        QString  testSQL;
         bool status;
         QString lastError;
+
     } ;
 
 public:
@@ -44,7 +46,8 @@ public:
             const QString & dbName,
             const QString & User,
             const QString & Pass,
-            const QString & ExtraOptions
+            const QString & ExtraOptions,
+            const QString & testSQL
             );
     void remove_connection(const QString & strDBName);
     void remove_connections();

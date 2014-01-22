@@ -2,6 +2,7 @@
 #include <QThread>
 #include <QMutexLocker>
 #include <QSqlError>
+#include <QSqlQuery>
 namespace ZPDatabase{
 DatabaseResource::DatabaseResource(QObject *parent) :
     QThread(parent)
@@ -63,7 +64,8 @@ bool DatabaseResource::addConnection(
         const QString & dbName,
         const QString & User,
         const QString & Pass,
-        const QString & ExtraOptions
+        const QString & ExtraOptions,
+        const QString & testSQL
         )
 {
     QMutexLocker locker(&m_mutex_reg);
@@ -76,6 +78,7 @@ bool DatabaseResource::addConnection(
     para.User = User;
     para.Pass = Pass;
     para.status = true;
+    para.testSQL = testSQL;
     para.ExtraOptions = ExtraOptions;
 
     if (true==QSqlDatabase::contains(connName))
@@ -97,7 +100,11 @@ bool DatabaseResource::addConnection(
     db.setPassword(Pass);
     db.setConnectOptions(ExtraOptions);
     if (db.open()==true)
+    {
+        QString msg = tr(" Connection  ")+connName+ tr(" Established.");
+        emit evt_Message(msg);
         return true;
+    }
     QString msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
     msg += db.lastError().text();
     emit evt_Message(msg);
@@ -119,7 +126,23 @@ bool DatabaseResource::confirmConnection (const QString & connName)
     {
         QSqlDatabase db = QSqlDatabase::database(connName);
         if (db.isOpen()==true)
+        {
+            QSqlQuery query(db);
+            if (para.testSQL.length())
+            {
+                query.exec(para.testSQL);
+                if (query.lastError().type()!=QSqlError::NoError)
+                {
+                    QString msg = tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
+                    msg += query.lastError().text();
+                    emit evt_Message(msg);
+                    db.close();
+                    QSqlDatabase::removeDatabase(connName);
+                }
+            }
+
             return true;
+        }
         QString msg = tr(" Connection ")+connName+ tr(" has not been opened.");
         emit evt_Message(msg);
         db = QSqlDatabase::addDatabase(para.type,para.connName);
@@ -133,6 +156,8 @@ bool DatabaseResource::confirmConnection (const QString & connName)
         {
             para.status = true;
             para.lastError = "";
+            msg = tr(" Connection  ")+connName+ tr(" Re-Established.");
+            emit evt_Message(msg);
             return true;
         }
         QSqlDatabase::removeDatabase(connName);
@@ -155,6 +180,8 @@ bool DatabaseResource::confirmConnection (const QString & connName)
     {
         para.status = true;
         para.lastError = "";
+        QString msg = tr(" Connection  ")+connName+ tr(" Re-Established.");
+        emit evt_Message(msg);
         return true;
     }
     QString msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");

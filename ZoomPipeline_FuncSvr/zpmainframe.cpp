@@ -83,7 +83,7 @@ void ZPMainFrame::initUI()
     ui->tableView_listen->setModel(m_pListenerModel);
 
     //database
-    m_pDbResModel = new QStandardItemModel(0,7,this);
+    m_pDbResModel = new QStandardItemModel(0,8,this);
     m_pDbResModel->setHeaderData(0,Qt::Horizontal,tr("Name"));
     m_pDbResModel->setHeaderData(1,Qt::Horizontal,tr("Type"));
     m_pDbResModel->setHeaderData(2,Qt::Horizontal,tr("HostAddr"));
@@ -91,6 +91,7 @@ void ZPMainFrame::initUI()
     m_pDbResModel->setHeaderData(4,Qt::Horizontal,tr("Database"));
     m_pDbResModel->setHeaderData(5,Qt::Horizontal,tr("Username"));
     m_pDbResModel->setHeaderData(6,Qt::Horizontal,tr("Options"));
+    m_pDbResModel->setHeaderData(7,Qt::Horizontal,tr("TestSQL"));
     ui->tableView_dbconn->setModel(m_pDbResModel);
     QStringList fdrivers = QSqlDatabase::drivers();
     QStandardItemModel * pCombo = new QStandardItemModel(this);
@@ -256,13 +257,14 @@ void ZPMainFrame::forkServer(const QString & config_file)
         QString db_User = settings.value(keyPrefix+"user","").toString();
         QString db_Pass = settings.value(keyPrefix+"pass","").toString();
         QString db_Extra =  settings.value(keyPrefix+"extra","").toString();
+        QString db_testSQL =  settings.value(keyPrefix+"testSql","").toString();
         if (db_name.length()<1 )
             continue;
         if (db_type.length()<1 || nPort==0)
             continue;
         m_pDatabases->addConnection(
                     db_name,
-                    db_type,db_Address,nPort,db_Schema,db_User,db_Pass,db_Extra
+                    db_type,db_Address,nPort,db_Schema,db_User,db_Pass,db_Extra,db_testSQL
                     );
 
     }
@@ -334,6 +336,7 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
         QString db_User = settings.value(keyPrefix+"user","").toString();
         QString db_Pass = settings.value(keyPrefix+"pass","").toString();
         QString db_Extra =  settings.value(keyPrefix+"extra","").toString();
+        QString db_testSQL =  settings.value(keyPrefix+"testSql","").toString();
         if (db_name.length()<1 || m_set_DbResNames.contains(db_name))
             continue;
         if (db_type.length()<1 || nPort==0)
@@ -348,6 +351,7 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
         m_pDbResModel->setData(m_pDbResModel->index(nInserted,4),db_Schema);
         m_pDbResModel->setData(m_pDbResModel->index(nInserted,5),db_User);
         m_pDbResModel->setData(m_pDbResModel->index(nInserted,6),db_Extra);
+        m_pDbResModel->setData(m_pDbResModel->index(nInserted,7),db_testSQL);
         nInserted++;
     }
 }
@@ -408,6 +412,8 @@ void ZPMainFrame::SaveSettings(const QString & config_file)
         settings.setValue(keyPrefix+"pass",db_Pass);
         QString db_Extra = m_pDbResModel->data(m_pDbResModel->index(i,6)).toString() ;
         settings.setValue(keyPrefix+"extra",db_Extra);
+        QString db_testSQL = m_pDbResModel->data(m_pDbResModel->index(i,7)).toString() ;
+        settings.setValue(keyPrefix+"testSql",db_testSQL);
     }
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
@@ -467,7 +473,7 @@ void ZPMainFrame::on_actionReload_config_file_triggered()
                                  tr("Ini files(*.ini)"));
     if (filename.length()>0)
     {
-        SaveSettings(m_currentConffile);
+        //SaveSettings(m_currentConffile);
         m_currentConffile = filename;
         LoadSettings(m_currentConffile);
         forkServer(m_currentConffile);

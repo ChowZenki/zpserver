@@ -127,21 +127,29 @@ bool DatabaseResource::confirmConnection (const QString & connName)
         QSqlDatabase db = QSqlDatabase::database(connName);
         if (db.isOpen()==true)
         {
-            QSqlQuery query(db);
-            if (para.testSQL.length())
+            bool bNeedDisconnect = false;
             {
-                query.exec(para.testSQL);
-                if (query.lastError().type()!=QSqlError::NoError)
+                QSqlQuery query(db);
+                if (para.testSQL.length())
                 {
-                    QString msg = tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
-                    msg += query.lastError().text();
-                    emit evt_Message(msg);
-                    db.close();
-                    QSqlDatabase::removeDatabase(connName);
+                    query.exec(para.testSQL);
+                    if (query.lastError().type()!=QSqlError::NoError)
+                    {
+                        QString msg = tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
+                        msg += query.lastError().text();
+                        emit evt_Message(msg);
+                        bNeedDisconnect = true;
+                    }
                 }
             }
-
-            return true;
+            if (bNeedDisconnect==true)
+            {
+                db.close();
+                QSqlDatabase::removeDatabase(connName);
+                return false;
+            }
+            else
+                return true;
         }
         QString msg = tr(" Connection ")+connName+ tr(" has not been opened.");
         emit evt_Message(msg);

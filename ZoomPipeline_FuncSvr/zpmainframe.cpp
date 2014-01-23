@@ -176,6 +176,7 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
         m_netEngine->RemoveClientTransThreads(-1,true);
         m_netEngine->RemoveClientTransThreads(-1,false);
         m_taskEngine->removeThreads(-1);
+        m_pDatabases->remove_connections();
 
         while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false)
         {
@@ -260,7 +261,7 @@ void ZPMainFrame::forkServer(const QString & config_file)
         QString db_testSQL =  settings.value(keyPrefix+"testSql","").toString();
         if (db_name.length()<1 )
             continue;
-        if (db_type.length()<1 || nPort==0)
+        if (db_type.length()<1)
             continue;
         m_pDatabases->addConnection(
                     db_name,
@@ -339,7 +340,7 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
         QString db_testSQL =  settings.value(keyPrefix+"testSql","").toString();
         if (db_name.length()<1 || m_set_DbResNames.contains(db_name))
             continue;
-        if (db_type.length()<1 || nPort==0)
+        if (db_type.length()<1)
             continue;
         m_set_DbResNames[db_name] = db_Pass;
         m_pDbResModel->insertRow(nInserted);

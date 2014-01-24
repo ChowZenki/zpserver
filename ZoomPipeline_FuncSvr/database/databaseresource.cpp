@@ -128,18 +128,16 @@ bool DatabaseResource::confirmConnection (const QString & connName)
         if (db.isOpen()==true)
         {
             bool bNeedDisconnect = false;
+            if (para.testSQL.length())
             {
                 QSqlQuery query(db);
-                if (para.testSQL.length())
+                query.exec(para.testSQL);
+                if (query.lastError().type()!=QSqlError::NoError)
                 {
-                    query.exec(para.testSQL);
-                    if (query.lastError().type()!=QSqlError::NoError)
-                    {
-                        QString msg = tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
-                        msg += query.lastError().text();
-                        emit evt_Message(msg);
-                        bNeedDisconnect = true;
-                    }
+                    QString msg = tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
+                    msg += query.lastError().text();
+                    emit evt_Message(msg);
+                    bNeedDisconnect = true;
                 }
             }
             if (bNeedDisconnect==true)

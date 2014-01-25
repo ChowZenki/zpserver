@@ -253,7 +253,7 @@ int st_clientNode::deal_current_message_block()
             //need further dev, insert into db, or catched on disk.
             //destin client is un-reachable, or in another function server.
             //need server-to-server channels to re-post this message.
-            emit evt_Message(tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in.\n"));
+            emit evt_Message(tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
 
             //Do Nothing
         }
@@ -266,4 +266,15 @@ int st_clientNode::deal_current_message_block()
     }
     return 0;
 }
+void st_clientNode::CheckHeartBeating()
+{
+    QDateTime dtm = QDateTime::currentDateTime();
+    qint64 usc = this->m_last_Report.secsTo(dtm);
+    if (usc >=60)
+    {
+        emit evt_Message(tr("Client ") + QString("%1").arg((unsigned int)(this)) + tr(" is dead, kick out."));
+        emit evt_close_client(this->sock());
+    }
+}
+
 }

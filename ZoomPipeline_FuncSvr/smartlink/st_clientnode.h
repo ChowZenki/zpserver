@@ -34,7 +34,7 @@ public:
     {
         return m_last_Report;
     }
-
+    void CheckHeartBeating();
 protected:
     //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
     //!return bytes Used.

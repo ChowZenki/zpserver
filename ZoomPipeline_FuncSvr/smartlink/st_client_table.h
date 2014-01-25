@@ -20,7 +20,7 @@ public:
     bool regisitClientUUID(st_clientNode *);
     st_clientNode * clientNodeFromUUID(quint32);
     st_clientNode * clientNodeFromSocket(QObject *);
-
+    void KickDealClients();
 protected:
      QList<st_clientNode *> m_nodeToBeDel;
      QMutex m_hash_mutex;

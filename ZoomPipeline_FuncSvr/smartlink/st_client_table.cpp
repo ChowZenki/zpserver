@@ -12,47 +12,55 @@ st_client_table::st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngi
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
-
 }
- st_client_table::~st_client_table()
+st_client_table::~st_client_table()
 {
 }
+void  st_client_table::KickDealClients()
+{
+    m_hash_mutex.lock();
+    for (QMap<QObject *,st_clientNode *>::iterator p =m_hash_sock2node.begin();
+         p!=m_hash_sock2node.end();p++)
+    {
+        p.value()->CheckHeartBeating();
+    }
+    m_hash_mutex.unlock();
+}
+bool st_client_table::regisitClientUUID(st_clientNode * c)
+{
+    if (c->uuidValid()==false)
+        return false;
+    m_hash_mutex.lock();
+    m_hash_uuid2node[c->uuid()] = c;
+    m_hash_mutex.unlock();
+    return true;
+}
 
- bool st_client_table::regisitClientUUID(st_clientNode * c)
- {
-     if (c->uuidValid()==false)
-         return false;
-     m_hash_mutex.lock();
-     m_hash_uuid2node[c->uuid()] = c;
-     m_hash_mutex.unlock();
-     return true;
- }
+st_clientNode *  st_client_table::clientNodeFromUUID(quint32 uuid)
+{
+    m_hash_mutex.lock();
+    if (m_hash_uuid2node.contains(uuid))
+    {
+        m_hash_mutex.unlock();
+        return m_hash_uuid2node[uuid];
+    }
+    m_hash_mutex.unlock();
 
- st_clientNode *  st_client_table::clientNodeFromUUID(quint32 uuid)
- {
-     m_hash_mutex.lock();
-     if (m_hash_uuid2node.contains(uuid))
-     {
-         m_hash_mutex.unlock();
-         return m_hash_uuid2node[uuid];
-     }
-     m_hash_mutex.unlock();
+    return NULL;
+}
 
-     return NULL;
- }
+st_clientNode *  st_client_table::clientNodeFromSocket(QObject * sock)
+{
+    m_hash_mutex.lock();
+    if (m_hash_sock2node.contains(sock))
+    {
+        m_hash_mutex.unlock();
+        return m_hash_sock2node[sock];
+    }
+    m_hash_mutex.unlock();
+    return NULL;
 
- st_clientNode *  st_client_table::clientNodeFromSocket(QObject * sock)
- {
-     m_hash_mutex.lock();
-     if (m_hash_sock2node.contains(sock))
-     {
-         m_hash_mutex.unlock();
-         return m_hash_sock2node[sock];
-     }
-     m_hash_mutex.unlock();
-     return NULL;
-
- }
+}
 
 
 //this event indicates new client connected.
@@ -80,6 +88,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
         disconnect (pClientNode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
         disconnect (pClientNode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
         disconnect (pClientNode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
+        disconnect (pClientNode,&st_clientNode::evt_Message,this,&st_client_table::evt_Message);
 
         m_nodeToBeDel.push_back(pClientNode);
         //qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
@@ -94,7 +103,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
             toBedel.push_back(pdelobj);
         else
         {
-           //qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
+            //qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
         }
     }
     foreach(st_clientNode * pdelobj,toBedel)
@@ -123,6 +132,7 @@ void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteA
         connect (pnode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
         connect (pnode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
         connect (pnode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
         m_hash_sock2node[clientHandle] = pnode;
         nHashContains = true;
         pClientNode = pnode;

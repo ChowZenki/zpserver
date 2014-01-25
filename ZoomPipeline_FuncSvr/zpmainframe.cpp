@@ -24,14 +24,14 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     m_taskEngine = new zp_pipeline(this);
     //Create Smartlink client table
     m_clientTable = new SmartLink::st_client_table (m_netEngine,m_taskEngine,this);
-
+    connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message);
     //Create databases
     m_pDatabases = new ZPDatabase::DatabaseResource(this);
     connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
     m_pDatabases->start();
 
     m_nTimerId = startTimer(500);
-
+    m_nTimerCheck =  startTimer(10000);
     initUI();
     LoadSettings(m_currentConffile);
 }
@@ -163,6 +163,11 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 
         ui->plainTextEdit_status_net->setPlainText(str_msg);
     }
+    else if (e->timerId()==m_nTimerCheck)
+    {
+        m_clientTable->KickDealClients();
+    }
+
 }
 void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 {

@@ -20,10 +20,9 @@ class ZPMainFrame : public QMainWindow
 public:
     explicit ZPMainFrame(QWidget *parent = 0);
     ~ZPMainFrame();
-
+    void timerEvent(QTimerEvent *);
 protected:
     void changeEvent(QEvent *e);
-    void timerEvent(QTimerEvent *);
     QStandardItemModel * m_pMsgModel;
 
     //Config File Name
@@ -34,6 +33,9 @@ protected:
     //Database settings
     QStandardItemModel * m_pDbResModel;
     QMap<QString,QString> m_set_DbResNames;
+
+    //Dead check
+    int m_nTimerCheck;
 
 
 

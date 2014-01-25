@@ -20,7 +20,7 @@ public:
     bool regisitClientUUID(st_clientNode *);
     st_clientNode * clientNodeFromUUID(quint32);
     st_clientNode * clientNodeFromSocket(QObject *);
-
+    void KickDealClients();
 protected:
      QList<st_clientNode *> m_nodeToBeDel;
      QMutex m_hash_mutex;
@@ -29,6 +29,7 @@ protected:
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
      ZPTaskEngine::zp_pipeline * m_pTaskEngine;
 signals:
+     void evt_Message (const QString &);
 
 public slots:
      //this event indicates new client connected.

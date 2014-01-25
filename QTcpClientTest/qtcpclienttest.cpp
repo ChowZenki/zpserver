@@ -106,22 +106,11 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
             //send heart-beating
             foreach(QGHTcpClient * pSock,listObj)
             {
-                quint16 nMsgLen = 0;
-                QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+                QByteArray array(sizeof(SMARTLINK_HEARTBEATING),0);
                 char * ptr = array.data();
-                SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
-                pMsg->Mark=0x55AA;
-                pMsg->version = 1;
-                pMsg->Priority = 0;
-                pMsg->Reserved1 = 0;
-                pMsg->SerialNum = 0;
-                pMsg->source_id = (quint32)((quint64)(pSock) & 0xffffffff);
-
-                pMsg->destin_id = (quint32)0xffffffff;
-                pMsg->Reserved2 = 0;
-                pMsg->data_length = nMsgLen;
-                for (int i=0;i<nMsgLen;i++)
-                    pMsg->data[i] = '0' + i%10;
+                SMARTLINK_HEARTBEATING * pMsg = (SMARTLINK_HEARTBEATING *)ptr;
+                pMsg->Mark = 0xBEBE;
+                pMsg->tmStamp = 0;
                 //3/10 possibility to send a data block to server
                 (pSock)->SendData(array);
             }

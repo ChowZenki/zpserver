@@ -11,6 +11,7 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_uuid = 0xffffffff;//Not Valid
     m_pClientTable = pClientTable;
     bTermSet = false;
+    m_last_Report = QDateTime::currentDateTime();
 }
 
 //The main functional method, will run in thread pool
@@ -70,90 +71,138 @@ int st_clientNode::push_new_data(const  QByteArray &  dtarray)
     m_list_RawData.push_back(dtarray);
     res = m_list_RawData.size();
     m_mutex.unlock();
+    m_last_Report = QDateTime::currentDateTime();
     return res;
 }
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
 int st_clientNode::filter_message(const QByteArray & block, int offset)
 {
-    while (block.length()>offset)
+    const int blocklen = block.length();
+    while (blocklen>offset)
     {
         const char * dataptr = block.constData();
-        while (m_currentMessageSize< sizeof(SMARTLINK_MSG)-1)
+
+        //Recieve First 2 byte
+        while (m_currentMessageSize<2 && blocklen>offset )
         {
             m_currentBlock.push_back(dataptr[offset++]);
             m_currentMessageSize++;
-            if (offset >= block.length())
-                break;
         }
-        if (m_currentMessageSize < sizeof(SMARTLINK_MSG)-1) //Header not completed.
+        if (m_currentMessageSize < 2) //First 2 byte not complete
             continue;
-        else if (m_currentMessageSize == sizeof(SMARTLINK_MSG)-1)//Header just  completed.
+
+        if (m_currentMessageSize==2)
         {
             const char * headerptr = m_currentBlock.constData();
-            memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG)-1);
+            memcpy((void *)&m_currentHeader,headerptr,2);
+        }
 
-            //continue reading if there is data left behind
-            if (block.length()>offset)
+        const char * ptrCurrData = m_currentBlock.constData();
+        //Heart Beating
+        if (m_currentHeader.Mark == 0xBEBE)
+        {
+            while (m_currentMessageSize< sizeof(SMARTLINK_HEARTBEATING) && blocklen>offset )
             {
-                qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
-                        -m_currentMessageSize ;
-                while (bitLeft>0 && block.length()>offset)
+                m_currentBlock.push_back(dataptr[offset++]);
+                m_currentMessageSize++;
+            }
+            if (m_currentMessageSize < sizeof(SMARTLINK_HEARTBEATING)) //Header not completed.
+                continue;
+            //Send back
+            emit evt_SendDataToClient(this->sock(),m_currentBlock);
+            //This Message is Over. Start a new one.
+            m_currentMessageSize = 0;
+            m_currentBlock = QByteArray();
+            continue;
+        }
+        else if (m_currentHeader.Mark == 0x55AA)
+            //Trans Message
+        {
+            while (m_currentMessageSize< sizeof(SMARTLINK_MSG)-1 && blocklen>offset)
+            {
+                m_currentBlock.push_back(dataptr[offset++]);
+                m_currentMessageSize++;
+            }
+            if (m_currentMessageSize < sizeof(SMARTLINK_MSG)-1) //Header not completed.
+                continue;
+            else if (m_currentMessageSize == sizeof(SMARTLINK_MSG)-1)//Header just  completed.
+            {
+                const char * headerptr = m_currentBlock.constData();
+                memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG)-1);
+
+                //continue reading if there is data left behind
+                if (block.length()>offset)
                 {
-                    m_currentBlock.push_back(dataptr[offset++]);
-                    m_currentMessageSize++;
-                    bitLeft--;
-                }
-                if (m_currentHeader.Mark==0x55AA )
+                    qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+                            -m_currentMessageSize ;
+                    while (bitLeft>0 && blocklen>offset)
+                    {
+                        m_currentBlock.push_back(dataptr[offset++]);
+                        m_currentMessageSize++;
+                        bitLeft--;
+                    }
                     //deal block, may be send data as soon as possible;
                     deal_current_message_block();
-                else //Bad MSG!
-                {
-                    emit evt_close_client(this->sock());
-                }
-                if (bitLeft>0)
+                    if (bitLeft>0)
+                        continue;
+                    //This Message is Over. Start a new one.
+                    m_currentMessageSize = 0;
+                    m_currentBlock = QByteArray();
                     continue;
-                //This Message is Over. Start a new one.
-                m_currentMessageSize = 0;
-                m_currentBlock.clear();
-                continue;
+                }
             }
-        }
+            else
+            {
+                if (block.length()>offset)
+                {
+                    qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+                            -m_currentMessageSize ;
+                    while (bitLeft>0 && blocklen>offset)
+                    {
+                        m_currentBlock.push_back(dataptr[offset++]);
+                        m_currentMessageSize++;
+                        bitLeft--;
+                    }
+                    //deal block, may be processed as soon as possible;
+                    deal_current_message_block();
+                    if (bitLeft>0)
+                        continue;
+                    //This Message is Over. Start a new one.
+                    m_currentMessageSize = 0;
+                    m_currentBlock = QByteArray();
+                    continue;
+                }
+            } // end if there is more bytes to append
+        } //end deal trans message
         else
         {
-            if (block.length()>offset)
-            {
-                qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
-                        -m_currentMessageSize ;
-                while (bitLeft>0 && block.length()>offset)
-                {
-                    m_currentBlock.push_back(dataptr[offset++]);
-                    m_currentMessageSize++;
-                    bitLeft--;
-                }
-                //deal block, may be processed as soon as possible;
-                deal_current_message_block();
-                if (bitLeft>0)
-                    continue;
-                //This Message is Over. Start a new one.
-                m_currentMessageSize = 0;
-                m_currentBlock.clear();
-                continue;
-            }
-        }
+            emit evt_Message(tr("Client Send a unknown start Header %1 %2. Close client immediately.")
+                             .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
+            m_currentMessageSize = 0;
+            m_currentBlock = QByteArray();
+            offset = blocklen;
 
-    }
+            emit evt_close_client(this->sock());
+        }
+    } // end while block len > offset
 
     return offset;
 }
 //!deal current message
 int st_clientNode::deal_current_message_block()
 {
-
     //First, get uuid as soon as possible
     if (m_bUUIDRecieved==false)
     {
-        if (m_currentHeader.source_id!=0xffffffff)
+        if (m_currentHeader.source_id>= 0x00010000 && m_currentHeader.source_id <= 0x0FFFFFFF     )
+        {
+            m_bUUIDRecieved = true;
+            m_uuid =  m_currentHeader.source_id;
+            //regisit client node to hash-table;
+            m_pClientTable->regisitClientUUID(this);
+        }
+        else if (m_currentHeader.source_id>= (unsigned int)0x80000000 && m_currentHeader.source_id <=  (unsigned int)0xAFFFFFFF      )
         {
             m_bUUIDRecieved = true;
             m_uuid =  m_currentHeader.source_id;
@@ -161,25 +210,40 @@ int st_clientNode::deal_current_message_block()
             m_pClientTable->regisitClientUUID(this);
         }
         else //Invalid
+        {
+            emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
+            m_currentBlock = QByteArray();
+            emit evt_close_client(this->sock());
             return 0;
+        }
     }
 
     //then , Start deal to-server messages
-    if (m_currentHeader.destin_id==0xffffffff)
+    //Server - deal messages
+    if (m_currentHeader.destin_id==0x00000001)
     {
         //need furture works.
-        if (m_currentHeader.data_length==0) //heart-beating
-        {
-            emit evt_SendDataToClient(this->sock(),m_currentBlock);
-            m_currentBlock.clear();
-        }
-        else
-        {
-            //Do Nothing
-            m_currentBlock.clear();
-        }
+        //Do Nothing
+        m_currentBlock = QByteArray();
+        emit evt_Message(tr("To-server Message is not currently supported."));
     }
-    //deal client-to-client messages
+    //deal Broadcast messages
+    else if (m_currentHeader.destin_id==0xFFFFFFFC)
+    {
+        //need furture works.
+        //Do Nothing
+         emit evt_Message(tr("Broadcast Message is not currently supported."));
+        m_currentBlock = QByteArray();
+
+    }
+    else if (m_currentHeader.destin_id==0xFFFFFFFD)
+    {
+        //need furture works.
+        //Do Nothing
+        emit evt_Message(tr("Broadcast Message is not currently supported."));
+        m_currentBlock = QByteArray();
+
+    }
     else
     {
         //find Destin Client using Hash.
@@ -189,13 +253,14 @@ int st_clientNode::deal_current_message_block()
             //need further dev, insert into db, or catched on disk.
             //destin client is un-reachable, or in another function server.
             //need server-to-server channels to re-post this message.
-            qDebug()<<"Destin ID "<<m_currentHeader.destin_id<< "is not valid\n";
+            emit evt_Message(tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in.\n"));
+
             //Do Nothing
         }
         else
         {
             emit evt_SendDataToClient(destin_node->sock(),m_currentBlock);
-            m_currentBlock.clear();
+            m_currentBlock = QByteArray();
         }
 
     }

@@ -12,7 +12,6 @@ st_client_table::st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngi
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
-
 }
  st_client_table::~st_client_table()
 {
@@ -80,6 +79,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
         disconnect (pClientNode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
         disconnect (pClientNode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
         disconnect (pClientNode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
+        disconnect (pClientNode,&st_clientNode::evt_Message,this,&st_client_table::evt_Message);
 
         m_nodeToBeDel.push_back(pClientNode);
         //qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
@@ -123,6 +123,7 @@ void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteA
         connect (pnode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
         connect (pnode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
         connect (pnode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
         m_hash_sock2node[clientHandle] = pnode;
         nHashContains = true;
         pClientNode = pnode;

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QMutex>
+#include <QDateTime>
 #include "st_message.h"
 #include "../pipeline/zp_pltaskbase.h"
 namespace SmartLink{
@@ -28,6 +29,12 @@ public:
     QObject * sock() {return m_pClientSock;}
     bool uuidValid(){return m_bUUIDRecieved;}
     bool bTermSet;
+
+    QDateTime lastActiveTime()
+    {
+        return m_last_Report;
+    }
+
 protected:
     //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
     //!return bytes Used.
@@ -57,10 +64,14 @@ protected:
 
     st_client_table * m_pClientTable;
 
+    QDateTime m_last_Report;
+
 signals:
     void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
     void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
     void evt_close_client(QObject * objClient);
+    void evt_Message (const QString &);
+
 };
 
 }

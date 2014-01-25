@@ -24,7 +24,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     m_taskEngine = new zp_pipeline(this);
     //Create Smartlink client table
     m_clientTable = new SmartLink::st_client_table (m_netEngine,m_taskEngine,this);
-
+    connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message);
     //Create databases
     m_pDatabases = new ZPDatabase::DatabaseResource(this);
     connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);

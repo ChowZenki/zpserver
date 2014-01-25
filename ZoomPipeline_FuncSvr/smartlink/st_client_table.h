@@ -29,6 +29,7 @@ protected:
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
      ZPTaskEngine::zp_pipeline * m_pTaskEngine;
 signals:
+     void evt_Message (const QString &);
 
 public slots:
      //this event indicates new client connected.

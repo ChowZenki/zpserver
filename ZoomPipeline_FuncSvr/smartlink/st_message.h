@@ -17,6 +17,11 @@ typedef struct tag_smartlink_message{
     __UINT16_TYPE__ Reserved2;
     __UINT8_TYPE__ data[1];
    } SMARTLINK_MSG;
+typedef struct tag_smartlink_heartBeating
+{
+    __UINT16_TYPE__ Mark;  //Always be 0xBeBe
+    __UINT16_TYPE__ tmStamp;
+} SMARTLINK_HEARTBEATING;
 #endif
 
 #if defined(_MSC_VER)
@@ -32,6 +37,11 @@ typedef struct tag_smartlink_message{
     unsigned __int16 Reserved2;
     unsigned __int8 data[1];
    } SMARTLINK_MSG;
+typedef struct tag_smartlink_heartBeating
+{
+    unsigned __int16 Mark;  //Always be 0xBeBe
+    unsigned __int16 tmStamp;
+} SMARTLINK_HEARTBEATING;
 #endif
 
 

@@ -10,7 +10,7 @@ typedef struct tag_smartlink_message{
     __UINT16_TYPE__ version; //Structure Version
     __UINT8_TYPE__ Priority;
     __UINT8_TYPE__	Reserved1;
-    __UINT32_TYPE__ SerialNum;
+    __UINT16_TYPE__ SerialNum;
     __UINT32_TYPE__ source_id ; //0xffffffff means from server
     __UINT32_TYPE__ destin_id ; //0xffffffff means to server
     __UINT16_TYPE__ data_length; //Data at least have 2 byte, for heart-beating counter.
@@ -25,7 +25,7 @@ typedef struct tag_smartlink_message{
     unsigned __int16 version; //Structure Version
     unsigned __int8 Priority;
     unsigned __int8	Reserved1;
-    unsigned __int32 SerialNum;
+    unsigned __int16 SerialNum;
     unsigned __int32 source_id ; //0xffffffff means from server
     unsigned __int32 destin_id ; //0xffffffff means to server
     unsigned __int16 data_length; //Data at least have 2 byte, for heart-beating counter.

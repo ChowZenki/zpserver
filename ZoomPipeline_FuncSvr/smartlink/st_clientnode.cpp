@@ -270,7 +270,7 @@ void st_clientNode::CheckHeartBeating()
 {
     QDateTime dtm = QDateTime::currentDateTime();
     qint64 usc = this->m_last_Report.secsTo(dtm);
-    if (usc >=60)
+    if (usc >=m_pClientTable->heartBeatingThrd())
     {
         emit evt_Message(tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));
         emit evt_close_client(this->sock());

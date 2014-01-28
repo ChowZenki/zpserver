@@ -30,7 +30,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
     m_pDatabases->start();
 
-    m_nTimerId = startTimer(500);
+    m_nTimerId = startTimer(2000);
     m_nTimerCheck =  startTimer(10000);
     initUI();
     LoadSettings(m_currentConffile);
@@ -159,13 +159,20 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
                 str_msg += ", Msg=" + para.lastError;
             str_msg += "\n";
         }
-
+        str_msg += tr("Smartlink Function Server Paras:\n");
+        str_msg += tr("\tUser Account Database is : %1\n").arg(m_clientTable->Database_UserAcct());
+        str_msg += tr("\tEvent Database is : %1\n").arg(m_clientTable->Database_Event());
+        str_msg += tr("\tLocal folder for large file is : %1\n").arg(m_clientTable->largeFileFolder());
+        str_msg += tr("\tHeart beating Threadhold is : %1\n").arg(m_clientTable->heartBeatingThrd());
 
         ui->plainTextEdit_status_net->setPlainText(str_msg);
     }
     else if (e->timerId()==m_nTimerCheck)
     {
+        killTimer(m_nTimerCheck);
+        m_nTimerCheck = -1;
         m_clientTable->KickDealClients();
+        m_nTimerCheck = startTimer(10000);
     }
 
 }
@@ -274,6 +281,21 @@ void ZPMainFrame::forkServer(const QString & config_file)
                     );
 
     }
+
+    //Smartlink settings
+    int nHeartbeatingThreadhold = settings.value("Smartlink/HeartbeatingThreadhold",180).toInt();
+    if (nHeartbeatingThreadhold>=60 && nHeartbeatingThreadhold<=300)
+        m_clientTable->setHeartBeatingThrd(nHeartbeatingThreadhold);
+
+    QString strSLDB_useracc = settings.value("Smartlink/SLDB_useracc","EMPTY").toString();
+    m_clientTable->setDatabase_UserAcct(strSLDB_useracc);
+
+    QString strSLDB_mainEvent = settings.value("Smartlink/SLDB_mainEvt","EMPTY").toString();
+    m_clientTable->setDatabase_Event(strSLDB_mainEvent);
+
+    QString strSL_LargetFolder = settings.value("Smartlink/SL_LargetFolder","NUL").toString();
+    m_clientTable->setLargeFileFolder(strSL_LargetFolder);
+
 }
 
 void ZPMainFrame::on_action_About_triggered()
@@ -360,6 +382,24 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
         m_pDbResModel->setData(m_pDbResModel->index(nInserted,7),db_testSQL);
         nInserted++;
     }
+
+    //Smartlink settings
+    int nHeartbeatingThreadhold = settings.value("Smartlink/HeartbeatingThreadhold",180).toInt();
+    if (nHeartbeatingThreadhold>=60 && nHeartbeatingThreadhold<=300)
+        ui->horizontalSlider_heartbeating->setValue(nHeartbeatingThreadhold);
+    else
+        ui->horizontalSlider_heartbeating->setValue(180);
+
+    ui->lcdNumber_heartbeating->display(ui->horizontalSlider_heartbeating->value());
+
+    QString strSLDB_useracc = settings.value("Smartlink/SLDB_useracc","EMPTY").toString();
+    ui->lineEdit_SL_DB_Account->setText(strSLDB_useracc);
+
+    QString strSLDB_mainEvent = settings.value("Smartlink/SLDB_mainEvt","EMPTY").toString();
+    ui->lineEdit_SL_DB_ME->setText(strSLDB_mainEvent);
+
+    QString strSL_LargetFolder = settings.value("Smartlink/SL_LargetFolder","NUL").toString();
+    ui->lineEdit_SL_LargetFolder->setText(strSL_LargetFolder);
 }
 
 
@@ -421,6 +461,16 @@ void ZPMainFrame::SaveSettings(const QString & config_file)
         QString db_testSQL = m_pDbResModel->data(m_pDbResModel->index(i,7)).toString() ;
         settings.setValue(keyPrefix+"testSql",db_testSQL);
     }
+
+    //Smartlink settings
+    int nHeartbeatingThreadhold = ui->horizontalSlider_heartbeating->value();
+    settings.setValue("Smartlink/HeartbeatingThreadhold",nHeartbeatingThreadhold);
+    QString strSLDB_useracc = ui->lineEdit_SL_DB_Account->text();
+    settings.setValue("Smartlink/SLDB_useracc",strSLDB_useracc);
+    QString strSLDB_mainEvent = ui->lineEdit_SL_DB_ME->text();
+    settings.setValue("Smartlink/SLDB_mainEvt",strSLDB_mainEvent);
+    QString strSL_LargetFolder = ui->lineEdit_SL_LargetFolder->text();
+    settings.setValue("Smartlink/SL_LargetFolder",strSL_LargetFolder);
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {

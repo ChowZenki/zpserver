@@ -8,6 +8,7 @@ st_client_table::st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngi
   ,m_pThreadPool(pool)
   ,m_pTaskEngine(taskeng)
 {
+    m_nHeartBeatingDeadThrd = 180;
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);

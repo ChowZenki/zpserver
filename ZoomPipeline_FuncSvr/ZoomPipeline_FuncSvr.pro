@@ -43,5 +43,3 @@ FORMS    += zpmainframe.ui
 RESOURCES += \
     resource.qrc
 
-OTHER_FILES += \
-    ZoomPipeline_FuncSvr_zh_cn.ts

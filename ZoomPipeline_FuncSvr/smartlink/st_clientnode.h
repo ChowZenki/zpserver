@@ -40,6 +40,11 @@ protected:
     //!return bytes Used.
     int filter_message(const QByteArray &, int offset);
     int deal_current_message_block();
+
+    //Message Dealers, imp in st_clientnode_msgdeal.cpp
+
+
+
     //data items
 protected:
     //The current Read Offset, from m_list_RawData's beginning

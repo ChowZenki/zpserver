@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     pipeline/zp_plworkingthread.cpp \
     smartlink/st_clientnode.cpp \
     pipeline/zp_pltaskbase.cpp \
-    database/databaseresource.cpp
+    database/databaseresource.cpp \
+    smartlink/st_clientnode_msgdeal.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \

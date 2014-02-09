@@ -8,13 +8,14 @@
 #include "../network/zp_net_threadpool.h"
 #include "../pipeline/zp_pipeline.h"
 #include "./st_message.h"
+#include "../database/databaseresource.h"
 namespace SmartLink{
 class st_clientNode;
 class st_client_table : public QObject
 {
     Q_OBJECT
 public:
-    explicit st_client_table( ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng,QObject *parent = 0);
+    explicit st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng, ZPDatabase::DatabaseResource *pDb, QObject *parent = 0);
     ~st_client_table();
 
     bool regisitClientUUID(st_clientNode *);
@@ -33,6 +34,8 @@ public:
     void setDatabase_Event(const QString & s){m_strDBName_event = s;}
     QString largeFileFolder(){return m_largeFileFolder;}
     void setLargeFileFolder(const QString & s){m_largeFileFolder = s;}
+
+    ZPDatabase::DatabaseResource * dbRes(){return m_pDatabaseRes;}
 protected:
     //This list hold dead nodes that still in task queue,avoiding crash
      QList<st_clientNode *> m_nodeToBeDel;
@@ -46,6 +49,8 @@ protected:
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
      //The piple-line
      ZPTaskEngine::zp_pipeline * m_pTaskEngine;
+     //The database pool
+     ZPDatabase::DatabaseResource * m_pDatabaseRes;
 
      //The max seconds before dead client be kicked out
      int m_nHeartBeatingDeadThrd;

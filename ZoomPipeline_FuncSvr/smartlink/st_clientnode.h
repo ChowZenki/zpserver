@@ -6,6 +6,7 @@
 #include <QMutex>
 #include <QDateTime>
 #include "st_message.h"
+#include "st_msg_applayer.h"
 #include "../pipeline/zp_pltaskbase.h"
 namespace SmartLink{
 class st_client_table;
@@ -42,7 +43,10 @@ protected:
     int deal_current_message_block();
 
     //Message Dealers, imp in st_clientnode_msgdeal.cpp
+    bool Deal_BoxToServer_Messages();
 
+    //0x0001 msg, stMsg_HostRegistReq
+    bool RegisitNewNode();
 
 
     //data items
@@ -57,6 +61,7 @@ protected:
     QByteArray m_currentBlock;
     //current Header
     SMARTLINK_MSG m_currentHeader;
+    SMARTLINK_MSG_APP m_current_app_header;
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
     QMutex m_mutex;

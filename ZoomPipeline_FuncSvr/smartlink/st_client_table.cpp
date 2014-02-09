@@ -3,10 +3,15 @@
 #include <assert.h>
 #include <functional>
 namespace SmartLink{
-st_client_table::st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng,QObject *parent) :
+st_client_table::st_client_table(
+        ZPNetwork::zp_net_ThreadPool * pool,
+        ZPTaskEngine::zp_pipeline * taskeng,
+        ZPDatabase::DatabaseResource * pDb,
+        QObject *parent) :
     QObject(parent)
   ,m_pThreadPool(pool)
   ,m_pTaskEngine(taskeng)
+  ,m_pDatabaseRes(pDb)
 {
     m_nHeartBeatingDeadThrd = 180;
     connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);

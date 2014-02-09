@@ -2,6 +2,7 @@
 #include <QSettings>
 #include <QCoreApplication>
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
+using namespace SmartLink;
 QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
 {

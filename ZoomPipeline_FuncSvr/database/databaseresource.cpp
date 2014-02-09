@@ -4,6 +4,8 @@
 #include <QSqlError>
 #include <QSqlQuery>
 namespace ZPDatabase{
+
+
 DatabaseResource::DatabaseResource(QObject *parent) :
     QThread(parent)
 {

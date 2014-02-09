@@ -1,6 +1,8 @@
 #ifndef ST_MESSAGE_H
 #define ST_MESSAGE_H
 
+namespace SmartLink{
+
 #pragma  pack (push,1)
 
 #if defined(__GNUC__)
@@ -47,5 +49,5 @@ typedef struct tag_smartlink_heartBeating
 
 
 #pragma pack(pop)
-
+}
 #endif // ST_MESSAGE_H

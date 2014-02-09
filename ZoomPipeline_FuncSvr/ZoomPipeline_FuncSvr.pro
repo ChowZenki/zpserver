@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     smartlink/st_clientnode.cpp \
     pipeline/zp_pltaskbase.cpp \
     database/databaseresource.cpp \
-    smartlink/st_clientnode_msgdeal.cpp
+    smartlink/st_clientnode_msgdeal.cpp \
+    smartlink/st_clientnode_impdeal.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \
@@ -37,7 +38,8 @@ HEADERS  += zpmainframe.h \
     smartlink/st_clientnode.h \
     smartlink/st_message.h \
     pipeline/zp_pltaskbase.h \
-    database/databaseresource.h
+    database/databaseresource.h \
+    smartlink/st_msg_applayer.h
 
 FORMS    += zpmainframe.ui
 

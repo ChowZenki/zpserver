@@ -22,13 +22,18 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
     //Create TaskEngine
     m_taskEngine = new zp_pipeline(this);
-    //Create Smartlink client table
-    m_clientTable = new SmartLink::st_client_table (m_netEngine,m_taskEngine,this);
-    connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message);
     //Create databases
     m_pDatabases = new ZPDatabase::DatabaseResource(this);
     connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
     m_pDatabases->start();
+
+    //Create Smartlink client table
+    m_clientTable = new SmartLink::st_client_table (m_netEngine,
+                                                    m_taskEngine,
+                                                    m_pDatabases,
+                                                    this);
+    connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message);
+
 
     m_nTimerId = startTimer(2000);
     m_nTimerCheck =  startTimer(10000);

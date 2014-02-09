@@ -12,6 +12,7 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_pClientTable = pClientTable;
     bTermSet = false;
     m_last_Report = QDateTime::currentDateTime();
+    memset(&m_current_app_header,0,sizeof(SMARTLINK_MSG_APP));
 }
 
 //The main functional method, will run in thread pool
@@ -209,6 +210,10 @@ int st_clientNode::deal_current_message_block()
             //regisit client node to hash-table;
             m_pClientTable->regisitClientUUID(this);
         }
+        else if (m_currentHeader.source_id==0xffffffff)
+        {
+            //New clients
+        }
         else //Invalid
         {
             emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
@@ -222,10 +227,14 @@ int st_clientNode::deal_current_message_block()
     //Server - deal messages
     if (m_currentHeader.destin_id==0x00000001)
     {
-        //need furture works.
-        //Do Nothing
-        m_currentBlock = QByteArray();
-        emit evt_Message(tr("To-server Message is not currently supported."));
+        //To-Server Messages does not wait for message-block completes
+        if (false==Deal_BoxToServer_Messages())
+        {
+            m_currentBlock = QByteArray();
+            emit evt_Message(tr("To-server Message Failed."));
+            emit evt_close_client(this->sock());
+
+        }
     }
     //deal Broadcast messages
     else if (m_currentHeader.destin_id==0xFFFFFFFC)

@@ -32,6 +32,7 @@ typedef struct tag_smartlink_app_layer{
     union  union_MsgUnion
     {
          stMsg_HostRegistReq msg_HostRegistReq;
+         stMsg_HostRegistRsp msg_HostRegistRsp;
     }MsgUnion;
 } SMARTLINK_MSG_APP;
 
@@ -64,6 +65,7 @@ typedef struct tag_smartlink_app_layer{
     union  union_MsgUnion
     {
         stMsg_HostRegistReq msg_HostRegistReq;
+        stMsg_HostRegistRsp msg_HostRegistRsp;
     }MsgUnion;
 
 } SMARTLINK_MSG_APP;

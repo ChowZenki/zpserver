@@ -28,36 +28,36 @@ int st_clientNode::run()
     while (--nMessage>=0 && nCurrSz!=0  )
     {
         QByteArray block;
-        m_mutex.lock();
+        m_mutex_rawData.lock();
         if (m_list_RawData.size())
             block =  *m_list_RawData.begin();
-        m_mutex.unlock();
+        m_mutex_rawData.unlock();
         if (block.isEmpty()==false && block.isNull()==false)
         {
             m_currentReadOffset = filter_message(block,m_currentReadOffset);
             if (m_currentReadOffset >= block.size())
             {
-                m_mutex.lock();
+                m_mutex_rawData.lock();
                 m_list_RawData.pop_front();
                 m_currentReadOffset = 0;
-                m_mutex.unlock();
+                m_mutex_rawData.unlock();
             }
         }
         else
         {
-            m_mutex.lock();
+            m_mutex_rawData.lock();
             //pop empty cabs
             if (m_list_RawData.empty()==false)
                 m_list_RawData.pop_front();
-            m_mutex.unlock();
+            m_mutex_rawData.unlock();
         }
-        m_mutex.lock();
+        m_mutex_rawData.lock();
         nCurrSz = m_list_RawData.size();
-        m_mutex.unlock();
+        m_mutex_rawData.unlock();
     }
-    m_mutex.lock();
+    m_mutex_rawData.lock();
     nCurrSz = m_list_RawData.size();
-    m_mutex.unlock();
+    m_mutex_rawData.unlock();
     if (nCurrSz==0)
         return 0;
     return -1;
@@ -67,11 +67,11 @@ int st_clientNode::run()
 int st_clientNode::push_new_data(const  QByteArray &  dtarray)
 {
     int res = 0;
-    m_mutex.lock();
+    m_mutex_rawData.lock();
 
     m_list_RawData.push_back(dtarray);
     res = m_list_RawData.size();
-    m_mutex.unlock();
+    m_mutex_rawData.unlock();
     m_last_Report = QDateTime::currentDateTime();
     return res;
 }

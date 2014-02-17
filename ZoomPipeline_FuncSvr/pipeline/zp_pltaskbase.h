@@ -14,14 +14,14 @@ public:
     virtual int run() = 0;
     int addRef()
     {
-        QMutexLocker locker(&m_mutex);
+        QMutexLocker locker(&m_mutex_ref);
         refCount++;
 
         return refCount;
     }
     int delRef()
     {
-        QMutexLocker locker(&m_mutex);
+        QMutexLocker locker(&m_mutex_ref);
         refCount--;
 
         return refCount;
@@ -29,13 +29,13 @@ public:
 
     int ref()
     {
-        QMutexLocker locker(&m_mutex);
+        QMutexLocker locker(&m_mutex_ref);
         return refCount;
     }
 
 private:
      int refCount;
-     QMutex m_mutex;
+     QMutex m_mutex_ref;
 signals:
 
 public slots:

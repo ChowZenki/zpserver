@@ -24,9 +24,9 @@ MainDialog::MainDialog(QWidget *parent) :
 
 
     QSettings settings("goldenhawking club","FunctionalClientTest",this);
-    ui->lineEdit_ip->setText(settings.value("ip","localhost").toString());
-    ui->lineEdit_Port->setText(settings.value("port","23456").toString());
-
+    ui->lineEdit_ip->setText(settings.value("settings/ip","localhost").toString());
+    ui->lineEdit_Port->setText(settings.value("settings/port","23456").toString());
+    ui->plainTextEdit_boxSerialNum->setPlainText(settings.value("settings/box2svr_insid","Temporary Equip_id for test only, by goldenhawking@163.com.64Bts").toString());
 }
 
 MainDialog::~MainDialog()
@@ -59,6 +59,7 @@ void MainDialog::on_client_disconnected()
     {
         displayMessage(QString("client %1 disconnected.").arg((quintptr)pSock));
         ui->pushButton_connect->setEnabled(true);
+        pSock->abort();
     }
 }
 void MainDialog::displayError(QAbstractSocket::SocketError /*err*/)
@@ -91,6 +92,14 @@ void MainDialog::displayMessage(const QString &str)
     while (model.rowCount()>=256)
         model.removeRow(model.rowCount()-1);
 }
+void MainDialog::saveIni()
+{
+    QSettings settings("goldenhawking club","FunctionalClientTest",this);
+    settings.setValue("settings/ip", ui->lineEdit_ip->text());
+    settings.setValue("settings/port", ui->lineEdit_Port->text());
+    settings.setValue("settings/box2svr_insid", ui->plainTextEdit_boxSerialNum->toPlainText());
+}
+
 void MainDialog::timerEvent(QTimerEvent * evt)
 {
     static int nCount = 0;
@@ -113,13 +122,12 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 }
 void MainDialog::on_pushButton_connect_clicked()
 {
-    if (client->isOpen()==false)
-        client->connectToHost(ui->lineEdit_ip->text(),ui->lineEdit_Port->text().toUShort());
-    else
-        client->disconnectFromHost();
+    saveIni();
+    client->connectToHost(ui->lineEdit_ip->text(),ui->lineEdit_Port->text().toUShort());
 }
 void MainDialog::on_pushButton_regisit_clicked()
 {
+    saveIni();
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_HostRegistReq);
     QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
@@ -262,7 +270,7 @@ int MainDialog::filter_message(const QByteArray & block, int offset)
             m_currentBlock = QByteArray();
             offset = blocklen;
 
-            this->client->disconnectFromHost();
+            this->client->abort();
         }
     } // end while block len > offset
 
@@ -271,11 +279,27 @@ int MainDialog::filter_message(const QByteArray & block, int offset)
 //!deal current message
 int MainDialog::deal_current_message_block()
 {
-    //First, get uuid as soon as possible
-    //then , Start deal to-server messages
-    //Server - deal messages
+    //The bytes left to recieve.
+    qint32 bytesLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+            -m_currentMessageSize ;
+    if (bytesLeft)
+        return 0;
 
-    displayMessage(tr("Broadcast Message is not currently supported."));
+    char * ptr = m_currentBlock.data();
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+
+    if (pApp->header.MsgType==0x1800)
+    {
+        ui->lineEdit_boxid->setText(QString("%1").arg(pApp->MsgUnion.msg_HostRegistRsp.ID));
+        displayMessage(tr("Res = %1, ID = %2, Text = %3")
+                       .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_HostRegistRsp.ID)
+                       .arg(pApp->MsgUnion.msg_HostRegistRsp.TextInfo)
+                       );
+    }
+
     m_currentBlock = QByteArray();
 
 

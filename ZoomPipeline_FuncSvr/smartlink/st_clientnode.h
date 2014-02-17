@@ -46,7 +46,9 @@ protected:
     bool Deal_BoxToServer_Messages();
 
     //0x0001 msg, stMsg_HostRegistReq
+    QMutex m_mutex_equipID;
     bool RegisitNewNode();
+    quint32 AssignNewEquipID(const QString & serial);
 
 
     //data items
@@ -64,7 +66,7 @@ protected:
     SMARTLINK_MSG_APP m_current_app_header;
     //The raw data queue and its mutex
     QList<QByteArray> m_list_RawData;
-    QMutex m_mutex;
+    QMutex m_mutex_rawData;
 
     //UUID of this equipment
     bool m_bUUIDRecieved;

@@ -153,7 +153,7 @@ void zp_netTransThread::displayError(QAbstractSocket::SocketError socketError)
     {
         emit evt_SocketError(pSock,socketError);
         qDebug()<<(pSock->errorString());
-        pSock->disconnectFromHost();
+        pSock->abort();
     }
 }
 
@@ -228,7 +228,7 @@ void zp_netTransThread::KickAllClients(zp_netTransThread * ptr)
         QTcpSocket * pSock = qobject_cast<QTcpSocket*>(obj);
         if (pSock)
         {
-            pSock->disconnectFromHost();
+            pSock->abort();
         }
     }
 
@@ -246,7 +246,7 @@ void zp_netTransThread::KickClient(QObject * objClient)
     QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
     if (pSock)
     {
-        pSock->close();
+        pSock->abort();
     }
 }
 

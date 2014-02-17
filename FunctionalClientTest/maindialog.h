@@ -26,7 +26,7 @@ private:
     QGHTcpClient * client;
     QStandardItemModel model;
     int nTimer;
-
+    void saveIni();
     //!Message Dealers
 protected:
     //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader

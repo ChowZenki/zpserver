@@ -156,7 +156,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
                 QList<QGHTcpClient*> listObj = m_clients.keys();
                 for (int i=0;i<nDel;i++)
                 {
-                    listObj.at(i)->disconnectFromHost();
+                    listObj.at(i)->abort();
                 }
             }
             QGHTcpClient * client = new QGHTcpClient(this,ui.horizontalSlider->value());

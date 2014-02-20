@@ -22,6 +22,12 @@ typedef struct tag_stMsg_HostRegistRsp{
     __UINT32_TYPE__ ID;
 }stMsg_HostRegistRsp;
 
+//Host Log request
+//SMARTLINK_MSG_APP::MsgType =  0x1001
+typedef struct tag_stMsg_HostLogonReq{
+    __UINT32_TYPE__ ID;
+    char HostSerialNum[64];
+} stMsg_HostLogonReq;
 
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
@@ -33,6 +39,8 @@ typedef struct tag_smartlink_app_layer{
     {
          stMsg_HostRegistReq msg_HostRegistReq;
          stMsg_HostRegistRsp msg_HostRegistRsp;
+         stMsg_HostLogonReq msg_HostLogonReq;
+         stMsg_HostLogonRsp msg_HostLogonRsp;
     }MsgUnion;
 } SMARTLINK_MSG_APP;
 
@@ -55,6 +63,20 @@ typedef struct tag_stMsg_HostRegistRsp{
     unsigned __int32 ID;
 }stMsg_HostRegistRsp;
 
+//Host Log request
+//SMARTLINK_MSG_APP::MsgType =  0x1001
+typedef struct tag_stMsg_HostLogonReq{
+    unsigned __int32 ID;
+    char HostSerialNum[64];
+} stMsg_HostLogonReq;
+
+//Host Log response
+//SMARTLINK_MSG_APP::MsgType =  0x1801
+typedef struct tag_stMsg_HostLogonRsp{
+    unsigned __int8 DoneCode;
+    char TextInfo[64];
+} stMsg_HostLogonRsp;
+
 
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
@@ -66,6 +88,8 @@ typedef struct tag_smartlink_app_layer{
     {
         stMsg_HostRegistReq msg_HostRegistReq;
         stMsg_HostRegistRsp msg_HostRegistRsp;
+        stMsg_HostLogonReq msg_HostLogonReq;
+        stMsg_HostLogonRsp msg_HostLogonRsp;
     }MsgUnion;
 
 } SMARTLINK_MSG_APP;

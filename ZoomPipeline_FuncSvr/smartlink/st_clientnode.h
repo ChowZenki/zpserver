@@ -45,10 +45,12 @@ protected:
     //Message Dealers, imp in st_clientnode_msgdeal.cpp
     bool Deal_BoxToServer_Messages();
 
-    //0x0001 msg, stMsg_HostRegistReq
+    //0x1000<->0x1800 msg, stMsg_HostRegistReq
     QMutex m_mutex_equipID;
     bool RegisitNewNode();
     quint32 AssignNewEquipID(const QString & serial);
+    //0x1001<->0x1801 msg, stMsg_HostLogonReq
+    bool LoginSvr();
 
 
     //data items

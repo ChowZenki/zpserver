@@ -4,6 +4,7 @@
 namespace SmartLink{
 bool st_clientNode::Deal_BoxToServer_Messages()
 {
+    bool res = true;
     //The bytes left to recieve.
     qint32 bytesLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
             -m_currentMessageSize ;
@@ -40,20 +41,35 @@ bool st_clientNode::Deal_BoxToServer_Messages()
                 + sizeof (stMsg_HostRegistReq))
         {
             emit evt_Message(tr("Broken Message stMsg_HostRegistReq, size not correct."));
-            emit evt_close_client(this->sock());
-            return false;
+            res = false;
         }
-        return this->RegisitNewNode();
+        else
+            res = this->RegisitNewNode();
+        break;
+    case 0x1001:
+        if (bytesLeft>0)
+            // message is not complete, return
+            return true;
+        if (m_currentMessageSize!=
+                sizeof(SMARTLINK_MSG) - 1
+                + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                + sizeof (stMsg_HostLogonReq))
+        {
+            emit evt_Message(tr("Broken Message stMsg_HostLogonReq, size not correct."));
+            res = false;
+        }
+        else
+            res = this->LoginSvr();
         break;
     default:
         emit evt_Message(tr("Message type not supported."));
-        emit evt_close_client(this->sock());
+        res = false;
         break;
     }
 
     m_currentBlock.clear();
 
 
-    return true;
+    return res;
 }
 }

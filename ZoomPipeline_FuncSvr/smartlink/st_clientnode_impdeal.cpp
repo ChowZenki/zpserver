@@ -201,21 +201,16 @@ bool st_clientNode::LoginSvr()
                 {
                     if (ncurrid>=0x0010000 && ncurrid <=0x0FFFFFFF)
                     {
-                        reply.ID = ncurrid;
-                        reply.DoneCode = 1;
-                        strcpy(reply.TextInfo,"Re-regisit Succeed.");
-                    }
-                    else
-                    {
-                        reply.ID = AssignNewEquipID(strSerial);
-                        if (reply.ID>=0x0010000 && reply.ID <=0x0FFFFFFF)
+                        if (pAppLayer->MsgUnion.msg_HostLogonReq.ID==ncurrid)
                         {
+                            reply.TextInfo[0] = 0;
                             reply.DoneCode = 0;
-                            strcpy(reply.TextInfo,"First-regisit Succeed.");
                         }
                         else
-                            strcpy(reply.TextInfo,"Equip ID resource error.");
+                            strcpy(reply.TextInfo,"ID Not matched.");
                     }
+                    else
+                        strcpy(reply.TextInfo,"Equip ID has not been regisited.");
                 }
                 else
                     strcpy(reply.TextInfo,"Raw Dev ID Is Invalid.");
@@ -244,6 +239,6 @@ bool st_clientNode::LoginSvr()
 
 
 
-    return reply.DoneCode==2?false:true;
+    return reply.DoneCode==0?true:false;
 }
 }

@@ -138,6 +138,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_Login">
+           <property name="text">
+            <string>Log in</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>

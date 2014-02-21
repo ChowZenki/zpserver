@@ -4,6 +4,7 @@
 #include "../ZoomPipeline_FuncSvr/smartlink/st_msg_applayer.h"
 #include <QSettings>
 #include <time.h>
+#include <QMessageBox>
 using namespace SmartLink;
 MainDialog::MainDialog(QWidget *parent) :
     QDialog(parent),
@@ -159,6 +160,43 @@ void MainDialog::on_pushButton_regisit_clicked()
     //3/10 possibility to send a data block to server
     client->SendData(array);
 }
+
+void MainDialog::on_pushButton_Login_clicked()
+{
+    saveIni();
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_HostLogonReq);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(0xffffffff) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x1001;
+    pApp->header.MsgFmtVersion = 0x01;
+    QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
+    memcpy ( pApp->MsgUnion.msg_HostLogonReq.HostSerialNum,
+             strSerial.toStdString().c_str(),64);
+    pApp->MsgUnion.msg_HostLogonReq.ID = ui->lineEdit_boxid->text().toUInt();
+
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
+}
+
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
 int MainDialog::filter_message(const QByteArray & block, int offset)
@@ -297,6 +335,17 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
                        .arg(pApp->MsgUnion.msg_HostRegistRsp.ID)
                        .arg(pApp->MsgUnion.msg_HostRegistRsp.TextInfo)
+                       );
+    }
+    else if (pApp->header.MsgType==0x1801)
+    {
+        if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
+            QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("Log in Failed!"));
+        displayMessage(tr("Res = %1, Text = %2")
+                       .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_HostLogonRsp.TextInfo)
                        );
     }
 

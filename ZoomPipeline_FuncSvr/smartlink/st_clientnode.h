@@ -80,6 +80,9 @@ protected:
 
     QDateTime m_last_Report;
 
+    //log in
+    bool m_bLoggedIn;
+
 signals:
     void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
     void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);

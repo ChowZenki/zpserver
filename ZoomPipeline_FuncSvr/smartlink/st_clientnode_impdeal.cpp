@@ -73,6 +73,9 @@ bool st_clientNode::RegisitNewNode()
                     {
                         reply.ID = ncurrid;
                         reply.DoneCode = 1;
+                        m_bUUIDRecieved = true;
+                        m_uuid = ncurrid;
+                        m_pClientTable->regisitClientUUID(this);
                         strcpy(reply.TextInfo,"Re-regisit Succeed.");
                     }
                     else
@@ -82,6 +85,9 @@ bool st_clientNode::RegisitNewNode()
                         {
                             reply.DoneCode = 0;
                             strcpy(reply.TextInfo,"First-regisit Succeed.");
+                            m_bUUIDRecieved = true;
+                            m_uuid = reply.ID;
+                            m_pClientTable->regisitClientUUID(this);
                         }
                         else
                             strcpy(reply.TextInfo,"Equip ID resource error.");
@@ -205,6 +211,10 @@ bool st_clientNode::LoginSvr()
                         {
                             reply.TextInfo[0] = 0;
                             reply.DoneCode = 0;
+                            m_bUUIDRecieved = true;
+                            m_uuid = ncurrid;
+                            m_pClientTable->regisitClientUUID(this);
+
                         }
                         else
                             strcpy(reply.TextInfo,"ID Not matched.");

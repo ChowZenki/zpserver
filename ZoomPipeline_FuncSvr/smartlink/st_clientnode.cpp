@@ -11,6 +11,7 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_uuid = 0xffffffff;//Not Valid
     m_pClientTable = pClientTable;
     bTermSet = false;
+    m_bLoggedIn= false;
     m_last_Report = QDateTime::currentDateTime();
     memset(&m_current_app_header,0,sizeof(SMARTLINK_MSG_APP));
 }
@@ -150,6 +151,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     //This Message is Over. Start a new one.
                     m_currentMessageSize = 0;
                     m_currentBlock = QByteArray();
+                    m_current_app_header.header.MsgType = 0x00;
                     continue;
                 }
             }
@@ -172,6 +174,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     //This Message is Over. Start a new one.
                     m_currentMessageSize = 0;
                     m_currentBlock = QByteArray();
+                    m_current_app_header.header.MsgType = 0x00;
                     continue;
                 }
             } // end if there is more bytes to append
@@ -182,6 +185,7 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                              .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
             m_currentMessageSize = 0;
             m_currentBlock = QByteArray();
+            m_current_app_header.header.MsgType = 0x00;
             offset = blocklen;
 
             emit evt_close_client(this->sock());
@@ -218,6 +222,7 @@ int st_clientNode::deal_current_message_block()
         {
             emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
             m_currentBlock = QByteArray();
+            m_current_app_header.header.MsgType = 0x00;
             emit evt_close_client(this->sock());
             return 0;
         }
@@ -243,6 +248,7 @@ int st_clientNode::deal_current_message_block()
         //Do Nothing
          emit evt_Message(tr("Broadcast Message is not currently supported."));
         m_currentBlock = QByteArray();
+        m_current_app_header.header.MsgType = 0x00;
 
     }
     else if (m_currentHeader.destin_id==0xFFFFFFFD)
@@ -251,6 +257,7 @@ int st_clientNode::deal_current_message_block()
         //Do Nothing
         emit evt_Message(tr("Broadcast Message is not currently supported."));
         m_currentBlock = QByteArray();
+        m_current_app_header.header.MsgType = 0x00;
 
     }
     else
@@ -270,6 +277,7 @@ int st_clientNode::deal_current_message_block()
         {
             emit evt_SendDataToClient(destin_node->sock(),m_currentBlock);
             m_currentBlock = QByteArray();
+            m_current_app_header.header.MsgType = 0x00;
         }
 
     }

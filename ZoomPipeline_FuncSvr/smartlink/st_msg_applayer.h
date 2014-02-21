@@ -29,6 +29,14 @@ typedef struct tag_stMsg_HostLogonReq{
     char HostSerialNum[64];
 } stMsg_HostLogonReq;
 
+//Host Log response
+//SMARTLINK_MSG_APP::MsgType =  0x1801
+typedef struct tag_stMsg_HostLogonRsp{
+    __UINT8_TYPE__ DoneCode;
+    char TextInfo[64];
+} stMsg_HostLogonRsp;
+
+
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
         __UINT16_TYPE__ MsgFmtVersion;
@@ -93,12 +101,12 @@ typedef struct tag_smartlink_app_layer{
     }MsgUnion;
 
 } SMARTLINK_MSG_APP;
-}
+
 #endif
 
 
 
 #pragma pack(pop)
 
-
+}
 #endif // ST_MSG_APPLAYER_H

@@ -21,11 +21,11 @@ SOURCES += main.cpp\
     pipeline/zp_pipeline.cpp \
     smartlink/st_client_table.cpp \
     pipeline/zp_plworkingthread.cpp \
-    smartlink/st_clientnode.cpp \
     pipeline/zp_pltaskbase.cpp \
     database/databaseresource.cpp \
-    smartlink/st_clientnode_msgdeal.cpp \
-    smartlink/st_clientnode_impdeal.cpp
+    smartlink/st_clientnode_basetrans.cpp \
+    smartlink/st_clientnode_app_imp.cpp \
+    smartlink/st_clientnode_applayer.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \
@@ -35,11 +35,12 @@ HEADERS  += zpmainframe.h \
     pipeline/zp_pipeline.h \
     smartlink/st_client_table.h \
     pipeline/zp_plworkingthread.h \
-    smartlink/st_clientnode.h \
     smartlink/st_message.h \
     pipeline/zp_pltaskbase.h \
     database/databaseresource.h \
-    smartlink/st_msg_applayer.h
+    smartlink/st_msg_applayer.h \
+    smartlink/st_clientnode_basetrans.h \
+    smartlink/st_clientnode_applayer.h
 
 FORMS    += zpmainframe.ui
 

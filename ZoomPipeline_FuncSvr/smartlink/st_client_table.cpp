@@ -1,5 +1,5 @@
 #include "st_client_table.h"
-#include "st_clientnode.h"
+#include "st_clientnode_applayer.h"
 #include <assert.h>
 #include <functional>
 namespace SmartLink{
@@ -25,14 +25,14 @@ st_client_table::~st_client_table()
 void  st_client_table::KickDealClients()
 {
     m_hash_mutex.lock();
-    for (QMap<QObject *,st_clientNode *>::iterator p =m_hash_sock2node.begin();
+    for (QMap<QObject *,st_clientNode_baseTrans *>::iterator p =m_hash_sock2node.begin();
          p!=m_hash_sock2node.end();p++)
     {
         p.value()->CheckHeartBeating();
     }
     m_hash_mutex.unlock();
 }
-bool st_client_table::regisitClientUUID(st_clientNode * c)
+bool st_client_table::regisitClientUUID(st_clientNode_baseTrans * c)
 {
     if (c->uuidValid()==false)
         return false;
@@ -42,7 +42,7 @@ bool st_client_table::regisitClientUUID(st_clientNode * c)
     return true;
 }
 
-st_clientNode *  st_client_table::clientNodeFromUUID(quint32 uuid)
+st_clientNode_baseTrans *  st_client_table::clientNodeFromUUID(quint32 uuid)
 {
     m_hash_mutex.lock();
     if (m_hash_uuid2node.contains(uuid))
@@ -55,7 +55,7 @@ st_clientNode *  st_client_table::clientNodeFromUUID(quint32 uuid)
     return NULL;
 }
 
-st_clientNode *  st_client_table::clientNodeFromSocket(QObject * sock)
+st_clientNode_baseTrans *  st_client_table::clientNodeFromSocket(QObject * sock)
 {
     m_hash_mutex.lock();
     if (m_hash_sock2node.contains(sock))
@@ -79,7 +79,7 @@ void  st_client_table::on_evt_NewClientConnected(QObject * /*clientHandle*/)
 void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
 {
     bool nHashContains  = false;
-    st_clientNode * pClientNode = 0;
+    st_clientNode_baseTrans * pClientNode = 0;
     m_hash_mutex.lock();
     nHashContains = m_hash_sock2node.contains(clientHandle);
     if (nHashContains)
@@ -91,10 +91,10 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
             m_hash_uuid2node.remove(pClientNode->uuid());
 
         pClientNode->bTermSet = true;
-        disconnect (pClientNode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
-        disconnect (pClientNode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
-        disconnect (pClientNode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
-        disconnect (pClientNode,&st_clientNode::evt_Message,this,&st_client_table::evt_Message);
+        disconnect (pClientNode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
+        disconnect (pClientNode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
+        disconnect (pClientNode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
+        disconnect (pClientNode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message);
 
         m_nodeToBeDel.push_back(pClientNode);
         //qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
@@ -102,8 +102,8 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
     m_hash_mutex.unlock();
 
     //Try to delete objects
-    QList <st_clientNode *> toBedel;
-    foreach(st_clientNode * pdelobj,m_nodeToBeDel)
+    QList <st_clientNode_baseTrans *> toBedel;
+    foreach(st_clientNode_baseTrans * pdelobj,m_nodeToBeDel)
     {
         if (pdelobj->ref() ==0)
             toBedel.push_back(pdelobj);
@@ -112,7 +112,7 @@ void  st_client_table::on_evt_ClientDisconnected(QObject * clientHandle)
             //qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
         }
     }
-    foreach(st_clientNode * pdelobj,toBedel)
+    foreach(st_clientNode_baseTrans * pdelobj,toBedel)
     {
         m_nodeToBeDel.removeAll(pdelobj);
 
@@ -128,17 +128,17 @@ void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteA
 {
     //Push Clients to nodes if it is not exist
     bool nHashContains = 0;
-    st_clientNode * pClientNode = 0;
+    st_clientNode_baseTrans * pClientNode = 0;
     m_hash_mutex.lock();
     nHashContains = m_hash_sock2node.contains(clientHandle);
     if (false==nHashContains)
     {
-        st_clientNode * pnode = new st_clientNode(this,clientHandle,0);
+        st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
         //using queued connection of send and revieve;
-        connect (pnode,&st_clientNode::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-        connect (pnode,&st_clientNode::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-        connect (pnode,&st_clientNode::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
-        connect (pnode,&st_clientNode::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+        connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
         m_hash_sock2node[clientHandle] = pnode;
         nHashContains = true;
         pClientNode = pnode;

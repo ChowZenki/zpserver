@@ -10,7 +10,7 @@
 #include "./st_message.h"
 #include "../database/databaseresource.h"
 namespace SmartLink{
-class st_clientNode;
+class st_clientNode_baseTrans;
 class st_client_table : public QObject
 {
     Q_OBJECT
@@ -18,9 +18,9 @@ public:
     explicit st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng, ZPDatabase::DatabaseResource *pDb, QObject *parent = 0);
     ~st_client_table();
 
-    bool regisitClientUUID(st_clientNode *);
-    st_clientNode * clientNodeFromUUID(quint32);
-    st_clientNode * clientNodeFromSocket(QObject *);
+    bool regisitClientUUID(st_clientNode_baseTrans *);
+    st_clientNode_baseTrans * clientNodeFromUUID(quint32);
+    st_clientNode_baseTrans * clientNodeFromSocket(QObject *);
 
     //Heart beating and healthy
     void KickDealClients();
@@ -38,12 +38,12 @@ public:
     ZPDatabase::DatabaseResource * dbRes(){return m_pDatabaseRes;}
 protected:
     //This list hold dead nodes that still in task queue,avoiding crash
-     QList<st_clientNode *> m_nodeToBeDel;
+     QList<st_clientNode_baseTrans *> m_nodeToBeDel;
 
      //Very important hashes. will be improved for cross-server transfer
      QMutex m_hash_mutex;
-     QMap<quint32,st_clientNode *> m_hash_uuid2node;
-     QMap<QObject *,st_clientNode *> m_hash_sock2node;
+     QMap<quint32,st_clientNode_baseTrans *> m_hash_uuid2node;
+     QMap<QObject *,st_clientNode_baseTrans *> m_hash_sock2node;
 
      //Concurrent Network frame work
      ZPNetwork::zp_net_ThreadPool * m_pThreadPool;

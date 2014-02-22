@@ -1,4 +1,4 @@
-#include "st_clientnode.h"
+#include "st_clientnode_applayer.h"
 #include "st_client_table.h"
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -9,7 +9,7 @@
 #include <QSqlError>
 namespace SmartLink{
 //0x0001 msg, stMsg_HostRegistReq
-bool st_clientNode::RegisitNewNode()
+bool st_clientNodeAppLayer::RegisitNewBoxNode()
 {
     SMARTLINK_MSG_APP * pAppLayer =
             (SMARTLINK_MSG_APP *)(
@@ -123,7 +123,7 @@ bool st_clientNode::RegisitNewNode()
     return reply.DoneCode==2?false:true;
 }
 
-quint32 st_clientNode::AssignNewEquipID(const QString & serial)
+quint32 st_clientNodeAppLayer::AssignNewEquipID(const QString & serial)
 {
     QString config_file = QCoreApplication::applicationDirPath();
     config_file += "/serial.ini";
@@ -146,7 +146,7 @@ quint32 st_clientNode::AssignNewEquipID(const QString & serial)
     }
     return id;
 }
-bool st_clientNode::LoginSvr()
+bool st_clientNodeAppLayer::LoginBox()
 {
     SMARTLINK_MSG_APP * pAppLayer =
             (SMARTLINK_MSG_APP *)(
@@ -211,7 +211,7 @@ bool st_clientNode::LoginSvr()
                         {
                             reply.TextInfo[0] = 0;
                             reply.DoneCode = 0;
-                            m_bUUIDRecieved = true;
+                            m_bLoggedIn = true;
                             m_uuid = ncurrid;
                             m_pClientTable->regisitClientUUID(this);
 

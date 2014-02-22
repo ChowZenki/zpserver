@@ -1,7 +1,7 @@
-#include "st_clientnode.h"
+#include "st_clientnode_basetrans.h"
 #include "st_client_table.h"
 namespace SmartLink{
-st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
+st_clientNode_baseTrans::st_clientNode_baseTrans(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
     zp_plTaskBase(parent)
 {
     m_bUUIDRecieved = false;
@@ -11,13 +11,10 @@ st_clientNode::st_clientNode(st_client_table * pClientTable, QObject * pClientSo
     m_uuid = 0xffffffff;//Not Valid
     m_pClientTable = pClientTable;
     bTermSet = false;
-    m_bLoggedIn= false;
     m_last_Report = QDateTime::currentDateTime();
-    memset(&m_current_app_header,0,sizeof(SMARTLINK_MSG_APP));
 }
-
 //The main functional method, will run in thread pool
-int st_clientNode::run()
+int st_clientNode_baseTrans::run()
 {
     if (bTermSet==true)
     {
@@ -65,7 +62,7 @@ int st_clientNode::run()
 }
 
 //push new binary data into queue
-int st_clientNode::push_new_data(const  QByteArray &  dtarray)
+int st_clientNode_baseTrans::push_new_data(const  QByteArray &  dtarray)
 {
     int res = 0;
     m_mutex_rawData.lock();
@@ -78,7 +75,7 @@ int st_clientNode::push_new_data(const  QByteArray &  dtarray)
 }
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
-int st_clientNode::filter_message(const QByteArray & block, int offset)
+int st_clientNode_baseTrans::filter_message(const QByteArray & block, int offset)
 {
     const int blocklen = block.length();
     while (blocklen>offset)
@@ -151,7 +148,6 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     //This Message is Over. Start a new one.
                     m_currentMessageSize = 0;
                     m_currentBlock = QByteArray();
-                    m_current_app_header.header.MsgType = 0x00;
                     continue;
                 }
             }
@@ -174,7 +170,6 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                     //This Message is Over. Start a new one.
                     m_currentMessageSize = 0;
                     m_currentBlock = QByteArray();
-                    m_current_app_header.header.MsgType = 0x00;
                     continue;
                 }
             } // end if there is more bytes to append
@@ -185,17 +180,15 @@ int st_clientNode::filter_message(const QByteArray & block, int offset)
                              .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
             m_currentMessageSize = 0;
             m_currentBlock = QByteArray();
-            m_current_app_header.header.MsgType = 0x00;
             offset = blocklen;
-
             emit evt_close_client(this->sock());
         }
     } // end while block len > offset
 
     return offset;
 }
-//!deal current message
-int st_clientNode::deal_current_message_block()
+//in Trans-Level, do nothing.
+int st_clientNode_baseTrans::deal_current_message_block()
 {
     //First, get uuid as soon as possible
     if (m_bUUIDRecieved==false)
@@ -222,68 +215,28 @@ int st_clientNode::deal_current_message_block()
         {
             emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
             m_currentBlock = QByteArray();
-            m_current_app_header.header.MsgType = 0x00;
             emit evt_close_client(this->sock());
-            return 0;
         }
-    }
-
-    //then , Start deal to-server messages
-    //Server - deal messages
-    if (m_currentHeader.destin_id==0x00000001)
-    {
-        //To-Server Messages does not wait for message-block completes
-        if (false==Deal_BoxToServer_Messages())
-        {
-            m_currentBlock = QByteArray();
-            emit evt_Message(tr("To-server Message Failed."));
-            emit evt_close_client(this->sock());
-
-        }
-    }
-    //deal Broadcast messages
-    else if (m_currentHeader.destin_id==0xFFFFFFFC)
-    {
-        //need furture works.
-        //Do Nothing
-         emit evt_Message(tr("Broadcast Message is not currently supported."));
-        m_currentBlock = QByteArray();
-        m_current_app_header.header.MsgType = 0x00;
-
-    }
-    else if (m_currentHeader.destin_id==0xFFFFFFFD)
-    {
-        //need furture works.
-        //Do Nothing
-        emit evt_Message(tr("Broadcast Message is not currently supported."));
-        m_currentBlock = QByteArray();
-        m_current_app_header.header.MsgType = 0x00;
-
     }
     else
     {
-        //find Destin Client using Hash.
-        st_clientNode * destin_node = m_pClientTable->clientNodeFromUUID(m_currentHeader.destin_id);
-        if (destin_node==NULL)
+        if (!((m_currentHeader.source_id>= 0x00010000 && m_currentHeader.source_id <= 0x0FFFFFFF  )
+              ||
+              (m_currentHeader.source_id>= (unsigned int)0x80000000 && m_currentHeader.source_id <=  (unsigned int)0xAFFFFFFF  )
+              ||
+              (m_currentHeader.source_id==0xffffffff)
+              ))
         {
-            //need further dev, insert into db, or catched on disk.
-            //destin client is un-reachable, or in another function server.
-            //need server-to-server channels to re-post this message.
-            emit evt_Message(tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
-
-            //Do Nothing
-        }
-        else
-        {
-            emit evt_SendDataToClient(destin_node->sock(),m_currentBlock);
+            emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
             m_currentBlock = QByteArray();
-            m_current_app_header.header.MsgType = 0x00;
+            emit evt_close_client(this->sock());
         }
 
     }
+
     return 0;
 }
-void st_clientNode::CheckHeartBeating()
+void st_clientNode_baseTrans::CheckHeartBeating()
 {
     QDateTime dtm = QDateTime::currentDateTime();
     qint64 usc = this->m_last_Report.secsTo(dtm);
@@ -293,5 +246,4 @@ void st_clientNode::CheckHeartBeating()
         emit evt_close_client(this->sock());
     }
 }
-
 }

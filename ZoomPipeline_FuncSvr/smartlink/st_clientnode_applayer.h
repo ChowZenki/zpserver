@@ -23,6 +23,8 @@ protected:
     quint32 AssignNewEquipID(const QString & serial);
     //0x1001<->0x1801 msg, stMsg_HostLogonReq
     bool LoginBox();
+    //0x3000<->0x3800 msg, stMsg_ClientLoginReq
+    bool LoginClient();
 
     //data items
 protected:

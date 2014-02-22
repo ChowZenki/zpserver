@@ -36,6 +36,21 @@ typedef struct tag_stMsg_HostLogonRsp{
     char TextInfo[64];
 } stMsg_HostLogonRsp;
 
+//User Login request
+//SMARTLINK_MSG_APP::MsgType =  0x3000
+typedef struct tag_stMsg_ClientLoginReq{
+    __UINT16_TYPE__ ClientVersion;
+    char UserName[32];
+    char Password[32];
+}stMsg_ClientLoginReq;
+
+//User Log response
+//SMARTLINK_MSG_APP::MsgType =  0x3800
+typedef struct tag_stMsg_ClientLoginRsp{
+    __UINT8_TYPE__ DoneCode;
+    __UINT32_TYPE__ UserID;
+    char TextInfo[64];
+} stMsg_ClientLoginRsp;
 
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
@@ -49,6 +64,8 @@ typedef struct tag_smartlink_app_layer{
          stMsg_HostRegistRsp msg_HostRegistRsp;
          stMsg_HostLogonReq msg_HostLogonReq;
          stMsg_HostLogonRsp msg_HostLogonRsp;
+         stMsg_ClientLoginReq msg_ClientLoginReq;
+         stMsg_ClientLoginRsp msg_ClientLoginRsp;
     }MsgUnion;
 } SMARTLINK_MSG_APP;
 
@@ -85,6 +102,21 @@ typedef struct tag_stMsg_HostLogonRsp{
     char TextInfo[64];
 } stMsg_HostLogonRsp;
 
+//User Login request
+//SMARTLINK_MSG_APP::MsgType =  0x3000
+typedef struct tag_stMsg_ClientLoginReq{
+    unsigned __int16 ClientVersion;
+    char UserName[32];
+    char Password[32];
+}stMsg_ClientLoginReq;
+
+//User Log response
+//SMARTLINK_MSG_APP::MsgType =  0x3800
+typedef struct tag_stMsg_ClientLoginRsp{
+    unsigned __int8 DoneCode;
+    unsigned __int32 UserID;
+    char TextInfo[64];
+} stMsg_ClientLoginRsp;
 
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
@@ -98,6 +130,8 @@ typedef struct tag_smartlink_app_layer{
         stMsg_HostRegistRsp msg_HostRegistRsp;
         stMsg_HostLogonReq msg_HostLogonReq;
         stMsg_HostLogonRsp msg_HostLogonRsp;
+        stMsg_ClientLoginReq msg_ClientLoginReq;
+        stMsg_ClientLoginRsp msg_ClientLoginRsp;
     }MsgUnion;
 
 } SMARTLINK_MSG_APP;

@@ -132,6 +132,21 @@ bool st_clientNodeAppLayer::Deal_ToServer_Handshakes()
         else
             res = this->LoginBox();
         break;
+    case 0x3000:
+        if (bytesLeft()>0)
+            // message is not complete, return
+            return true;
+        if (m_currentMessageSize!=
+                sizeof(SMARTLINK_MSG) - 1
+                + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                + sizeof (stMsg_ClientLoginReq))
+        {
+            emit evt_Message(tr("Broken Message stMsg_ClientLoginReq, size not correct."));
+            res = false;
+        }
+        else
+            res = this->LoginClient();
+        break;
     default:
         emit evt_Message(tr("Message type not supported."));
         res = false;

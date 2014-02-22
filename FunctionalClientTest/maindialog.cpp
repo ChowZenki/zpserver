@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <time.h>
 #include <QMessageBox>
+#include <string.h>
 using namespace SmartLink;
 MainDialog::MainDialog(QWidget *parent) :
     QDialog(parent),
@@ -28,6 +29,8 @@ MainDialog::MainDialog(QWidget *parent) :
     ui->lineEdit_ip->setText(settings.value("settings/ip","localhost").toString());
     ui->lineEdit_Port->setText(settings.value("settings/port","23456").toString());
     ui->plainTextEdit_boxSerialNum->setPlainText(settings.value("settings/box2svr_insid","Temporary Equip_id for test only, by goldenhawking@163.com.64Bts").toString());
+    ui->lineEdit_username->setText(settings.value("settings/client2svr_username","debug").toString());
+    ui->lineEdit_password->setText(settings.value("settings/client2svr_password","debug").toString());
 }
 
 MainDialog::~MainDialog()
@@ -99,6 +102,8 @@ void MainDialog::saveIni()
     settings.setValue("settings/ip", ui->lineEdit_ip->text());
     settings.setValue("settings/port", ui->lineEdit_Port->text());
     settings.setValue("settings/box2svr_insid", ui->plainTextEdit_boxSerialNum->toPlainText());
+    settings.setValue("settings/client2svr_username", ui->lineEdit_username->text());
+    settings.setValue("settings/client2svr_password", ui->lineEdit_password->text());
 }
 
 void MainDialog::timerEvent(QTimerEvent * evt)
@@ -154,9 +159,12 @@ void MainDialog::on_pushButton_regisit_clicked()
     pApp->header.MsgType = 0x1000;
     pApp->header.MsgFmtVersion = 0x01;
     QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
-    memcpy ( pApp->MsgUnion.msg_HostRegistReq.HostSerialNum,
-             strSerial.toStdString().c_str(),64);
-
+    std::string strStdSerial = strSerial.toStdString();
+    const char * pSrc = strStdSerial.c_str();
+    int nMaxLen = strStdSerial.length();
+    for (int i=0;i<64;i++)
+        pApp->MsgUnion.msg_HostRegistReq.HostSerialNum[i] =
+                i<nMaxLen?pSrc[i]:0;
     //3/10 possibility to send a data block to server
     client->SendData(array);
 }
@@ -189,9 +197,62 @@ void MainDialog::on_pushButton_Login_clicked()
     pApp->header.MsgType = 0x1001;
     pApp->header.MsgFmtVersion = 0x01;
     QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
-    memcpy ( pApp->MsgUnion.msg_HostLogonReq.HostSerialNum,
-             strSerial.toStdString().c_str(),64);
+    std::string strStdSerial = strSerial.toStdString();
+    const char * pSrc = strStdSerial.c_str();
+    int nMaxLen = strStdSerial.length();
+    for (int i=0;i<64;i++)
+        pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
+                i<nMaxLen?pSrc[i]:0;
     pApp->MsgUnion.msg_HostLogonReq.ID = ui->lineEdit_boxid->text().toUInt();
+
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
+}
+void MainDialog::on_pushButton_clientLogin_clicked()
+{
+    saveIni();
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_ClientLoginReq);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(0xffffffff) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x3000;
+    pApp->header.MsgFmtVersion = 0x01;
+    QString strUserName = ui->lineEdit_username->text();
+    QString strPassWd = ui->lineEdit_password->text();
+
+    std::string strStdUserName = strUserName.toStdString();
+    const char * pSrc = strStdUserName.c_str();
+    int nMaxLen = strStdUserName.length();
+    for (int i=0;i<32;i++)
+        pApp->MsgUnion.msg_ClientLoginReq.UserName[i] =
+                i<nMaxLen?pSrc[i]:0;
+
+    std::string strStdPassword = strPassWd.toStdString();
+    pSrc = strStdPassword.c_str();
+    nMaxLen = strStdPassword.length();
+    for (int i=0;i<32;i++)
+        pApp->MsgUnion.msg_ClientLoginReq.Password[i] =
+                i<nMaxLen?pSrc[i]:0;
+
+    pApp->MsgUnion.msg_ClientLoginReq.ClientVersion = 0;
 
     //3/10 possibility to send a data block to server
     client->SendData(array);
@@ -348,7 +409,17 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_HostLogonRsp.TextInfo)
                        );
     }
-
+    else if (pApp->header.MsgType==0x3800)
+    {
+        if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==0)
+            QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("Log in Failed!"));
+        displayMessage(tr("Res = %1, Text = %2")
+                       .arg(pApp->MsgUnion.msg_ClientLoginRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_ClientLoginRsp.TextInfo)
+                       );
+    }
     m_currentBlock = QByteArray();
 
 

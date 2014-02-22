@@ -59,6 +59,7 @@ public slots:
     void on_pushButton_connect_clicked();
     void on_pushButton_regisit_clicked();
     void on_pushButton_Login_clicked();
+    void on_pushButton_clientLogin_clicked();
 };
 
 #endif // MAINDIALOG_H

@@ -26,6 +26,10 @@ protected:
     //0x3000<->0x3800 msg, stMsg_ClientLoginReq
     bool LoginClient();
 
+    //Deal Box2Svr Msgs
+    bool Deal_Box2Svr_Msgs();
+    bool Box2Svr_CorrectTime();
+
     //data items
 protected:
     QMutex m_mutex_equipID;

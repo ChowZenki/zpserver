@@ -52,6 +52,26 @@ typedef struct tag_stMsg_ClientLoginRsp{
     char TextInfo[64];
 } stMsg_ClientLoginRsp;
 
+//User Log response
+//SMARTLINK_MSG_APP::MsgType =  0x1002
+typedef struct tag_stMsg_HostTimeCorrectReq{
+
+} stMsg_HostTimeCorrectReq;
+
+//Time Correct
+typedef struct tag_stMsg_HostTimeCorrectRsp{
+    __UINT8_TYPE__ DoneCode;
+    char TextInfo[64];
+    struct tag_stDateTime{
+      __UINT16_TYPE__ Year;
+      __UINT8_TYPE__ Month;
+      __UINT8_TYPE__ Day;
+      __UINT8_TYPE__ Hour;
+      __UINT8_TYPE__ Minute;
+      __UINT8_TYPE__ Second;
+    } DateTime;
+}stMsg_HostTimeCorrectRsp;
+
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
         __UINT16_TYPE__ MsgFmtVersion;
@@ -66,6 +86,8 @@ typedef struct tag_smartlink_app_layer{
          stMsg_HostLogonRsp msg_HostLogonRsp;
          stMsg_ClientLoginReq msg_ClientLoginReq;
          stMsg_ClientLoginRsp msg_ClientLoginRsp;
+         stMsg_HostTimeCorrectReq msg_HostTimeCorrectReq;
+         stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
     }MsgUnion;
 } SMARTLINK_MSG_APP;
 
@@ -118,6 +140,27 @@ typedef struct tag_stMsg_ClientLoginRsp{
     char TextInfo[64];
 } stMsg_ClientLoginRsp;
 
+
+//User Log response
+//SMARTLINK_MSG_APP::MsgType =  0x1002
+typedef struct tag_stMsg_HostTimeCorrectReq{
+
+} stMsg_HostTimeCorrectReq;
+
+//Time Correct
+typedef struct tag_stMsg_HostTimeCorrectRsp{
+    unsigned __int8 DoneCode;
+    char TextInfo[64];
+    struct tag_stDateTime{
+      unsigned __int16 Year;
+      unsigned __int8 Month;
+      unsigned __int8 Day;
+      unsigned __int8 Hour;
+      unsigned __int8 Minute;
+      unsigned __int8 Second;
+    } DateTime;
+}stMsg_HostTimeCorrectRsp;
+
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
         unsigned __int16 MsgFmtVersion;
@@ -132,6 +175,8 @@ typedef struct tag_smartlink_app_layer{
         stMsg_HostLogonRsp msg_HostLogonRsp;
         stMsg_ClientLoginReq msg_ClientLoginReq;
         stMsg_ClientLoginRsp msg_ClientLoginRsp;
+        stMsg_HostTimeCorrectReq msg_HostTimeCorrectReq;
+        stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
     }MsgUnion;
 
 } SMARTLINK_MSG_APP;

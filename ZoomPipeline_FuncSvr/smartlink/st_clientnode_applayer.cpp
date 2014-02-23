@@ -29,8 +29,26 @@ int st_clientNodeAppLayer::deal_current_message_block()
         }
         else
         {
-            m_currentBlock = QByteArray();
-            emit evt_Message(tr("We will imp these functions in future."));
+            if (m_currentHeader.source_id>= 0x00010000 && m_currentHeader.source_id <= 0x0FFFFFFF)
+            {
+                //Deal Box->Svr Msgs
+                if (false==Deal_Box2Svr_Msgs())
+                {
+                    m_currentBlock = QByteArray();
+                    emit evt_Message(tr("Box To Server Message Failed."));
+                    emit evt_close_client(this->sock());
+                }
+            }
+            else if (m_currentHeader.source_id>= (unsigned int)0x80000000 && m_currentHeader.source_id <=  (unsigned int)0xAFFFFFFF  )
+            {
+                //Deal Client->Svr Msgs
+            }
+            else
+            {
+                m_currentBlock = QByteArray();
+                emit evt_Message(tr("Bad UUID. Client Kicked out"));
+                emit evt_close_client(this->sock());
+            }
         }
 
     }
@@ -158,4 +176,60 @@ bool st_clientNodeAppLayer::Deal_ToServer_Handshakes()
 
     return res;
 }
+
+//Deal Box2Svr Msgs
+bool st_clientNodeAppLayer::Deal_Box2Svr_Msgs()
+{
+    bool res = true;
+
+    if (m_currentHeader.data_length < sizeof (SMARTLINK_MSG_APP::tag_app_layer_header))
+        return false;
+    if (m_currentMessageSize < sizeof(SMARTLINK_MSG) - 1 + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header))
+    {
+        // header is not complete, return
+        return true;
+    }
+    //Catch the header
+    if (m_current_app_header.header.MsgType==0x00)
+        memcpy((void *)&this->m_current_app_header,
+               ((unsigned char *)this->m_currentBlock.constData()) + sizeof(SMARTLINK_MSG) - 1,
+               sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+               );
+    if (m_current_app_header.header.MsgFmtVersion!=0x01)
+    {
+        emit evt_Message(tr("Application Layer Version too new."));
+        emit evt_close_client(this->sock());
+        return false;
+    }
+    //do
+    switch (m_current_app_header.header.MsgType)
+    {
+    case 0x1002:
+        if (bytesLeft()>0)
+            // message is not complete, return
+            return true;
+        if (m_currentMessageSize!=
+                sizeof(SMARTLINK_MSG) - 1
+                + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                + sizeof (stMsg_HostTimeCorrectReq))
+        {
+            emit evt_Message(tr("Broken Message stMsg_HostRegistReq, size not correct."));
+            res = false;
+        }
+        else
+            res = this->Box2Svr_CorrectTime();
+        break;
+
+    default:
+        emit evt_Message(tr("Message type not supported."));
+        res = false;
+        break;
+    }
+
+    m_currentBlock.clear();
+
+
+    return res;
+}
+
 }

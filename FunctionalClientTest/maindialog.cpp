@@ -58,12 +58,20 @@ void MainDialog::on_client_connected()
 }
 void MainDialog::on_client_disconnected()
 {
+    client = new QGHTcpClient (this);
+    connect(client, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
+    connect(client, SIGNAL(connected()),this, SLOT(on_client_connected()));
+    connect(client, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
+    connect(client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+    connect(client, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+
     QGHTcpClient * pSock = qobject_cast<QGHTcpClient*>(sender());
     if (pSock)
     {
         displayMessage(QString("client %1 disconnected.").arg((quintptr)pSock));
         ui->pushButton_connect->setEnabled(true);
         pSock->abort();
+        pSock->deleteLater();
     }
 }
 void MainDialog::displayError(QAbstractSocket::SocketError /*err*/)
@@ -419,6 +427,7 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_ClientLoginRsp.DoneCode)
                        .arg(pApp->MsgUnion.msg_ClientLoginRsp.TextInfo)
                        );
+        ui->lineEdit_userid->setText(QString ("%1").arg(pApp->MsgUnion.msg_ClientLoginRsp.UserID));
     }
     m_currentBlock = QByteArray();
 

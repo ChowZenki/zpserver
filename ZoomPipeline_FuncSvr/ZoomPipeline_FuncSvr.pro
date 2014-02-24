@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     database/databaseresource.cpp \
     smartlink/st_clientnode_basetrans.cpp \
     smartlink/st_clientnode_app_imp.cpp \
-    smartlink/st_clientnode_applayer.cpp
+    smartlink/st_clientnode_applayer.cpp \
+    cluster/zp_clusterterm.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \
@@ -40,7 +41,8 @@ HEADERS  += zpmainframe.h \
     database/databaseresource.h \
     smartlink/st_msg_applayer.h \
     smartlink/st_clientnode_basetrans.h \
-    smartlink/st_clientnode_applayer.h
+    smartlink/st_clientnode_applayer.h \
+    cluster/zp_clusterterm.h
 
 FORMS    += zpmainframe.ui
 

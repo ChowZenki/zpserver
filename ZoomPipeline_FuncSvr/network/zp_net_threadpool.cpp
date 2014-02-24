@@ -176,6 +176,7 @@ void zp_net_ThreadPool::AddClientTransThreads(int nThreads,bool bSSL)
             connect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected,Qt::QueuedConnection);
             connect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError,Qt::QueuedConnection);
             connect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection,Qt::QueuedConnection);
+            connect (this,&zp_net_ThreadPool::evt_FireConnection,clientTH,&zp_netTransThread::startConnection,Qt::QueuedConnection);
             connect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData,Qt::QueuedConnection);
             connect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient,Qt::QueuedConnection);
             connect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients,Qt::QueuedConnection);
@@ -206,6 +207,7 @@ bool zp_net_ThreadPool::TransThreadDel(zp_netTransThread * pThreadObj)
         disconnect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected);
         disconnect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError);
         disconnect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection);
+        disconnect (this,&zp_net_ThreadPool::evt_FireConnection,clientTH,&zp_netTransThread::startConnection);
         disconnect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData);
         disconnect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient);
         disconnect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
@@ -288,4 +290,45 @@ bool zp_net_ThreadPool::CanExit()
     //m_mutex_listen.unlock();
     return res;
 }
+
+bool zp_net_ThreadPool::connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn)
+{
+    bool res= false;
+    //m_mutex_trans.lock();
+    int nsz = m_vec_NetTransThreads.size();
+    int nMinPay = 0x7fffffff;
+    int nMinIdx = -1;
+
+    for (int i=0;i<nsz && nMinPay!=0;i++)
+    {
+        if (m_vec_NetTransThreads[i]->isActive()==false ||
+                m_vec_NetTransThreads[i]->SSLConnection()!=bSSLConn
+                )
+             continue;
+        int nPat = m_vec_NetTransThreads[i]->CurrentClients();
+
+        if (nPat<nMinPay)
+        {
+            nMinPay = nPat;
+            nMinIdx = i;
+        }
+        //qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
+    }
+    for (int i=0;i<nsz;i++)
+        if (m_vec_NetTransThreads[i]->isActive()==false )
+            TransThreadDel(m_vec_NetTransThreads[i]);
+
+    if (nMinIdx>=0 && nMinIdx<nsz)
+    {
+        res = true;
+        emit evt_FireConnection(m_vec_NetTransThreads[nMinIdx],address,nPort);
+    }
+    else
+    {
+        emit evt_Message("Waring>"+QString(tr("Need Trans Thread Object for clients.")));
+    }
+    //m_mutex_trans.unlock();
+    return res;
+}
+
 }

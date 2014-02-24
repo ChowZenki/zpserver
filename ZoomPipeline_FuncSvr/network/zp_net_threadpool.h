@@ -83,6 +83,7 @@ signals:
     void startListen(const QString & id);
     void stopListen(const QString & id);
     void evt_EstablishConnection(QObject * threadid,qintptr socketDescriptor);
+    void evt_FireConnection(QObject * threadid,const QHostAddress & hostAddr, quint16 port);
     //Trans Control,for intenal thread usage
     void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
     void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
@@ -101,6 +102,9 @@ public slots:
 
     //Close client Immediatele
     void KickClients(QObject * object);
+
+    //Possive Connection Methods
+    bool connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn = true);
 
 };
 }

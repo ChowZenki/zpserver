@@ -357,10 +357,6 @@ bool st_clientNodeAppLayer::LoginClient()
 }
 bool st_clientNodeAppLayer::Box2Svr_CorrectTime()
 {
-    const SMARTLINK_MSG_APP * pAppLayer =
-            (const SMARTLINK_MSG_APP *)(
-                ((const char *)(m_currentBlock.constData()))
-                +sizeof(SMARTLINK_MSG)-1);
     //form Msgs
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_HostTimeCorrectRsp);
@@ -384,7 +380,7 @@ bool st_clientNodeAppLayer::Box2Svr_CorrectTime()
 
 
     pApp->header.AskID = m_current_app_header.header.AskID;
-    pApp->header.MsgType = 0x3800;
+    pApp->header.MsgType = 0x1802;
     pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
     stMsg_HostTimeCorrectRsp & reply = pApp->MsgUnion.msg_HostTimeCorrectRsp;
@@ -407,4 +403,51 @@ bool st_clientNodeAppLayer::Box2Svr_CorrectTime()
 
     return reply.DoneCode==0?true:false;
 }
+
+bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
+{
+    const SMARTLINK_MSG_APP * pAppLayer =
+            (const SMARTLINK_MSG_APP *)(
+                ((const char *)(m_currentBlock.constData()))
+                +sizeof(SMARTLINK_MSG)-1);
+    //form Msgs
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_UploadUserListRsp);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = m_currentHeader.version;
+    pMsg->SerialNum = m_currentHeader.SerialNum;
+    pMsg->Priority = m_currentHeader.Priority;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = m_current_app_header.header.AskID;
+    pApp->header.MsgType = 0x1803;
+    pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
+
+    stMsg_UploadUserListRsp & reply = pApp->MsgUnion.msg_UploadUserListRsp;
+
+    reply.DoneCode = 0;
+    reply.TextInfo[0]= 0;
+
+
+    //Send back
+    emit evt_SendDataToClient(this->sock(),array);
+
+
+
+    return reply.DoneCode==0?true:false;
+}
+
 }

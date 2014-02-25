@@ -219,7 +219,30 @@ bool st_clientNodeAppLayer::Deal_Box2Svr_Msgs()
         else
             res = this->Box2Svr_CorrectTime();
         break;
+    case 0x1003:
+        if (bytesLeft()>0)
+            return true;
 
+        if (m_currentMessageSize<
+                sizeof(SMARTLINK_MSG) - 1
+                + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                + sizeof (stMsg_UploadUserListReq))
+        {
+            emit evt_Message(tr("Broken Message stMsg_UploadUserListReq, size not correct."));
+            res = false;
+        }
+        else if (m_currentMessageSize!=
+                 sizeof(SMARTLINK_MSG) - 1
+                 + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                 + sizeof (stMsg_UploadUserListReq)
+                 + (quint32) m_current_app_header.MsgUnion.msg_UploadUserListReq.UserNum)
+        {
+            emit evt_Message(tr("Broken Message stMsg_UploadUserListReq, size not correct."));
+            res = false;
+        }
+        else
+            res = this->Box2Svr_UploadUserTable();
+        break;
     default:
         emit evt_Message(tr("Message type not supported."));
         res = false;

@@ -29,6 +29,7 @@ protected:
     //Deal Box2Svr Msgs
     bool Deal_Box2Svr_Msgs();
     bool Box2Svr_CorrectTime();
+    bool Box2Svr_UploadUserTable();
 
     //data items
 protected:

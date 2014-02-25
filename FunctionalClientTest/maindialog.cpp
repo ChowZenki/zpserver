@@ -265,6 +265,37 @@ void MainDialog::on_pushButton_clientLogin_clicked()
     //3/10 possibility to send a data block to server
     client->SendData(array);
 }
+void MainDialog::on_pushButton_CrTime_clicked()
+{
+    saveIni();
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_HostTimeCorrectReq);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x1002;
+    pApp->header.MsgFmtVersion = 0x01;
+
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
+}
 
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
@@ -416,6 +447,27 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
                        .arg(pApp->MsgUnion.msg_HostLogonRsp.TextInfo)
                        );
+    }
+    else if (pApp->header.MsgType==0x1802)
+    {
+        if (pApp->MsgUnion.msg_HostTimeCorrectRsp.DoneCode==0)
+            QMessageBox::information(this,tr("Succeed!"),tr("Time Corrected!"));
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("Time Correct Failed!"));
+        displayMessage(tr("Res = %1, Text = %2")
+                       .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.TextInfo)
+                       );
+        QString tm = QString("%1-%2-%3 %4:%5:%6")
+                .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Year)
+                .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Month)
+                .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Day)
+                .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Hour)
+                .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Minute)
+                .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Second)
+                ;
+        ui->lineEdit_box_time->setText(tm);
+
     }
     else if (pApp->header.MsgType==0x3800)
     {

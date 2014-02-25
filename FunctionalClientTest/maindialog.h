@@ -16,7 +16,7 @@ class MainDialog;
 class MainDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit MainDialog(QWidget *parent = 0);
     ~MainDialog();
@@ -60,6 +60,7 @@ public slots:
     void on_pushButton_regisit_clicked();
     void on_pushButton_Login_clicked();
     void on_pushButton_clientLogin_clicked();
+    void on_pushButton_CrTime_clicked();
 };
 
 #endif // MAINDIALOG_H

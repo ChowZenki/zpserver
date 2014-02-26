@@ -412,7 +412,7 @@ bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
 
     if (m_currentMessageSize!=sizeof(SMARTLINK_MSG) - 1
             + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-            + sizeof (stMsg_UploadUserListReq)
+            + sizeof (stMsg_UploadUserListReq) - sizeof(quint32)
             + sizeof (quint32) * (pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum)
             )
     {
@@ -478,5 +478,72 @@ bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
 
     return reply.DoneCode==0?true:false;
 }
+bool st_clientNodeAppLayer::Box2Svr_DownloadUserTable()
+{
+    bool res = true;
+    const SMARTLINK_MSG_APP * pAppLayer =
+            (const SMARTLINK_MSG_APP *)(
+                ((const char *)(m_currentBlock.constData()))
+                +sizeof(SMARTLINK_MSG)-1);
 
+    //form Msgs
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_DownloadUserListRsp) - sizeof(quint32);
+    int nSz = 0;
+    if (loadRelations()==true )
+    {
+        nSz = m_matched_nodes.size();
+        nMsgLen += nSz * sizeof(quint32);
+    }
+    else
+        res = false;
+
+     //form Msgs
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = m_currentHeader.version;
+    pMsg->SerialNum = m_currentHeader.SerialNum;
+    pMsg->Priority = m_currentHeader.Priority;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = m_current_app_header.header.AskID;
+    pApp->header.MsgType = 0x1804;
+    pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
+
+    stMsg_DownloadUserListRsp & reply = pApp->MsgUnion.msg_DownloadUserListRsp;
+
+    reply.DoneCode = res==true?0:1;
+    if (res==false)
+        strcpy(reply.TextInfo,"load Relation failed");
+    int ii = 0;
+    foreach (quint32 it, m_matched_nodes)
+    {
+        if (ii < nSz && ii<32768)
+        {
+            reply.pUserIDList[ii] = it;
+            reply.UserNum = (quint16) ii+1;
+        }
+        ++ii;
+    }
+
+
+    //Send back
+    emit evt_SendDataToClient(this->sock(),array);
+
+
+
+    return reply.DoneCode==0?true:false;
+}
 }

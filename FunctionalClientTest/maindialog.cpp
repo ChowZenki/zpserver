@@ -310,7 +310,7 @@ void MainDialog::on_pushButton_box_upload_uid_clicked()
     }
 
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-            +sizeof(stMsg_UploadUserListReq)+ sizeof(quint32)*vecInt.size();
+            +sizeof(stMsg_UploadUserListReq)+ sizeof(quint32)*vecInt.size() - sizeof(quint32);
     QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
     char * ptr = array.data();
     SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
@@ -344,7 +344,34 @@ void MainDialog::on_pushButton_box_upload_uid_clicked()
 
 void MainDialog::on_pushButton_box_download_uid_clicked()
 {
+    saveIni();
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_DownloadUserListReq);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
 
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x1004;
+    pApp->header.MsgFmtVersion = 0x01;
+
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
 }
 
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
@@ -540,6 +567,26 @@ int MainDialog::deal_current_message_block()
         displayMessage(tr("Res = %1, Text = %2")
                        .arg(pApp->MsgUnion.msg_UploadUserListRsp.DoneCode)
                        .arg(pApp->MsgUnion.msg_UploadUserListRsp.TextInfo)
+                       );
+
+    }
+    else if (pApp->header.MsgType==0x1804)
+    {
+        if (pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode==0)
+        {
+            QMessageBox::information(this,tr("Succeed!"),tr("download succeed!"));
+            QString strRes;
+            for (quint16 i = 0;i<pApp->MsgUnion.msg_DownloadUserListRsp.UserNum;i++)
+            {
+                strRes += QString("%1,").arg(pApp->MsgUnion.msg_DownloadUserListRsp.pUserIDList[i]);
+            }
+            ui->plainTextEdit_box_userids->setPlainText(strRes);
+        }
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
+        displayMessage(tr("Res = %1, Text = %2")
+                       .arg(pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_DownloadUserListRsp.TextInfo)
                        );
 
     }

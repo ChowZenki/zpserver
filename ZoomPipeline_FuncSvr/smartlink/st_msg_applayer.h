@@ -72,6 +72,33 @@ typedef struct tag_stMsg_HostTimeCorrectRsp{
     } DateTime;
 }stMsg_HostTimeCorrectRsp;
 
+//UploadUserListReq,0x1003
+typedef struct tag_stMsg_UploadUserListReq{
+    __UINT16_TYPE__ UserNum;
+    __UINT32_TYPE__ pUserIDList[1];
+}stMsg_UploadUserListReq;
+
+//User Log response
+//SMARTLINK_MSG_APP::MsgType =  0x1803
+typedef struct tag_stMsg_UploadUserListRsp{
+    __UINT8_TYPE__ DoneCode;
+    char TextInfo[64];
+} stMsg_UploadUserListRsp;
+
+//SMARTLINK_MSG_APP::MsgType =  0x1004
+typedef struct tag_stMsg_DownloadUserListReq{
+
+} stMsg_DownloadUserListReq;
+
+//SMARTLINK_MSG_APP::MsgType =  0x1804
+typedef struct tag_stMsg_DownloadUserListRsp{
+    __UINT8_TYPE__ DoneCode;
+    char TextInfo[64];
+    __UINT16_TYPE__ UserNum;
+    __UINT32_TYPE__ pUserIDList[1];
+} stMsg_DownloadUserListRsp;
+
+
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
         __UINT16_TYPE__ MsgFmtVersion;
@@ -88,6 +115,10 @@ typedef struct tag_smartlink_app_layer{
          stMsg_ClientLoginRsp msg_ClientLoginRsp;
          stMsg_HostTimeCorrectReq msg_HostTimeCorrectReq;
          stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
+         stMsg_UploadUserListReq  msg_UploadUserListReq;
+         stMsg_UploadUserListRsp  msg_UploadUserListRsp;
+         stMsg_DownloadUserListReq msg_DownloadUserListReq;
+         stMsg_DownloadUserListRsp msg_DownloadUserListRsp;
     }MsgUnion;
 } SMARTLINK_MSG_APP;
 
@@ -164,7 +195,7 @@ typedef struct tag_stMsg_HostTimeCorrectRsp{
 //UploadUserListReq,0x1003
 typedef struct tag_stMsg_UploadUserListReq{
     unsigned __int16 UserNum;
-    unsigned __int32 pUserIDList[0];
+    unsigned __int32 pUserIDList[1];
 }stMsg_UploadUserListReq;
 
 //User Log response
@@ -174,6 +205,19 @@ typedef struct tag_stMsg_UploadUserListRsp{
     char TextInfo[64];
 } stMsg_UploadUserListRsp;
 
+
+//SMARTLINK_MSG_APP::MsgType =  0x1004
+typedef struct tag_stMsg_DownloadUserListReq{
+
+} stMsg_DownloadUserListReq;
+
+//SMARTLINK_MSG_APP::MsgType =  0x1804
+typedef struct tag_stMsg_DownloadUserListRsp{
+    unsigned __int8 DoneCode;
+    char TextInfo[64];
+    unsigned __int16 UserNum;
+    unsigned __int32 pUserIDList[1];
+} stMsg_DownloadUserListRsp;
 
 
 
@@ -195,6 +239,9 @@ typedef struct tag_smartlink_app_layer{
         stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
         stMsg_UploadUserListReq  msg_UploadUserListReq;
         stMsg_UploadUserListRsp  msg_UploadUserListRsp;
+        stMsg_DownloadUserListReq msg_DownloadUserListReq;
+        stMsg_DownloadUserListRsp msg_DownloadUserListRsp;
+
     }MsgUnion;
 
 } SMARTLINK_MSG_APP;

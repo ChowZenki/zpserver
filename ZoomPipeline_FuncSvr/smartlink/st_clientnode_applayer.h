@@ -35,6 +35,8 @@ protected:
     bool Box2Svr_CorrectTime();
     //0x1003 - 0x1803
     bool Box2Svr_UploadUserTable();
+    //0x1004 - 0x1804
+    bool Box2Svr_DownloadUserTable();
 
     //data items
 protected:

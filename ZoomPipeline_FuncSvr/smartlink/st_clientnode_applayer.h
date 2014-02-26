@@ -15,6 +15,9 @@ class st_clientNodeAppLayer : public st_clientNode_baseTrans
 public:
     explicit st_clientNodeAppLayer(st_client_table * pClientTable, QObject * pClientSock,QObject *parent = 0);
 protected:
+    bool loadRelations();
+    bool saveRelations();
+
     //!in App-Layer, it Split the messages into dealers.
     int deal_current_message_block();
     //!Message Dealers, imp in st_clientnode_msgdeal.cpp

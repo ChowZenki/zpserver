@@ -7,6 +7,7 @@
 #include <QMutexLocker>
 #include <QSettings>
 #include <QSqlError>
+#include <QSet>
 namespace SmartLink{
 //0x0001 msg, stMsg_HostRegistReq
 bool st_clientNodeAppLayer::RegisitNewBoxNode()
@@ -200,7 +201,11 @@ bool st_clientNodeAppLayer::LoginBox()
                             m_bUUIDRecieved = true;
                             m_uuid = ncurrid;
                             m_pClientTable->regisitClientUUID(this);
-
+                            if (false == loadRelations())
+                            {
+                                strcpy(reply.TextInfo,"Error, fail to load relations from db.");
+                                reply.DoneCode = 3;
+                            }
                         }
                         else
                             strcpy(reply.TextInfo,"ID Not matched.");
@@ -311,6 +316,11 @@ bool st_clientNodeAppLayer::LoginClient()
                         m_bUUIDRecieved = true;
                         m_uuid = ncurrid;
                         m_pClientTable->regisitClientUUID(this);
+                        if (false == loadRelations())
+                        {
+                            strcpy(reply.TextInfo,"Error, fail to load relations from db.");
+                            reply.DoneCode = 3;
+                        }
                     }
                     else
                         strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
@@ -427,56 +437,26 @@ bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
 
     stMsg_UploadUserListRsp & reply = pApp->MsgUnion.msg_UploadUserListRsp;
 
-    reply.DoneCode = 3;
+    reply.DoneCode = 1;
     strcpy(reply.TextInfo,"Unknown error");
-    //Check the database, find current equipment info
-    QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
-
-    if (db.isValid()==true && db.isOpen()==true )
+    if (loadRelations()==true )
     {
-        QSqlQuery query(db);
-
-        QString sql = "select user_name,user_id,password from users where user_name = ? and password = ?;";
-        query.prepare(sql);
-//        query.addBindValue(strUserName);
-//        query.addBindValue(strPasswd);
-
-        if (true==query.exec())
+        for (quint32 i = 0; i <pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum && i<4096;i++)
         {
-            if (query.next())
-            {
-                bool bOk = false;
-                quint32 ncurrid = query.value(1).toUInt(&bOk);
-                if (bOk==true)
-                {
-                    if (ncurrid>= (unsigned int)0x80000000 && ncurrid <=  (unsigned int)0xAFFFFFFF  )
-                    {
-                        reply.TextInfo[0] = 0;
-                        reply.DoneCode = 0;
-
-                    }
-                    else
-                        strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
-                }
-                else
-                    strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
-            }
-            else
-            {
-                // No such device
-                strcpy(reply.TextInfo,"No such user or password.");
-            }
+            if (bIsValidUserId(pAppLayer->MsgUnion.msg_UploadUserListReq.pUserIDList[i])==false)
+                continue;
+            m_matched_nodes.insert(pAppLayer->MsgUnion.msg_UploadUserListReq.pUserIDList[i]);
         }
-        else
+        if (true == saveRelations())
         {
-            strcpy(reply.TextInfo,"Server Access Error.");
-            emit evt_Message(tr("Database Access Error :")+query.lastError().text());
+             reply.DoneCode = 0;
+             strcpy(reply.TextInfo,"Succeeded.");
         }
     }
     else
     {
         //Server db is currently not accessable, wait.
-        strcpy(reply.TextInfo,"Server Not Accessable Now.");
+        strcpy(reply.TextInfo,"Failed to load current relations from db.");
     }
 
 

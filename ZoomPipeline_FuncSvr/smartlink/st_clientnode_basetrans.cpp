@@ -193,14 +193,14 @@ int st_clientNode_baseTrans::deal_current_message_block()
     //First, get uuid as soon as possible
     if (m_bUUIDRecieved==false)
     {
-        if (m_currentHeader.source_id>= 0x00010000 && m_currentHeader.source_id <= 0x0FFFFFFF     )
+        if (bIsValidEquipId( m_currentHeader.source_id) )
         {
             m_bUUIDRecieved = true;
             m_uuid =  m_currentHeader.source_id;
             //regisit client node to hash-table;
             m_pClientTable->regisitClientUUID(this);
         }
-        else if (m_currentHeader.source_id>= (unsigned int)0x80000000 && m_currentHeader.source_id <=  (unsigned int)0xAFFFFFFF      )
+        else if (bIsValidUserId( m_currentHeader.source_id) )
         {
             m_bUUIDRecieved = true;
             m_uuid =  m_currentHeader.source_id;
@@ -220,9 +220,9 @@ int st_clientNode_baseTrans::deal_current_message_block()
     }
     else
     {
-        if (!((m_currentHeader.source_id>= 0x00010000 && m_currentHeader.source_id <= 0x0FFFFFFF  )
+        if (!(bIsValidEquipId(m_currentHeader.source_id)
               ||
-              (m_currentHeader.source_id>= (unsigned int)0x80000000 && m_currentHeader.source_id <=  (unsigned int)0xAFFFFFFF  )
+              bIsValidUserId(m_currentHeader.source_id)
               ||
               (m_currentHeader.source_id==0xffffffff)
               ))

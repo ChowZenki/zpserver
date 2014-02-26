@@ -1,5 +1,8 @@
 #include "st_clientnode_applayer.h"
 #include "st_client_table.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 namespace SmartLink{
 st_clientNodeAppLayer::st_clientNodeAppLayer(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
     st_clientNode_baseTrans(pClientTable,pClientSock,parent)
@@ -12,6 +15,120 @@ st_clientNodeAppLayer::st_clientNodeAppLayer(st_client_table * pClientTable, QOb
 
 }
 
+bool st_clientNodeAppLayer::loadRelations()
+{
+    QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
+    if (db.isValid()==true && db.isOpen()==true )
+    {
+        QString sql = "select ";
+        if (m_serialNum[0]!=0)
+            sql += "user_id from relations where equip_id = ?;";
+        else if (m_username[0]!=0)
+            sql += "equip_id from relations where user_id = ?;";
+        else
+        {
+            emit evt_Message(tr("try to save relations before login!"));
+            return false;
+        }
+        QSqlQuery query(db);
+        query.prepare(sql);
+        query.addBindValue((quint32)m_uuid);
+        if (false== query.exec())
+        {
+            emit evt_Message(tr("try to get relations Failed! ")+ query.lastError().text());
+            return false;
+        }
+
+        m_matched_nodes.clear();
+        while (query.next())
+        {
+            quint32 val = query.value(0).toUInt();
+            m_matched_nodes.insert(val);
+        }
+        return true;
+    }
+    else
+    {
+        //Server db is currently not accessable, wait.
+        emit evt_Message("Server Not Accessable Now.");
+    }
+    return false;
+}
+
+bool st_clientNodeAppLayer::saveRelations()
+{
+    QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
+    if (db.isValid()==true && db.isOpen()==true )
+    {
+        QString sql = "delete from relations where ";
+        if (m_serialNum[0]!=0)
+        {
+            QSqlQuery query(db);
+            sql += "equip_id = ?;";
+            query.prepare(sql);
+            query.addBindValue((quint32)m_uuid);
+            if (false== query.exec())
+            {
+                emit evt_Message(tr("try to del old relations Failed! ")+ query.lastError().text());
+                return false;
+            }
+        }
+        else if (m_username[0]!=0)
+        {
+            QSqlQuery query(db);
+            sql += "user_id = ?;";
+            query.prepare(sql);
+            query.addBindValue((quint32)m_uuid);
+            if (false== query.exec())
+            {
+                emit evt_Message(tr("try to del old relations Failed! ")+ query.lastError().text());
+                return false;
+            }
+        }
+        else
+        {
+            emit evt_Message(tr("try to save relations before login!"));
+            return false;
+        }
+
+        sql = "insert into relations (equip_id,user_id) values (?,?);";
+        //the forigen key can automatic avoid non-existing values.
+        foreach(quint32 nodeid,m_matched_nodes)
+        {
+
+            QSqlQuery query(db);
+            if (m_serialNum[0]!=0)
+            {
+                if (bIsValidUserId(nodeid)==false)
+                    continue;
+                query.prepare(sql);
+                query.addBindValue((quint32)m_uuid);
+                query.addBindValue(nodeid);
+
+            }
+            else if (m_username[0]!=0)
+            {
+                if (bIsValidEquipId(nodeid)==false)
+                    continue;
+                query.prepare(sql);
+                query.addBindValue(nodeid);
+                query.addBindValue((quint32)m_uuid);
+            }
+            if (false== query.exec())
+            {
+                emit evt_Message(tr("try to insert new relations Failed! ")+ query.lastError().text());
+                return false;
+            }
+        }
+        return true;
+    }
+    else
+    {
+        //Server db is currently not accessable, wait.
+        emit evt_Message("Server Not Accessable Now.");
+    }
+    return false;
+}
 
 //!deal current message
 int st_clientNodeAppLayer::deal_current_message_block()
@@ -32,7 +149,7 @@ int st_clientNodeAppLayer::deal_current_message_block()
         }
         else
         {
-            if (m_currentHeader.source_id>= 0x00010000 && m_currentHeader.source_id <= 0x0FFFFFFF)
+            if (bIsValidEquipId(m_currentHeader.source_id))
             {
                 //Deal Box->Svr Msgs
                 if (false==Deal_Box2Svr_Msgs())
@@ -42,7 +159,7 @@ int st_clientNodeAppLayer::deal_current_message_block()
                     emit evt_close_client(this->sock());
                 }
             }
-            else if (m_currentHeader.source_id>= (unsigned int)0x80000000 && m_currentHeader.source_id <=  (unsigned int)0xAFFFFFFF  )
+            else if (bIsValidUserId(m_currentHeader.source_id) )
             {
                 //Deal Client->Svr Msgs
             }

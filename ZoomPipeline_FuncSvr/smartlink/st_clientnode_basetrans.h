@@ -47,6 +47,10 @@ protected:
     //!in Trans-Layer, it does nothing.
     virtual int deal_current_message_block();
 
+    //judge whether id is valid.
+    bool bIsValidEquipId(quint32 id){return id >=0x00010000 && id <=0x0FFFFFFF;}
+    bool bIsValidUserId(quint32 id){return id >=(unsigned int)0x80000000 && id <=(unsigned int)0xAFFFFFFF;}
+
 protected:
     //The current Read Offset, from m_list_RawData's beginning
     int m_currentReadOffset;

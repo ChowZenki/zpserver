@@ -7,6 +7,9 @@ st_clientNodeAppLayer::st_clientNodeAppLayer(st_client_table * pClientTable, QOb
 
     m_bLoggedIn= false;
     memset(&m_current_app_header,0,sizeof(SMARTLINK_MSG_APP));
+    memset(m_serialNum,0,sizeof(m_serialNum));
+    memset(m_username,0,sizeof(m_username));
+
 }
 
 
@@ -235,7 +238,7 @@ bool st_clientNodeAppLayer::Deal_Box2Svr_Msgs()
                  sizeof(SMARTLINK_MSG) - 1
                  + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
                  + sizeof (stMsg_UploadUserListReq)
-                 + (quint32) m_current_app_header.MsgUnion.msg_UploadUserListReq.UserNum)
+                 + (quint32)(m_current_app_header.MsgUnion.msg_UploadUserListReq.UserNum)*sizeof(quint32))
         {
             emit evt_Message(tr("Broken Message stMsg_UploadUserListReq, size not correct."));
             res = false;

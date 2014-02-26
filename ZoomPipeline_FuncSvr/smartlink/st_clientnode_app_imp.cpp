@@ -409,6 +409,17 @@ bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
             (const SMARTLINK_MSG_APP *)(
                 ((const char *)(m_currentBlock.constData()))
                 +sizeof(SMARTLINK_MSG)-1);
+
+    if (m_currentMessageSize!=sizeof(SMARTLINK_MSG) - 1
+            + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+            + sizeof (stMsg_UploadUserListReq)
+            + sizeof (quint32) * (pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum)
+            )
+    {
+        emit evt_Message(tr("Broken Message stMsg_UploadUserListReq, size not correct."));
+       return false;
+    }
+
     //form Msgs
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_UploadUserListRsp);

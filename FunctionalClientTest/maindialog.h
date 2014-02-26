@@ -61,6 +61,8 @@ public slots:
     void on_pushButton_Login_clicked();
     void on_pushButton_clientLogin_clicked();
     void on_pushButton_CrTime_clicked();
+    void on_pushButton_box_upload_uid_clicked();
+    void on_pushButton_box_download_uid_clicked();
 };
 
 #endif // MAINDIALOG_H

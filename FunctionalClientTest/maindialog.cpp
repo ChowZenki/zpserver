@@ -6,6 +6,7 @@
 #include <time.h>
 #include <QMessageBox>
 #include <string.h>
+#include <QVector>
 using namespace SmartLink;
 MainDialog::MainDialog(QWidget *parent) :
     QDialog(parent),
@@ -31,6 +32,7 @@ MainDialog::MainDialog(QWidget *parent) :
     ui->plainTextEdit_boxSerialNum->setPlainText(settings.value("settings/box2svr_insid","Temporary Equip_id for test only, by goldenhawking@163.com.64Bts").toString());
     ui->lineEdit_username->setText(settings.value("settings/client2svr_username","debug").toString());
     ui->lineEdit_password->setText(settings.value("settings/client2svr_password","debug").toString());
+    ui->plainTextEdit_box_userids->setPlainText(settings.value("settings/box2svr_uploadid","0,").toString());
 }
 
 MainDialog::~MainDialog()
@@ -112,6 +114,7 @@ void MainDialog::saveIni()
     settings.setValue("settings/box2svr_insid", ui->plainTextEdit_boxSerialNum->toPlainText());
     settings.setValue("settings/client2svr_username", ui->lineEdit_username->text());
     settings.setValue("settings/client2svr_password", ui->lineEdit_password->text());
+    settings.setValue("settings/box2svr_uploadid", ui->plainTextEdit_box_userids->toPlainText());
 }
 
 void MainDialog::timerEvent(QTimerEvent * evt)
@@ -295,6 +298,53 @@ void MainDialog::on_pushButton_CrTime_clicked()
 
     //3/10 possibility to send a data block to server
     client->SendData(array);
+}
+void MainDialog::on_pushButton_box_upload_uid_clicked()
+{
+    saveIni();
+    QStringList lst = ui->plainTextEdit_box_userids->toPlainText().split(",");
+    QVector<quint32> vecInt;
+    foreach (QString item,lst)
+    {
+        vecInt.push_back(item.toUInt());
+    }
+
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_UploadUserListReq)+ sizeof(quint32)*vecInt.size();
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x1003;
+    pApp->header.MsgFmtVersion = 0x01;
+
+    pApp->MsgUnion.msg_UploadUserListReq.UserNum = (quint16)(vecInt.size() & 0x00ffff);
+    for (int i=0;i< vecInt.size();i++)
+        pApp->MsgUnion.msg_UploadUserListReq.pUserIDList[i] = vecInt[i];
+
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
+}
+
+void MainDialog::on_pushButton_box_download_uid_clicked()
+{
+
 }
 
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
@@ -480,6 +530,18 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_ClientLoginRsp.TextInfo)
                        );
         ui->lineEdit_userid->setText(QString ("%1").arg(pApp->MsgUnion.msg_ClientLoginRsp.UserID));
+    }
+    else if (pApp->header.MsgType==0x1803)
+    {
+        if (pApp->MsgUnion.msg_UploadUserListRsp.DoneCode==0)
+            QMessageBox::information(this,tr("Succeed!"),tr("upload succeed!"));
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("upload in Failed!"));
+        displayMessage(tr("Res = %1, Text = %2")
+                       .arg(pApp->MsgUnion.msg_UploadUserListRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_UploadUserListRsp.TextInfo)
+                       );
+
     }
     m_currentBlock = QByteArray();
 

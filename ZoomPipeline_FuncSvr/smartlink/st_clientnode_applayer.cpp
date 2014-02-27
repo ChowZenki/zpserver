@@ -152,7 +152,7 @@ int st_clientNodeAppLayer::deal_current_message_block()
             if (bIsValidEquipId(m_currentHeader.source_id))
             {
                 //Deal Box->Svr Msgs
-                if (false==Deal_Box2Svr_Msgs())
+                if (false==Deal_Node2Svr_Msgs())
                 {
                     m_currentBlock = QByteArray();
                     emit evt_Message(tr("Box To Server Message Failed."));
@@ -162,11 +162,23 @@ int st_clientNodeAppLayer::deal_current_message_block()
             else if (bIsValidUserId(m_currentHeader.source_id) )
             {
                 //Deal Client->Svr Msgs
+                if (false==Deal_Node2Svr_Msgs())
+                {
+                    m_currentBlock = QByteArray();
+                    emit evt_Message(tr("Client To Server Message Failed."));
+                    emit evt_close_client(this->sock());
+                }
+            }
+            else if (m_currentHeader.source_id==0xFFFFFFFF)
+            {
+                m_currentBlock = QByteArray();
+                emit evt_Message(tr("warning, UUID 0xFFFFFFFF.ignore"));
+
             }
             else
             {
                 m_currentBlock = QByteArray();
-                emit evt_Message(tr("Bad UUID. Client Kicked out"));
+                emit evt_Message(tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.source_id));
                 emit evt_close_client(this->sock());
             }
         }
@@ -298,7 +310,7 @@ bool st_clientNodeAppLayer::Deal_ToServer_Handshakes()
 }
 
 //Deal Box2Svr Msgs
-bool st_clientNodeAppLayer::Deal_Box2Svr_Msgs()
+bool st_clientNodeAppLayer::Deal_Node2Svr_Msgs()
 {
     bool res = true;
 
@@ -368,6 +380,36 @@ bool st_clientNodeAppLayer::Deal_Box2Svr_Msgs()
         }
         else
             res = this->Box2Svr_DownloadUserTable();
+        break;
+    case 0x3001:
+        if (bytesLeft()>0)
+            // message is not complete, return
+            return true;
+        if (m_currentMessageSize!=
+                sizeof(SMARTLINK_MSG) - 1
+                + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                + sizeof (stMsg_ClientLogoutReq))
+        {
+            emit evt_Message(tr("Broken Message stMsg_ClientLogoutReq, size not correct."));
+            res = false;
+        }
+        else
+            res = this->ClientLogout();
+        break;
+    case 0x3002:
+        if (bytesLeft()>0)
+            // message is not complete, return
+            return true;
+        if (m_currentMessageSize!=
+                sizeof(SMARTLINK_MSG) - 1
+                + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
+                + sizeof (stMsg_GetHostListReq))
+        {
+            emit evt_Message(tr("Broken Message stMsg_GetHostListReq, size not correct."));
+            res = false;
+        }
+        else
+            res = this->GetHostList();
         break;
     default:
         emit evt_Message(tr("Message type not supported."));

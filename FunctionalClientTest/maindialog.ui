@@ -284,6 +284,13 @@
           <widget class="QLineEdit" name="lineEdit_username"/>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButton_clientLogout">
+           <property name="text">
+            <string>Log out</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButton_clientLogin">
            <property name="text">
             <string>Login</string>
@@ -327,6 +334,33 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QPushButton" name="pushButton_client_downHost">
+           <property name="text">
+            <string>Download Hosts</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="plainTextEdit_hostsIds"/>
        </item>
        <item>
         <spacer name="verticalSpacer_3">

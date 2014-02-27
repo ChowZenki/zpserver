@@ -99,6 +99,27 @@ typedef struct tag_stMsg_DownloadUserListRsp{
 } stMsg_DownloadUserListRsp;
 
 
+//0x3001
+typedef struct tag_stMsg_ClientLogoutReq{
+    char UserName[32];
+}stMsg_ClientLogoutReq;
+
+//0x3801
+typedef struct tag_stMsg_ClientLogoutRsp{
+    __UINT8_TYPE__ DoneCode;
+    char TextInfo[64];
+}stMsg_ClientLogoutRsp;
+
+//SMARTLINK_MSG_APP::MsgType =  0x3002
+typedef struct tag_stMsg_GetHostListReq{
+
+} stMsg_GetHostListReq;
+//SMARTLINK_MSG_APP::MsgType =  0x3802
+typedef struct  tag_stMsg_GetHostListRsp{
+    __UINT32_TYPE__ HostNum;
+    __UINT32_TYPE__ pHostIDList[1];
+}stMsg_GetHostListRsp;
+
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
         __UINT16_TYPE__ MsgFmtVersion;
@@ -119,6 +140,10 @@ typedef struct tag_smartlink_app_layer{
          stMsg_UploadUserListRsp  msg_UploadUserListRsp;
          stMsg_DownloadUserListReq msg_DownloadUserListReq;
          stMsg_DownloadUserListRsp msg_DownloadUserListRsp;
+         stMsg_ClientLogoutReq msg_ClientLogoutReq;
+         stMsg_ClientLogoutRsp msg_ClientLogoutRsp;
+         stMsg_GetHostListReq msg_GetHostListReq;
+         stMsg_GetHostListRsp msg_GetHostListRsp;
     }MsgUnion;
 } SMARTLINK_MSG_APP;
 
@@ -219,7 +244,26 @@ typedef struct tag_stMsg_DownloadUserListRsp{
     unsigned __int32 pUserIDList[1];
 } stMsg_DownloadUserListRsp;
 
+//0x3001
+typedef struct tag_stMsg_ClientLogoutReq{
+    char UserName[32];
+}stMsg_ClientLogoutReq;
 
+//0x3801
+typedef struct tag_stMsg_ClientLogoutRsp{
+    unsigned __int8 DoneCode;
+    char TextInfo[64];
+}stMsg_ClientLogoutRsp;
+
+//SMARTLINK_MSG_APP::MsgType =  0x3002
+typedef struct tag_stMsg_GetHostListReq{
+
+} stMsg_GetHostListReq;
+//SMARTLINK_MSG_APP::MsgType =  0x3802
+typedef struct  tag_stMsg_GetHostListRsp{
+    quint32 HostNum;
+    quint32 pHostIDList[1];
+}stMsg_GetHostListRsp;
 
 typedef struct tag_smartlink_app_layer{
     struct tag_app_layer_header{
@@ -241,6 +285,10 @@ typedef struct tag_smartlink_app_layer{
         stMsg_UploadUserListRsp  msg_UploadUserListRsp;
         stMsg_DownloadUserListReq msg_DownloadUserListReq;
         stMsg_DownloadUserListRsp msg_DownloadUserListRsp;
+        stMsg_ClientLogoutReq msg_ClientLogoutReq;
+        stMsg_ClientLogoutRsp msg_ClientLogoutRsp;
+        stMsg_GetHostListReq msg_GetHostListReq;
+        stMsg_GetHostListRsp msg_GetHostListRsp;
 
     }MsgUnion;
 

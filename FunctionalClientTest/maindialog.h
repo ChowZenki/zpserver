@@ -27,6 +27,10 @@ private:
     QStandardItemModel model;
     int nTimer;
     void saveIni();
+
+    bool m_bLogedIn;
+    bool m_bUUIDGot ;
+
     //!Message Dealers
 protected:
     //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
@@ -48,6 +52,8 @@ protected:
     SMARTLINK_MSG m_currentHeader;
     SMARTLINK_MSG_APP m_current_app_header;
 
+
+
 public slots:
     void new_data_recieved();
     void on_client_trasferred(qint64);
@@ -63,6 +69,9 @@ public slots:
     void on_pushButton_CrTime_clicked();
     void on_pushButton_box_upload_uid_clicked();
     void on_pushButton_box_download_uid_clicked();
+    void on_pushButton_client_downHost_clicked();
+    void on_pushButton_clientLogout_clicked();
+
 };
 
 #endif // MAINDIALOG_H

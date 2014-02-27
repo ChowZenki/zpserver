@@ -13,6 +13,8 @@ MainDialog::MainDialog(QWidget *parent) :
     ui(new Ui::MainDialog)
 {
     ui->setupUi(this);
+    m_bLogedIn = false;
+    m_bUUIDGot = false;
     nTimer = startTimer(100);
     ui->listView_msg->setModel(&model);
     client = new QGHTcpClient (this);
@@ -60,6 +62,7 @@ void MainDialog::on_client_connected()
 }
 void MainDialog::on_client_disconnected()
 {
+    m_bLogedIn = m_bUUIDGot = false;
     client = new QGHTcpClient (this);
     connect(client, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
     connect(client, SIGNAL(connected()),this, SLOT(on_client_connected()));
@@ -144,6 +147,11 @@ void MainDialog::on_pushButton_connect_clicked()
 }
 void MainDialog::on_pushButton_regisit_clicked()
 {
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
     saveIni();
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_HostRegistReq);
@@ -182,6 +190,11 @@ void MainDialog::on_pushButton_regisit_clicked()
 
 void MainDialog::on_pushButton_Login_clicked()
 {
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
     saveIni();
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_HostLogonReq);
@@ -221,6 +234,11 @@ void MainDialog::on_pushButton_Login_clicked()
 }
 void MainDialog::on_pushButton_clientLogin_clicked()
 {
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
     saveIni();
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_ClientLoginReq);
@@ -270,6 +288,16 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 }
 void MainDialog::on_pushButton_CrTime_clicked()
 {
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
+    if (m_bLogedIn==false)
+    {
+        QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
+        return;
+    }
     saveIni();
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_HostTimeCorrectReq);
@@ -301,6 +329,16 @@ void MainDialog::on_pushButton_CrTime_clicked()
 }
 void MainDialog::on_pushButton_box_upload_uid_clicked()
 {
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
+    if (m_bLogedIn==false)
+    {
+        QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
+        return;
+    }
     saveIni();
     QStringList lst = ui->plainTextEdit_box_userids->toPlainText().split(",");
     QVector<quint32> vecInt;
@@ -344,6 +382,16 @@ void MainDialog::on_pushButton_box_upload_uid_clicked()
 
 void MainDialog::on_pushButton_box_download_uid_clicked()
 {
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
+    if (m_bLogedIn==false)
+    {
+        QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
+        return;
+    }
     saveIni();
     quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
             +sizeof(stMsg_DownloadUserListReq);
@@ -369,6 +417,92 @@ void MainDialog::on_pushButton_box_download_uid_clicked()
     pApp->header.AskID = 0x01;
     pApp->header.MsgType = 0x1004;
     pApp->header.MsgFmtVersion = 0x01;
+
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
+}
+void  MainDialog::on_pushButton_client_downHost_clicked()
+{
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
+    if (m_bLogedIn==false)
+    {
+        QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
+        return;
+    }
+    saveIni();
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_GetHostListReq);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(ui->lineEdit_userid->text().toUInt()) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x3002;
+    pApp->header.MsgFmtVersion = 0x01;
+    //3/10 possibility to send a data block to server
+    client->SendData(array);
+}
+
+void  MainDialog::on_pushButton_clientLogout_clicked()
+{
+    if (client->isOpen()==false)
+    {
+        QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+        return;
+    }
+    if (m_bLogedIn==false)
+    {
+        QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
+        return;
+    }
+    saveIni();
+    quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
+            +sizeof(stMsg_ClientLogoutReq);
+    QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+    char * ptr = array.data();
+    SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+    SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
+                                                      (ptr))+sizeof(SMARTLINK_MSG)-1
+                                                     );
+    pMsg->Mark = 0x55AA;
+    pMsg->version = 1;
+    pMsg->SerialNum = 0;
+    pMsg->Priority = 1;
+    pMsg->Reserved1 = 0;
+    pMsg->source_id = (quint32)((quint64)(ui->lineEdit_userid->text().toUInt()) & 0xffffffff );
+
+    pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+    pMsg->data_length = nMsgLen;
+    pMsg->Reserved2 = 0;
+
+
+    pApp->header.AskID = 0x01;
+    pApp->header.MsgType = 0x3001;
+    pApp->header.MsgFmtVersion = 0x01;
+
+
+    pApp->MsgUnion.msg_ClientLogoutReq.UserName[0] = 0;
+
 
     //3/10 possibility to send a data block to server
     client->SendData(array);
@@ -513,11 +647,16 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_HostRegistRsp.ID)
                        .arg(pApp->MsgUnion.msg_HostRegistRsp.TextInfo)
                        );
+        if (pApp->MsgUnion.msg_HostRegistRsp.DoneCode!=2)
+            m_bUUIDGot = true;
     }
     else if (pApp->header.MsgType==0x1801)
     {
         if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
+        {
+            m_bLogedIn = true;
             QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
+        }
         else
             QMessageBox::information(this,tr("Failed!"),tr("Log in Failed!"));
         displayMessage(tr("Res = %1, Text = %2")
@@ -549,7 +688,10 @@ int MainDialog::deal_current_message_block()
     else if (pApp->header.MsgType==0x3800)
     {
         if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==0)
+        {
+            m_bLogedIn = true;
             QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
+        }
         else
             QMessageBox::information(this,tr("Failed!"),tr("Log in Failed!"));
         displayMessage(tr("Res = %1, Text = %2")
@@ -589,6 +731,33 @@ int MainDialog::deal_current_message_block()
                        .arg(pApp->MsgUnion.msg_DownloadUserListRsp.TextInfo)
                        );
 
+    }
+    else if (pApp->header.MsgType==0x3801)
+    {
+        if (pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode==0)
+            QMessageBox::information(this,tr("Succeed!"),tr("log out succeed!"));
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
+        displayMessage(tr("Res = %1, Text = %2")
+                       .arg(pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode)
+                       .arg(pApp->MsgUnion.msg_ClientLogoutRsp.TextInfo)
+                       );
+        this->client->abort();
+    }
+    else if (pApp->header.MsgType==0x3802)
+    {
+        if (pApp->MsgUnion.msg_GetHostListRsp.HostNum>0)
+        {
+            QMessageBox::information(this,tr("Succeed!"),tr("download succeed!"));
+            QString strRes;
+            for (quint16 i = 0;i<pApp->MsgUnion.msg_GetHostListRsp.HostNum;i++)
+            {
+                strRes += QString("%1,").arg(pApp->MsgUnion.msg_GetHostListRsp.pHostIDList[i]);
+            }
+            ui->plainTextEdit_hostsIds->setPlainText(strRes);
+        }
+        else
+            QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
     }
     m_currentBlock = QByteArray();
 

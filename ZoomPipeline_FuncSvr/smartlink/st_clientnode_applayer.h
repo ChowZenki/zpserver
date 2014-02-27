@@ -29,14 +29,18 @@ protected:
     //0x3000<->0x3800 msg, stMsg_ClientLoginReq
     bool LoginClient();
 
-    //!Deal Box2Svr Msgs
-    bool Deal_Box2Svr_Msgs();
+    //!Deal node2Svr Msgs
+    bool Deal_Node2Svr_Msgs();
     //0x1002 - 0x1802
     bool Box2Svr_CorrectTime();
     //0x1003 - 0x1803
     bool Box2Svr_UploadUserTable();
     //0x1004 - 0x1804
     bool Box2Svr_DownloadUserTable();
+    //0x3001 - 0x3801
+    bool ClientLogout();
+    //0x3002 - 0x3802
+    bool GetHostList();
 
     //data items
 protected:

@@ -37,6 +37,8 @@ private:
 public slots:
     //This slot dealing with multi-thread client socket accept.
     void incomingConnection(QObject * threadid,qintptr socketDescriptor);
+    //This slot dealing with possive connect to method.
+    void startConnection(QObject * threadid,const QHostAddress & addr, quint16 port);
     //sending dtarray to objClient. dtarray will be pushed into m_buffer_sending
     void SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
     //Broadcast dtarray to every client except objFromClient itself

@@ -17,7 +17,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     ui->setupUi(this);
 
     //Create net engine
-    m_netEngine = new zp_net_ThreadPool (4096);
+    m_netEngine = new zp_net_ThreadPool (8192);
     connect (m_netEngine,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_Message);
     connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
     //Create TaskEngine
@@ -146,8 +146,12 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 
         str_msg += tr("Current Trans Threads: %1\n").arg(nClientThreads);
         for (int i=0;i<nClientThreads;i++)
-            str_msg += tr("\tTrans Threads %1 hold %2 Client Sockets.\n").arg(i+1).arg(m_netEngine->totalClients(i));
-
+        {
+            str_msg += tr("\t%1:%2").arg(i+1).arg(m_netEngine->totalClients(i));
+            if ((i+1)%5==0)
+                str_msg += "\n";
+        }
+        str_msg += "\n";
         //recording task status
         str_msg += tr("Current Task Threads: %1\n").arg(m_taskEngine->threadsCount());
         str_msg += tr("Current Task Payload: %1\n").arg(m_taskEngine->payload());

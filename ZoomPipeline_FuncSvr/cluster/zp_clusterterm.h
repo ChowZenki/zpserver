@@ -14,7 +14,7 @@ class zp_ClusterTerm : public QObject
 {
     Q_OBJECT
 public:
-    explicit zp_ClusterTerm(const QString & name,int nTransThreads = 4,QObject *parent = 0);
+    explicit zp_ClusterTerm(const QString & name,int nTransThreads = 4,int nWorkingThreads = 4,QObject *parent = 0);
     //cluster status
     bool isListening(){ return m_pClusterNet->ListenerNames().size()==0?false:true;}
     const QString & name() {return m_strTermName;}
@@ -23,6 +23,7 @@ public:
     int payload(){ return m_pClusterEng->payload();}
     int threadsCount(){ return m_pClusterEng->threadsCount();}
     int threadsIdel(){ return m_pClusterEng->idleThreads();}
+    bool canExit();
 protected:
     QString m_strTermName;//the Terminal's name
     ZPNetwork::zp_net_ThreadPool * m_pClusterNet;

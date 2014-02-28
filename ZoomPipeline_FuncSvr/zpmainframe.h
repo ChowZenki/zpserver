@@ -9,6 +9,7 @@
 #include "pipeline/zp_pipeline.h"
 #include "smartlink/st_client_table.h"
 #include "database/databaseresource.h"
+#include "cluster/zp_clusterterm.h"
 namespace Ui {
 class ZPMainFrame;
 }
@@ -45,6 +46,7 @@ private:
     ZPTaskEngine::zp_pipeline * m_taskEngine;
     SmartLink::st_client_table * m_clientTable;
     ZPDatabase::DatabaseResource * m_pDatabases;
+    ZP_Cluster::zp_ClusterTerm * m_pClusterTerm;
     int m_nTimerId;
     void initUI();
     void LoadSettings(const QString & config_file);
@@ -67,6 +69,9 @@ public slots:
     void on_pushButton_db_add_clicked();
     void on_pushButton_db_del_clicked();
     void on_pushButton_db_apply_clicked();
+
+    void on_pushButton_cluster_apply_clicked();
+    void on_pushButton_smartlink_save_clicked();
 
 };
 

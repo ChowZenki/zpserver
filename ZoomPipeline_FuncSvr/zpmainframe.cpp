@@ -9,6 +9,7 @@
 #include <QMap>
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
+using namespace ZP_Cluster;
 ZPMainFrame::ZPMainFrame(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ZPMainFrame)
@@ -22,6 +23,10 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
     connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
     //Create TaskEngine
     m_taskEngine = new zp_pipeline(this);
+
+    //Cluster is not created
+    m_pClusterTerm = 0;
+
     //Create databases
     m_pDatabases = new ZPDatabase::DatabaseResource(this);
     connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
@@ -291,6 +296,7 @@ void ZPMainFrame::forkServer(const QString & config_file)
 
     }
 
+
     //Smartlink settings
     int nHeartbeatingThreadhold = settings.value("Smartlink/HeartbeatingThreadhold",180).toInt();
     if (nHeartbeatingThreadhold>=60 && nHeartbeatingThreadhold<=300)
@@ -409,6 +415,23 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
 
     QString strSL_LargetFolder = settings.value("Smartlink/SL_LargetFolder","NUL").toString();
     ui->lineEdit_SL_LargetFolder->setText(strSL_LargetFolder);
+
+    //Cluster
+    QString strClusterTermAddr = settings.value("Cluster/strClusterTermAddr","0.0.0.0").toString();
+    ui->lineEdit_cluster_term_addr->setText(strClusterTermAddr);
+    QString strClusterTermPort = settings.value("Cluster/strClusterTermPort","25600").toString();
+    ui->lineEdit_cluster_term_port->setText(strClusterTermPort);
+    QString strClusterPubName = settings.value("Cluster/strClusterPubName","Term 001").toString();
+    ui->lineEdit_cluster_pub_name->setText(strClusterPubName);
+    QString strClusterPubAddr = settings.value("Cluster/strClusterPubAddr","192.168.1.111").toString();
+    ui->lineEdit_cluster_pub_Addr->setText(strClusterPubAddr);
+    QString strClusterPubPort = settings.value("Cluster/strClusterPubPort","25600").toString();
+    ui->lineEdit_cluster_pub_Port->setText(strClusterPubPort);
+    int nClusterTransThreads = settings.value("Cluster/nClusterTransThreads","4").toInt();
+    ui->horizontalSlider_cluster_transThreads->setValue(nClusterTransThreads);
+    int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
+    ui->horizontalSlider_cluster_workingThread->setValue(nClusterWorkingThreads);
+
 }
 
 
@@ -480,6 +503,16 @@ void ZPMainFrame::SaveSettings(const QString & config_file)
     settings.setValue("Smartlink/SLDB_mainEvt",strSLDB_mainEvent);
     QString strSL_LargetFolder = ui->lineEdit_SL_LargetFolder->text();
     settings.setValue("Smartlink/SL_LargetFolder",strSL_LargetFolder);
+
+    //Cluster
+    settings.setValue("Cluster/strClusterTermAddr",ui->lineEdit_cluster_term_addr->text());
+    settings.setValue("Cluster/strClusterTermPort",ui->lineEdit_cluster_term_port->text());
+    settings.setValue("Cluster/strClusterPubName", ui->lineEdit_cluster_pub_name->text());
+    settings.setValue("Cluster/strClusterPubAddr",ui->lineEdit_cluster_pub_Addr->text());
+    settings.setValue("Cluster/strClusterPubPort",ui->lineEdit_cluster_pub_Port->text());
+    settings.setValue("Cluster/nClusterTransThreads",ui->horizontalSlider_cluster_transThreads->value());
+    settings.setValue("Cluster/nClusterWorkingThreads", ui->horizontalSlider_cluster_workingThread->value());
+
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {
@@ -532,6 +565,16 @@ void ZPMainFrame::on_pushButton_threadsApply_clicked()
 {
     SaveSettings(m_currentConffile);
 }
+void ZPMainFrame::on_pushButton_cluster_apply_clicked()
+{
+    SaveSettings(m_currentConffile);
+}
+
+void ZPMainFrame::on_pushButton_smartlink_save_clicked()
+{
+    SaveSettings(m_currentConffile);
+}
+
 void ZPMainFrame::on_actionReload_config_file_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this,tr("Open Conf file"),QCoreApplication::applicationDirPath(),

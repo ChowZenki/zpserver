@@ -4,19 +4,19 @@
 #include <QDialog>
 
 namespace Ui {
-class MainDialog;
+	class MainDialog;
 }
 
 class MainDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MainDialog(QWidget *parent = 0);
-    ~MainDialog();
+	explicit MainDialog(QWidget *parent = 0);
+	~MainDialog();
 
 private:
-    Ui::MainDialog *ui;
+	Ui::MainDialog *ui;
 };
 
 #endif // MAINDIALOG_H

@@ -521,7 +521,7 @@ namespace SmartLink{
 
 		reply.DoneCode = res==true?0:1;
 		//if (res==false)
-			//strcpy(reply.TextInfo,"load Relation failed");
+		//strcpy(reply.TextInfo,"load Relation failed");
 		int ii = 0;
 		foreach (quint32 it, m_matched_nodes)
 		{
@@ -576,7 +576,7 @@ namespace SmartLink{
 
 		reply.DoneCode = res==true?0:1;
 		//if (res==false)
-			//strcpy(reply.TextInfo,"load Relation failed");
+		//strcpy(reply.TextInfo,"load Relation failed");
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
 		return reply.DoneCode==0?true:false;

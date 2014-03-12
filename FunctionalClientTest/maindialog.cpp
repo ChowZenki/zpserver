@@ -614,7 +614,7 @@ int MainDialog::filter_message(const QByteArray & block, int offset)
 		else
 		{
 			displayMessage(tr("Client Send a unknown start Header %1 %2. Close client immediately.")
-							 .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
+						   .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
 			m_currentMessageSize = 0;
 			m_currentBlock = QByteArray();
 			offset = blocklen;
@@ -723,7 +723,7 @@ int MainDialog::deal_current_message_block()
 			QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
 		displayMessage(tr("Res = %1")
 					   .arg(pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode)
-					  );
+					   );
 
 	}
 	else if (pApp->header.MsgType==0x3801)

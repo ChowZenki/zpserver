@@ -3,16 +3,16 @@
 
 #include <QTcpServer>
 namespace ZPNetwork{
-class ZP_TcpServer : public QTcpServer
-{
-    Q_OBJECT
+	class ZP_TcpServer : public QTcpServer
+	{
+		Q_OBJECT
 
-public:
-    ZP_TcpServer(QObject *parent);
-protected:
-    void incomingConnection(qintptr socketDescriptor);
-signals:
-    void evt_NewClientArrived(qintptr socketDescriptor);
-};
+	public:
+		ZP_TcpServer(QObject *parent);
+	protected:
+		void incomingConnection(qintptr socketDescriptor);
+	signals:
+		void evt_NewClientArrived(qintptr socketDescriptor);
+	};
 }
 #endif // ZP_TcpServer_H

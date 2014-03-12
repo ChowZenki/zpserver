@@ -8,26 +8,26 @@
 #include <QHostAddress>
 #include "zp_tcpserver.h"
 namespace ZPNetwork{
-class zp_netListenThread : public QObject
-{
-    Q_OBJECT
-protected:
-    ZP_TcpServer * m_tcpServer;
-    QString m_id;   //The listen ID
-    QHostAddress m_address;
-    quint16 m_port;
-    bool m_bSSLConn;
-public:
-    explicit zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL = true,QObject *parent = 0);
-    bool bSSLConn(){return m_bSSLConn;}
-signals:
-    void evt_Message(const QString &);
-    void evt_ListenClosed(const QString &);
-    //This message will tell thread pool, a new incoming connection has arrived.
-    void evt_NewClientArrived(qintptr socketDescriptor);
-public slots:
-    void startListen(const QString & id);
-    void stopListen(const QString & id);
-};
+	class zp_netListenThread : public QObject
+	{
+		Q_OBJECT
+	protected:
+		ZP_TcpServer * m_tcpServer;
+		QString m_id;   //The listen ID
+		QHostAddress m_address;
+		quint16 m_port;
+		bool m_bSSLConn;
+	public:
+		explicit zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL = true,QObject *parent = 0);
+		bool bSSLConn(){return m_bSSLConn;}
+	signals:
+		void evt_Message(const QString &);
+		void evt_ListenClosed(const QString &);
+		//This message will tell thread pool, a new incoming connection has arrived.
+		void evt_NewClientArrived(qintptr socketDescriptor);
+	public slots:
+		void startListen(const QString & id);
+		void stopListen(const QString & id);
+	};
 }
 #endif // ZP_NETLISTENTHREAD_H

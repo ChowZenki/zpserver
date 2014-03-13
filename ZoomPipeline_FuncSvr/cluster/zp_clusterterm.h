@@ -19,8 +19,18 @@ namespace ZP_Cluster{
 		ZPNetwork::zp_net_ThreadPool * netEng() {return m_pClusterNet;}
 		ZPTaskEngine::zp_pipeline * taskEng() {return m_pClusterEng;}
 		bool canExit();
+
+		//properties.
+		QString setName(const QString & s){ return m_strTermName = s;}
+		QString name(){return m_strTermName;}
+		QHostAddress publishAddr(){return m_addrPublish;}
+		int publishPort(){return m_nPortPublish;}
+		QHostAddress setPublishAddr(QHostAddress addr){return m_addrPublish = addr;}
+		int setPublishPort(int port){return m_nPortPublish = port;}
 	protected:
 		QString m_strTermName;//the Terminal's name
+		QHostAddress m_addrPublish;	//The publish address for other terms to connect to
+		int m_nPortPublish;//The publish port for other terms to connect to
 		ZPNetwork::zp_net_ThreadPool * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
 	signals:

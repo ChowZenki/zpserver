@@ -25,7 +25,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 	m_taskEngine = new zp_pipeline(this);
 
 	//Cluster is not created
-	m_pClusterTerm = 0;
+	m_pClusterTerm = new ZP_Cluster::zp_ClusterTerm("Unknown",this);
 
 	//Create databases
 	m_pDatabases = new ZPDatabase::DatabaseResource(this);
@@ -56,8 +56,14 @@ ZPMainFrame::~ZPMainFrame()
 	m_pDatabases->remove_connections();
 	m_taskEngine->removeThreads(-1);
 
+
+	m_pClusterTerm->netEng()->RemoveAllAddresses();
+	m_pClusterTerm->netEng()->KickAllClients();
+	m_pClusterTerm->netEng()->DeactiveImmediately();
+	m_pClusterTerm->taskEng()->removeThreads(-1);
+
 	while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false
-		   || m_pDatabases->isRunning()==true)
+		   || m_pDatabases->isRunning()==true || m_pClusterTerm->canExit()==false)
 	{
 		QCoreApplication::processEvents();
 		QThread::currentThread()->msleep(200);
@@ -173,6 +179,28 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 				str_msg += ", Msg=" + para.lastError;
 			str_msg += "\n";
 		}
+		//Cluster----------------------------
+
+		str_msg += tr("Cluster Group Paras:\n");
+		str_msg += tr("\tTerminal %1 : %2, published Address: %3:%4\n")
+				.arg(m_pClusterTerm->name())
+				.arg(!m_pClusterTerm->netEng()->ListenerNames().empty())
+				.arg(m_pClusterTerm->publishAddr().toString())
+				.arg(m_pClusterTerm->publishPort());
+		nClientThreads = m_pClusterTerm->netEng()->TransThreadNum();
+		str_msg += tr("Trans Threads: %1\n").arg(nClientThreads);
+		for (int i=0;i<nClientThreads;i++)
+		{
+			str_msg += tr("\t%1:%2").arg(i+1).arg(m_pClusterTerm->netEng()->totalClients(i));
+			if ((i+1)%5==0)
+				str_msg += "\n";
+		}
+		str_msg += "\n";
+		str_msg += tr("\tShift Threads: %1\n").arg(m_pClusterTerm->taskEng()->threadsCount());
+		str_msg += tr("\tShift Payload: %1\n").arg(m_pClusterTerm->taskEng()->payload());
+		str_msg += tr("\tShift Idle Threads: %1\n").arg(m_pClusterTerm->taskEng()->idleThreads());
+
+
 		str_msg += tr("Smartlink Function Server Paras:\n");
 		str_msg += tr("\tUser Account Database is : %1\n").arg(m_clientTable->Database_UserAcct());
 		str_msg += tr("\tEvent Database is : %1\n").arg(m_clientTable->Database_Event());
@@ -204,7 +232,11 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 		m_taskEngine->removeThreads(-1);
 		m_pDatabases->remove_connections();
 
-		while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false)
+		this->m_pClusterTerm->netEng()->RemoveListeningAddress("clusterTerm");
+		this->m_pClusterTerm->netEng()->RemoveClientTransThreads(-1,false);
+		this->m_pClusterTerm->taskEng()->removeThreads(-1);
+
+		while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false || m_pClusterTerm->canExit()==false)
 		{
 			QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 			QThread::currentThread()->msleep(200);
@@ -310,6 +342,24 @@ void ZPMainFrame::forkServer(const QString & config_file)
 
 	QString strSL_LargetFolder = settings.value("Smartlink/SL_LargetFolder","NUL").toString();
 	m_clientTable->setLargeFileFolder(strSL_LargetFolder);
+
+	//clusters
+	QString strClusterTermAddr = settings.value("Cluster/strClusterTermAddr","0.0.0.0").toString();
+	QString strClusterTermPort = settings.value("Cluster/strClusterTermPort","25600").toString();
+	QString strClusterPubName = settings.value("Cluster/strClusterPubName","Term 001").toString();
+	QString strClusterPubAddr = settings.value("Cluster/strClusterPubAddr","192.168.1.111").toString();
+	QString strClusterPubPort = settings.value("Cluster/strClusterPubPort","25600").toString();
+	int nClusterTransThreads = settings.value("Cluster/nClusterTransThreads","4").toInt();
+	int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
+	this->m_pClusterTerm->netEng()->RemoveListeningAddress("clusterTerm");
+	this->m_pClusterTerm->netEng()->RemoveClientTransThreads(-1,false);
+	this->m_pClusterTerm->netEng()->AddClientTransThreads(nClusterTransThreads,false);
+	this->m_pClusterTerm->taskEng()->removeThreads(-1);
+	this->m_pClusterTerm->taskEng()->addThreads(nClusterWorkingThreads);
+	this->m_pClusterTerm->setName(strClusterPubName);
+	this->m_pClusterTerm->setPublishAddr(QHostAddress(strClusterPubAddr));
+	this->m_pClusterTerm->setPublishPort(strClusterPubPort.toInt());
+	this->m_pClusterTerm->netEng()->AddListeningAddress("clusterTerm",QHostAddress(strClusterTermAddr),strClusterTermPort.toInt());
 
 }
 

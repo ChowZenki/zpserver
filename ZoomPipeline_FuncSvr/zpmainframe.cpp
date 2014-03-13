@@ -188,7 +188,7 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 				.arg(m_pClusterTerm->publishAddr().toString())
 				.arg(m_pClusterTerm->publishPort());
 		nClientThreads = m_pClusterTerm->netEng()->TransThreadNum();
-		str_msg += tr("Trans Threads: %1\n").arg(nClientThreads);
+		str_msg += "\t"+tr("Trans Threads: %1\n").arg(nClientThreads);
 		for (int i=0;i<nClientThreads;i++)
 		{
 			str_msg += tr("\t%1:%2").arg(i+1).arg(m_pClusterTerm->netEng()->totalClients(i));

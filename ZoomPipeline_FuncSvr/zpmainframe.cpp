@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QSqlDatabase>
 #include <QMap>
+#include "dialogaddressinput.h"
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
 using namespace ZP_Cluster;
@@ -684,4 +685,19 @@ void ZPMainFrame::on_pushButton_db_del_clicked()
 void ZPMainFrame::on_pushButton_db_apply_clicked()
 {
 	SaveSettings(m_currentConffile);
+}
+
+void  ZPMainFrame::on_pushButton_join_clicked()
+{
+	QSettings settings(this->m_currentConffile,QSettings::IniFormat);
+	QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
+	QString strPort = settings.value("history/clusterPort","25600").toString();
+	DialogAddressInput inputdlg(this);
+	inputdlg.SetAddr(strAddr,strPort);
+	if (inputdlg.exec()==QDialog::Accepted)
+	{
+		settings.setValue("history/clusterAddr",inputdlg.addr());
+		settings.setValue("history/clusterPort",inputdlg.port());
+		m_pClusterTerm->JoinCluster(QHostAddress(inputdlg.addr()),inputdlg.port().toInt());
+	}
 }

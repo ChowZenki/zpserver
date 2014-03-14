@@ -123,6 +123,9 @@ namespace ZPNetwork{
 				connect(sock_client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)),Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::bytesWritten, this,&zp_netTransThread::some_data_sended,Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
+				m_mutex_protect.lock();
+				m_clientList[sock_client] = 0;
+				m_mutex_protect.unlock();
 				sock_client->connectToHost(addr,port);
 
 			}

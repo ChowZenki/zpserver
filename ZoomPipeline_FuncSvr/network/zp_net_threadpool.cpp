@@ -11,6 +11,8 @@ namespace ZPNetwork{
 			qRegisterMetaType<qintptr>("qintptr");
 		if (false==QMetaType::isRegistered(QMetaType::type("QAbstractSocket::SocketError")))
 			qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
+		if (false==QMetaType::isRegistered(QMetaType::type("QHostAddress")))
+			qRegisterMetaType<QHostAddress>("QHostAddress");
 
 	}
 	QStringList zp_net_ThreadPool::ListenerNames()

@@ -41,7 +41,7 @@ namespace ZP_Cluster{
 		//!Join cluster, using existing term (addr:nPort)
 		//!as soon as connection established, more existing terms will be sent to this term,
 		//!an p2p connection will start
-		bool JoinCluster(const QHostAddress &addr, int nPort);
+		bool JoinCluster(const QHostAddress &addr, int nPort,bool bSSL=false);
 
 	};
 }

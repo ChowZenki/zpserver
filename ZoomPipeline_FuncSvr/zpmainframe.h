@@ -72,6 +72,7 @@ public slots:
 
 	void on_pushButton_cluster_apply_clicked();
 	void on_pushButton_smartlink_save_clicked();
+	void on_pushButton_join_clicked();
 
 };
 

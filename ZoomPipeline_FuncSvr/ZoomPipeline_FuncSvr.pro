@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     smartlink/st_clientnode_basetrans.cpp \
     smartlink/st_clientnode_app_imp.cpp \
     smartlink/st_clientnode_applayer.cpp \
-    cluster/zp_clusterterm.cpp
+    cluster/zp_clusterterm.cpp \
+    dialogaddressinput.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \
@@ -42,9 +43,12 @@ HEADERS  += zpmainframe.h \
     smartlink/st_msg_applayer.h \
     smartlink/st_clientnode_basetrans.h \
     smartlink/st_clientnode_applayer.h \
-    cluster/zp_clusterterm.h
+    cluster/zp_clusterterm.h \
+    cluster/cross_svr_messages.h \
+    dialogaddressinput.h
 
-FORMS    += zpmainframe.ui
+FORMS    += zpmainframe.ui \
+    dialogaddressinput.ui
 
 RESOURCES += \
     resource.qrc

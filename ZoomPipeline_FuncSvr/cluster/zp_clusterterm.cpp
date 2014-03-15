@@ -6,6 +6,8 @@ namespace ZP_Cluster{
 	{
 		m_pClusterEng = new ZPTaskEngine::zp_pipeline(this);
 		m_pClusterNet = new ZPNetwork::zp_net_ThreadPool(8192,this);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Message, this,&zp_ClusterTerm::evt_Message);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_SocketError, this,&zp_ClusterTerm::evt_SocketError);
 		m_nPortPublish = 0;
 
 	}

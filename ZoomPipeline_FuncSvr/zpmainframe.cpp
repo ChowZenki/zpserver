@@ -27,6 +27,8 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
 	//Cluster is not created
 	m_pClusterTerm = new ZP_Cluster::zp_ClusterTerm("Unknown",this);
+	connect (m_pClusterTerm,&ZP_Cluster::zp_ClusterTerm::evt_Message,this,&ZPMainFrame::on_evt_Message_Cluster);
+	connect (m_pClusterTerm,&ZP_Cluster::zp_ClusterTerm::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError_Cluster);
 
 	//Create databases
 	m_pDatabases = new ZPDatabase::DatabaseResource(this);
@@ -142,6 +144,29 @@ void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::Soc
 		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
 
 }
+//These Message is nessery.-------------------------------------
+void  ZPMainFrame::on_evt_Message_Cluster(const QString & strMsg)
+{
+	QDateTime dtm = QDateTime::currentDateTime();
+	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " (Cluster)" + strMsg;
+	int nrows = m_pMsgModel->rowCount();
+	m_pMsgModel->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 16384)
+		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+}
+
+//The socket error message
+void  ZPMainFrame::on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSocket::SocketError socketError)
+{
+	QDateTime dtm = QDateTime::currentDateTime();
+	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " (Cluster)" + QString("SockError %1 with code %2")
+			.arg((quint64)senderSock).arg((quint32)socketError);
+	int nrows = m_pMsgModel->rowCount();
+	m_pMsgModel->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 16384)
+		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+
+}
 
 
 void  ZPMainFrame::timerEvent(QTimerEvent * e)
@@ -237,11 +262,11 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 		this->m_pClusterTerm->netEng()->RemoveClientTransThreads(-1,false);
 		this->m_pClusterTerm->taskEng()->removeThreads(-1);
 
-		while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false || m_pClusterTerm->canExit()==false)
+		/*while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false || m_pClusterTerm->canExit()==false)
 		{
 			QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 			QThread::currentThread()->msleep(200);
-		}
+		}*/
 
 	}
 
@@ -352,7 +377,7 @@ void ZPMainFrame::forkServer(const QString & config_file)
 	QString strClusterPubPort = settings.value("Cluster/strClusterPubPort","25600").toString();
 	int nClusterTransThreads = settings.value("Cluster/nClusterTransThreads","4").toInt();
 	int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
-	this->m_pClusterTerm->netEng()->RemoveListeningAddress("clusterTerm");
+	this->m_pClusterTerm->netEng()->RemoveAllAddresses();
 	this->m_pClusterTerm->netEng()->RemoveClientTransThreads(-1,false);
 	this->m_pClusterTerm->netEng()->AddClientTransThreads(nClusterTransThreads,false);
 	this->m_pClusterTerm->taskEng()->removeThreads(-1);
@@ -360,7 +385,7 @@ void ZPMainFrame::forkServer(const QString & config_file)
 	this->m_pClusterTerm->setName(strClusterPubName);
 	this->m_pClusterTerm->setPublishAddr(QHostAddress(strClusterPubAddr));
 	this->m_pClusterTerm->setPublishPort(strClusterPubPort.toInt());
-	this->m_pClusterTerm->netEng()->AddListeningAddress("clusterTerm",QHostAddress(strClusterTermAddr),strClusterTermPort.toInt());
+	this->m_pClusterTerm->StartListen(QHostAddress(strClusterTermAddr),strClusterTermPort.toInt());
 
 }
 

@@ -71,6 +71,8 @@ namespace ZPNetwork{
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		//this event indicates new client connected.
 		void evt_NewClientConnected(QObject * /*clientHandle*/);
+		//SSL Connections OK
+		void evt_ClientEncrypted(QObject * client);
 		//this event indicates a client disconnected.
 		void evt_ClientDisconnected(QObject * /*clientHandle*/);
 		//some data arrival

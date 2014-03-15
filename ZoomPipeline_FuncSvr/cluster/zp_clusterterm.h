@@ -34,7 +34,10 @@ namespace ZP_Cluster{
 		ZPNetwork::zp_net_ThreadPool * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
 	signals:
-
+		//These Message is nessery.-------------------------------------
+		void evt_Message(const QString &);
+		//The socket error message
+		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 	public slots:
 		//!Start listen, this term can be connected by newly joined terms in future.
 		void StartListen(const QHostAddress &addr, int nPort);

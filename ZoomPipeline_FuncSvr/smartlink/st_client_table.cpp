@@ -67,12 +67,58 @@ namespace SmartLink{
 		return NULL;
 
 	}
-
+	//this event indicates new client encrypted.
+	void st_client_table::on_evt_ClientEncrypted(QObject * clientHandle)
+	{
+		bool nHashContains = 0;
+		st_clientNode_baseTrans * pClientNode = 0;
+		m_hash_mutex.lock();
+		nHashContains = m_hash_sock2node.contains(clientHandle);
+		if (false==nHashContains)
+		{
+			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
+			//using queued connection of send and revieve;
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
+			m_hash_sock2node[clientHandle] = pnode;
+			nHashContains = true;
+			pClientNode = pnode;
+		}
+		else
+		{
+			pClientNode =  m_hash_sock2node[clientHandle];
+		}
+		m_hash_mutex.unlock();
+		assert(nHashContains!=0 && pClientNode !=0);
+	}
 
 	//this event indicates new client connected.
-	void  st_client_table::on_evt_NewClientConnected(QObject * /*clientHandle*/)
+	void  st_client_table::on_evt_NewClientConnected(QObject * clientHandle)
 	{
-
+		bool nHashContains = 0;
+		st_clientNode_baseTrans * pClientNode = 0;
+		m_hash_mutex.lock();
+		nHashContains = m_hash_sock2node.contains(clientHandle);
+		if (false==nHashContains)
+		{
+			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
+			//using queued connection of send and revieve;
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
+			m_hash_sock2node[clientHandle] = pnode;
+			nHashContains = true;
+			pClientNode = pnode;
+		}
+		else
+		{
+			pClientNode =  m_hash_sock2node[clientHandle];
+		}
+		m_hash_mutex.unlock();
+		assert(nHashContains!=0 && pClientNode !=0);
 	}
 
 	//this event indicates a client disconnected.

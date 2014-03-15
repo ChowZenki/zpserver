@@ -52,12 +52,16 @@ private:
 	void LoadSettings(const QString & config_file);
 	void SaveSettings(const QString & config_file);
 	void forkServer(const QString & config_file);
-public slots:
+protected slots:
 	//These Message is nessery.-------------------------------------
 	void on_evt_Message(const QString &);
 	//The socket error message
 	void on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
-
+	//These Message is nessery.-------------------------------------
+	void on_evt_Message_Cluster(const QString &);
+	//The socket error message
+	void on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSocket::SocketError socketError);
+public slots:
 	void on_action_Start_Stop_triggered(bool);
 	void on_action_About_triggered();
 	void on_actionReload_config_file_triggered();

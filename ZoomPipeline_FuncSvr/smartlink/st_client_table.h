@@ -66,6 +66,8 @@ namespace SmartLink{
 	public slots:
 		//this event indicates new client connected.
 		void on_evt_NewClientConnected(QObject * /*clientHandle*/);
+		//this event indicates new client encrypted.
+		void on_evt_ClientEncrypted(QObject * /*clientHandle*/);
 		//this event indicates a client disconnected.
 		void on_evt_ClientDisconnected(QObject * /*clientHandle*/);
 		//some data arrival

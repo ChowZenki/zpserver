@@ -77,8 +77,7 @@ namespace ZPNetwork{
 					connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
 					psslsock->startServerEncryption();
 				}
-				else
-					emit evt_NewClientConnected(sock_client);
+				emit evt_NewClientConnected(sock_client);
 			}
 			else
 				sock_client->deleteLater();
@@ -109,6 +108,7 @@ namespace ZPNetwork{
 				connect(sock_client, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed,Qt::QueuedConnection);
 				connect(sock_client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)),Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::bytesWritten, this,&zp_netTransThread::some_data_sended,Qt::QueuedConnection);
+				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_connected,Qt::QueuedConnection);
 				connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
 				m_mutex_protect.lock();
 				m_clientList[sock_client] = 0;
@@ -122,7 +122,7 @@ namespace ZPNetwork{
 				connect(sock_client, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed,Qt::QueuedConnection);
 				connect(sock_client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)),Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::bytesWritten, this,&zp_netTransThread::some_data_sended,Qt::QueuedConnection);
-				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
+				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_connected,Qt::QueuedConnection);
 				m_mutex_protect.lock();
 				m_clientList[sock_client] = 0;
 				m_mutex_protect.unlock();
@@ -133,11 +133,16 @@ namespace ZPNetwork{
 		else
 			assert(false);
 	}
+	void zp_netTransThread::on_connected()
+	{
+		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
+		emit evt_NewClientConnected(pSock);
+	}
 
 	void zp_netTransThread::on_encrypted()
 	{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
-		emit evt_NewClientConnected(pSock);
+		emit evt_ClientEncrypted(pSock);
 	}
 
 	void zp_netTransThread::client_closed()

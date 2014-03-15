@@ -58,12 +58,15 @@ namespace ZPNetwork{
 		void new_data_recieved();
 		void some_data_sended(qint64);
 		void displayError(QAbstractSocket::SocketError socketError);
+		//Plain Connected
+		void on_connected();
 		//SSL Encrypted started
 		void on_encrypted();
 	signals:
 
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		void evt_NewClientConnected(QObject * client);
+		void evt_ClientEncrypted(QObject * client);
 		void evt_ClientDisconnected(QObject * client);
 		void evt_Data_recieved(QObject * ,const QByteArray &  );
 		void evt_Data_transferred(QObject * client,qint64);

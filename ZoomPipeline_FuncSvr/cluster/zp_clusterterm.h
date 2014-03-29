@@ -38,6 +38,18 @@ namespace ZP_Cluster{
 		void evt_Message(const QString &);
 		//The socket error message
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
+	protected slots:
+		//this event indicates new client connected.
+		void on_evt_NewClientConnected(QObject * /*clientHandle*/);
+		//this event indicates new client encrypted.
+		void on_evt_ClientEncrypted(QObject * /*clientHandle*/);
+		//this event indicates a client disconnected.
+		void on_evt_ClientDisconnected(QObject * /*clientHandle*/);
+		//some data arrival
+		void on_evt_Data_recieved(QObject *  /*clientHandle*/,const QByteArray & /*datablock*/ );
+		//a block of data has been successfuly sent
+		void on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/);
+
 	public slots:
 		//!Start listen, this term can be connected by newly joined terms in future.
 		void StartListen(const QHostAddress &addr, int nPort);

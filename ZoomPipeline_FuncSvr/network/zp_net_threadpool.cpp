@@ -2,6 +2,13 @@
 #include <QCoreApplication>
 #include <QStringList>
 namespace ZPNetwork{
+	/**
+	 * @brief Construct a net thread pool object.
+	 *
+	 * @fn zp_net_ThreadPool
+	 * @param nPayLoad The data to be sent in buffer will be cutted into pieces, each pieces equals to nPayLoad bytes
+	 * @param parent a Qt-style parent pointer. this object will be auto-deleted when parent is about to be destoryed.
+	 */
 	zp_net_ThreadPool::zp_net_ThreadPool(int nPayLoad,QObject *parent) :
 		QObject(parent)
 	{
@@ -15,15 +22,34 @@ namespace ZPNetwork{
 			qRegisterMetaType<QHostAddress>("QHostAddress");
 
 	}
+	/**
+	 * @brief return all of these listener names.
+	 *
+	 * @fn zp_net_ThreadPool::ListenerNames
+	 * @return QStringList listener names.
+	 */
 	QStringList zp_net_ThreadPool::ListenerNames()
 	{
 		return m_map_netListenThreads.keys();
 	}
 
+	/**
+	 * @brief Return how many threads is now actived for TCP transmitions.
+	 *
+	 * @fn zp_net_ThreadPool::TransThreadNum
+	 * @return int 0 means no thread is active.
+	 */
 	int zp_net_ThreadPool::TransThreadNum()
 	{
 		return m_vec_NetTransThreads.size();
 	}
+	/**
+	 * @brief Return how many threads is now actived for SSL/Plain TCP transmitions.
+	 *
+	 * @fn zp_net_ThreadPool::TransThreadNum
+	 * @param bSSL true means SSL Connection, false is Plain Connection
+	 * @return int The transmition thread count for SSL connections.
+	 */
 	int zp_net_ThreadPool::TransThreadNum(bool bSSL)
 	{
 		//m_mutex_trans.lock();
@@ -38,6 +64,13 @@ namespace ZPNetwork{
 		return nCount;
 	}
 
+	/**
+	 * @brief This function returns how many clients managed by idxThread is now online.
+	 *
+	 * @fn zp_net_ThreadPool::totalClients
+	 * @param idxThread The thread index between 0 and TransThreadNum()-1
+	 * @return int Clients which are currently online
+	 */
 	int zp_net_ThreadPool::totalClients(int idxThread)
 	{
 		int nsz = m_vec_NetTransThreads.size();
@@ -47,7 +80,15 @@ namespace ZPNetwork{
 			return 0;
 	}
 
-	//Begin a listening socket at special address and port. The socket will be activated as soon as possible
+	/**
+	 * @brief Begin a listening socket at special address and port. The socket will be activated as soon as possible
+	 * The Wait-and-Accept approaches are all managed by Listening thread, instead of main-GUI thread.
+	 * @fn zp_net_ThreadPool::AddListeningAddress
+	 * @param id The name of this listening address:port. You can later using RemoveListeningAddress(id) to close it.
+	 * @param address Listening address. IPV6 is now not tested.
+	 * @param nPort Listening Port. in Linux, this value should larger than 1024.
+	 * @param bSSLConn True means this address using OpenSSL . False means plain TCP
+	 */
 	void zp_net_ThreadPool::AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn /*= true*/)
 	{
 		if (m_map_netListenThreads.find(id)==m_map_netListenThreads.end())
@@ -75,7 +116,12 @@ namespace ZPNetwork{
 			emit evt_Message("Warning>"+QString(tr("This ID has been used.")));
 	}
 
-	//Remove a listening socket at special address and port.The socket will be deactivated as soon as possible
+	/**
+	 * @brief Remove a listening socket at special address and port.The socket will be deactivated as soon as possible
+	 *
+	 * @fn zp_net_ThreadPool::RemoveListeningAddress
+	 * @param id Listening-Address name specified by AddListeningAddress()
+	 */
 	void zp_net_ThreadPool::RemoveListeningAddress(const QString & id)
 	{
 		//m_mutex_listen.lock();
@@ -83,6 +129,11 @@ namespace ZPNetwork{
 			emit stopListen(id);
 		//m_mutex_listen.unlock();
 	}
+	/**
+	 * @brief Cancel all addresses.
+	 *
+	 * @fn zp_net_ThreadPool::RemoveAllAddresses
+	 */
 	void zp_net_ThreadPool::RemoveAllAddresses()
 	{
 		//m_mutex_listen.lock();
@@ -91,6 +142,12 @@ namespace ZPNetwork{
 		//m_mutex_listen.unlock();
 	}
 
+	/**
+	 * @brief This slot recieved incomming client socketDescriptor from listening threads.In this function, zp_net_ThreadPool
+	 * will make a balance control, choosing a trans-thread which currently holds least clients than others.
+	 * @fn zp_net_ThreadPool::on_New_Arrived_Client
+	 * @param socketDescriptor the socket descriptor for incomming client.
+	 */
 	void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
 	{
 		zp_netListenThread * pSource = qobject_cast<zp_netListenThread *>(sender());
@@ -133,6 +190,12 @@ namespace ZPNetwork{
 		}
 		//m_mutex_trans.unlock();
 	}
+	/**
+	 * @brief This is a slot function. when a listening thread is terminated,
+	 * the thread itself will be deleted here. Some cleanning works is also needed.
+	 * @fn zp_net_ThreadPool::on_ListenClosed
+	 * @param id the terminated thread id.
+	 */
 	void zp_net_ThreadPool::on_ListenClosed(const QString & id)
 	{
 		//m_mutex_listen.lock();
@@ -157,6 +220,13 @@ namespace ZPNetwork{
 		//m_mutex_listen.unlock();
 	}
 	//Add n client-Trans Thread(s).
+	/**
+	 * @brief Add some threads to hold transmitions between server and client.
+	 * The send and recieve approaches are all managed by these threads, instead of main-GUI thread.
+	 * @fn zp_net_ThreadPool::AddClientTransThreads
+	 * @param nThreads
+	 * @param bSSL
+	 */
 	void zp_net_ThreadPool::AddClientTransThreads(int nThreads,bool bSSL)
 	{
 		if (nThreads>0 && nThreads<256)
@@ -190,6 +260,13 @@ namespace ZPNetwork{
 			}
 		}
 	}
+	/**
+	 * @brief This slot will be called, when an Trans-thread is about to close.
+	 * Some cleanning works will be done ,all resources will be freeed.
+	 * @fn zp_net_ThreadPool::TransThreadDel
+	 * @param pThreadObj The closing thread object.
+	 * @return bool in normal situation, this slot is always return true.
+	 */
 	bool zp_net_ThreadPool::TransThreadDel(zp_netTransThread * pThreadObj)
 	{
 		if (pThreadObj->CanExit()==false)
@@ -226,6 +303,12 @@ namespace ZPNetwork{
 		}
 		return true;
 	}
+	/**
+	 * @brief Kick all clients from server
+	 * This Method is designed as an "Easy to compromise" method, which means this
+	 * approach only "suggests" all these trans threads, that client should be kicked later.
+	 * @fn zp_net_ThreadPool::KickAllClients
+	 */
 	void zp_net_ThreadPool::KickAllClients()
 	{
 		//m_mutex_trans.lock();
@@ -234,6 +317,11 @@ namespace ZPNetwork{
 			emit evt_KickAll(m_vec_NetTransThreads[i]);
 		//m_mutex_trans.unlock();
 	}
+	/**
+	 * @brief :Deactive server immediately
+	 *  This Method is designed as an "Mandatory" method, which means all clients will be sooner kicked out.
+	 * @fn zp_net_ThreadPool::DeactiveImmediately
+	 */
 	void zp_net_ThreadPool::DeactiveImmediately()
 	{
 		//m_mutex_trans.lock();
@@ -243,7 +331,13 @@ namespace ZPNetwork{
 		//m_mutex_trans.unlock();
 	}
 
-	//Remove n client-Trans Thread(s).a thread marked reomved will be terminated after its last client socket exited.
+	/**
+	 * @brief Remove n Trans Thread(s)
+	 * A thread marked as "removed" will be terminated after its last client socket exited.
+	 * @fn zp_net_ThreadPool::RemoveClientTransThreads
+	 * @param nThreads how many threads will be marked as "removed"
+	 * @param bSSL true means SSL threads, false means Plain
+	 */
 	void zp_net_ThreadPool::RemoveClientTransThreads(int nThreads,bool bSSL)
 	{
 
@@ -263,22 +357,48 @@ namespace ZPNetwork{
 		//m_mutex_trans.unlock();
 	}
 
+	/**
+	 * @brief This slot send some data to a client.
+	 * Because a client socket is actually belongs to a transmition-thread,
+	 * this event will be re-fired as evt_SendDataToClient,  transmition-threads will
+	 * @fn zp_net_ThreadPool::SendDataToClient
+	 * @param objClient The destin client
+	 * @param dtarray data to be sent
+	 */
 	void zp_net_ThreadPool::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
 	{
 		emit evt_SendDataToClient(objClient,dtarray);
 	}
 
+	/**
+	 * @brief This slot kick client from server.
+	 * @fn zp_net_ThreadPool::KickClients
+	 * @param object Client to be kicked.
+	 */
 	void zp_net_ThreadPool::KickClients(QObject * object)
 	{
 		emit evt_KickClient(object);
 	}
 
+	/**
+	 * @brief Broadcast data to every client, except for the source object
+	 *
+	 * @fn zp_net_ThreadPool::BroadcastData
+	 * @param objFromClient the source object.
+	 * @param dtarray data to be sent.
+	 */
 	void zp_net_ThreadPool::BroadcastData(QObject * objFromClient,const QByteArray &  dtarray)
 	{
 		emit evt_BroadcastData(objFromClient,dtarray);
 	}
 
 
+	/**
+	 * @brief Test whether this threadpool can be safely closed.
+	 * This function will return false as long as some clients is still active.
+	 * @fn zp_net_ThreadPool::CanExit
+	 * @return bool true means can close, false mean can not close.
+	 */
 	bool zp_net_ThreadPool::CanExit()
 	{
 		bool res = true;
@@ -295,6 +415,15 @@ namespace ZPNetwork{
 		return res;
 	}
 
+	/**
+	 * @brief Positive connect to a server.
+	 * In p2p connection, when the other side opens a listening address, this object can directly connect to the remote side.
+	 * @fn zp_net_ThreadPool::connectTo
+	 * @param address the address to connect to
+	 * @param nPort port to connect to
+	 * @param bSSLConn if true, SSL connections will be used
+	 * @return bool
+	 */
 	bool zp_net_ThreadPool::connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn)
 	{
 		bool res= false;

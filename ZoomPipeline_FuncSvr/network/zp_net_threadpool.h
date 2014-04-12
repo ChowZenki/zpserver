@@ -1,3 +1,6 @@
+/**
+  * @brief This is the Zoom-Pipeline Network engine by goldenhawking, 2013,2014
+  */
 #ifndef ZP_NET_THREADPOOL_H
 #define ZP_NET_THREADPOOL_H
 
@@ -15,6 +18,10 @@
 
 namespace ZPNetwork{
 
+	/**
+	  * @brief zp_net_ThreadPool provides a  multi-thread listening\transmitting network
+	  * framework. SSL and Plain sockets are both supported.
+	  */
 	class zp_net_ThreadPool : public QObject
 	{
 		Q_OBJECT

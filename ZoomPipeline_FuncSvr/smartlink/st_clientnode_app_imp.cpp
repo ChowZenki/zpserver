@@ -16,7 +16,7 @@ namespace SmartLink{
 				(const SMARTLINK_MSG_APP *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(SMARTLINK_MSG)-1);
-		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1);
+		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1) - sizeof(tag_smartlink_app_layer::tag_app_layer_header);
 
 		QString strSerial ;
 		for (int i=0;i<nAppLen /*64*/ && pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i]!=0 ;i++)
@@ -141,7 +141,7 @@ namespace SmartLink{
 				(const SMARTLINK_MSG_APP *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(SMARTLINK_MSG)-1);
-		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1);
+		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1)- sizeof(tag_smartlink_app_layer::tag_app_layer_header);
 		QString strSerial ;
 		for (int i=0;i<nAppLen && pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i]!=0;i++)
 		{
@@ -256,7 +256,7 @@ namespace SmartLink{
 				(const SMARTLINK_MSG_APP *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(SMARTLINK_MSG)-1);
-		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1) - sizeof (quint16);
+		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1)- sizeof(tag_smartlink_app_layer::tag_app_layer_header) - sizeof (quint16);
 		QString strUserName, strPasswd ;
 		int nSwim = 0;
 		int usernameLen = 0, passwordlen = 0;

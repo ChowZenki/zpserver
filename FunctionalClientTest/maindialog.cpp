@@ -153,8 +153,14 @@ void MainDialog::on_pushButton_regisit_clicked()
 		return;
 	}
 	saveIni();
+
+	QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
+	std::string strStdSerial = strSerial.toStdString();
+	const char * pSrc = strStdSerial.c_str();
+	int nMaxLen = strStdSerial.length();
+
 	quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_HostRegistReq);
+			+sizeof(stMsg_HostRegistReq) + nMaxLen /*Length Include \0*/;
 	QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
@@ -177,11 +183,8 @@ void MainDialog::on_pushButton_regisit_clicked()
 	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1000;
 	pApp->header.MsgFmtVersion = 0x01;
-	QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
-	std::string strStdSerial = strSerial.toStdString();
-	const char * pSrc = strStdSerial.c_str();
-	int nMaxLen = strStdSerial.length();
-	for (int i=0;i<64;i++)
+
+	for (int i=0;i<=nMaxLen;i++)
 		pApp->MsgUnion.msg_HostRegistReq.HostSerialNum[i] =
 				i<nMaxLen?pSrc[i]:0;
 	//3/10 possibility to send a data block to server
@@ -196,8 +199,15 @@ void MainDialog::on_pushButton_Login_clicked()
 		return;
 	}
 	saveIni();
+
+	QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
+	std::string strStdSerial = strSerial.toStdString();
+	const char * pSrc = strStdSerial.c_str();
+	int nMaxLen = strStdSerial.length();
+
+
 	quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_HostLogonReq);
+			+sizeof(stMsg_HostLogonReq) + nMaxLen /*\0 included*/;
 	QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
@@ -220,11 +230,8 @@ void MainDialog::on_pushButton_Login_clicked()
 	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1001;
 	pApp->header.MsgFmtVersion = 0x01;
-	QString strSerial = ui->plainTextEdit_boxSerialNum->toPlainText();
-	std::string strStdSerial = strSerial.toStdString();
-	const char * pSrc = strStdSerial.c_str();
-	int nMaxLen = strStdSerial.length();
-	for (int i=0;i<64;i++)
+
+	for (int i=0;i<=nMaxLen;i++)
 		pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
 				i<nMaxLen?pSrc[i]:0;
 	pApp->MsgUnion.msg_HostLogonReq.ID = ui->lineEdit_boxid->text().toUInt();
@@ -240,8 +247,17 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 		return;
 	}
 	saveIni();
+	QString strUserName = ui->lineEdit_username->text();
+	QString strPassWd = ui->lineEdit_password->text();
+	std::string strStdUserName = strUserName.toStdString();
+	const char * pSrcUsername = strStdUserName.c_str();
+	int nMaxLenUserName = strStdUserName.length();
+	std::string strStdPassword = strPassWd.toStdString();
+	const char * pSrcPassword = strStdPassword.c_str();
+	int nMaxLenPassword = strStdPassword.length();
+
 	quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_ClientLoginReq);
+			+sizeof(stMsg_ClientLoginReq)+nMaxLenUserName+nMaxLenPassword+1;
 	QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
@@ -264,22 +280,17 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x3000;
 	pApp->header.MsgFmtVersion = 0x01;
-	QString strUserName = ui->lineEdit_username->text();
-	QString strPassWd = ui->lineEdit_password->text();
 
-	std::string strStdUserName = strUserName.toStdString();
-	const char * pSrc = strStdUserName.c_str();
-	int nMaxLen = strStdUserName.length();
-	for (int i=0;i<32;i++)
-		pApp->MsgUnion.msg_ClientLoginReq.UserName[i] =
-				i<nMaxLen?pSrc[i]:0;
 
-	std::string strStdPassword = strPassWd.toStdString();
-	pSrc = strStdPassword.c_str();
-	nMaxLen = strStdPassword.length();
-	for (int i=0;i<32;i++)
-		pApp->MsgUnion.msg_ClientLoginReq.Password[i] =
-				i<nMaxLen?pSrc[i]:0;
+
+	for (int i=0;i<=nMaxLenUserName;i++)
+		pApp->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[i] =
+				i<nMaxLenUserName?pSrcUsername[i]:0;
+
+
+	for (int i=0;i<=nMaxLenPassword;i++)
+		pApp->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[i+nMaxLenUserName+1] =
+				i<nMaxLenPassword?pSrcPassword[i]:0;
 
 	pApp->MsgUnion.msg_ClientLoginReq.ClientVersion = 0;
 

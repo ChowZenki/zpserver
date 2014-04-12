@@ -11,14 +11,14 @@ namespace SmartLink{
 	//Host Reg request, send 64 byte Serial Num to Server
 	//SMARTLINK_MSG_APP::MsgType =  0x1000
 	typedef struct tag_stMsg_HostRegistReq{
-		char HostSerialNum[64];
+		char HostSerialNum[1];//max 64
 	}stMsg_HostRegistReq;
 
 	//Host Reg replay, send back 4 byte ID
 	//SMARTLINK_MSG_APP::MsgType =  0x1800
 	typedef struct tag_stMsg_HostRegistRsp{
 		__UINT8_TYPE__ DoneCode;//0 first ok, 1 ok 2 failed
-		char TextInfo[64];
+		//char TextInfo[64];
 		__UINT32_TYPE__ ID;
 	}stMsg_HostRegistRsp;
 
@@ -26,22 +26,22 @@ namespace SmartLink{
 	//SMARTLINK_MSG_APP::MsgType =  0x1001
 	typedef struct tag_stMsg_HostLogonReq{
 		__UINT32_TYPE__ ID;
-		char HostSerialNum[64];
+		char HostSerialNum[1];//max 64
 	} stMsg_HostLogonReq;
 
 	//Host Log response
 	//SMARTLINK_MSG_APP::MsgType =  0x1801
 	typedef struct tag_stMsg_HostLogonRsp{
 		__UINT8_TYPE__ DoneCode;
-		char TextInfo[64];
+		//char TextInfo[64];
 	} stMsg_HostLogonRsp;
 
 	//User Login request
 	//SMARTLINK_MSG_APP::MsgType =  0x3000
 	typedef struct tag_stMsg_ClientLoginReq{
 		__UINT16_TYPE__ ClientVersion;
-		char UserName[32];
-		char Password[32];
+		char UserNameAndPasswd[1];
+		//char Password[32];
 	}stMsg_ClientLoginReq;
 
 	//User Log response
@@ -49,7 +49,7 @@ namespace SmartLink{
 	typedef struct tag_stMsg_ClientLoginRsp{
 		__UINT8_TYPE__ DoneCode;
 		__UINT32_TYPE__ UserID;
-		char TextInfo[64];
+		//char TextInfo[64];
 	} stMsg_ClientLoginRsp;
 
 	//User Log response
@@ -61,7 +61,7 @@ namespace SmartLink{
 	//Time Correct
 	typedef struct tag_stMsg_HostTimeCorrectRsp{
 		__UINT8_TYPE__ DoneCode;
-		char TextInfo[64];
+		//char TextInfo[64];
 		struct tag_stDateTime{
 			__UINT16_TYPE__ Year;
 			__UINT8_TYPE__ Month;
@@ -82,7 +82,7 @@ namespace SmartLink{
 	//SMARTLINK_MSG_APP::MsgType =  0x1803
 	typedef struct tag_stMsg_UploadUserListRsp{
 		__UINT8_TYPE__ DoneCode;
-		char TextInfo[64];
+		//char TextInfo[64];
 	} stMsg_UploadUserListRsp;
 
 	//SMARTLINK_MSG_APP::MsgType =  0x1004
@@ -93,7 +93,7 @@ namespace SmartLink{
 	//SMARTLINK_MSG_APP::MsgType =  0x1804
 	typedef struct tag_stMsg_DownloadUserListRsp{
 		__UINT8_TYPE__ DoneCode;
-		char TextInfo[64];
+		//char TextInfo[64];
 		__UINT16_TYPE__ UserNum;
 		__UINT32_TYPE__ pUserIDList[1];
 	} stMsg_DownloadUserListRsp;
@@ -101,13 +101,13 @@ namespace SmartLink{
 
 	//0x3001
 	typedef struct tag_stMsg_ClientLogoutReq{
-		char UserName[32];
+		char UserName[1];//max 32
 	}stMsg_ClientLogoutReq;
 
 	//0x3801
 	typedef struct tag_stMsg_ClientLogoutRsp{
 		__UINT8_TYPE__ DoneCode;
-		char TextInfo[64];
+		//char TextInfo[64];
 	}stMsg_ClientLogoutRsp;
 
 	//SMARTLINK_MSG_APP::MsgType =  0x3002
@@ -154,7 +154,7 @@ namespace SmartLink{
 	//Host Reg request, send 64 byte Serial Num to Server
 	//SMARTLINK_MSG_APP::MsgType =  0x1000
 	typedef struct tag_stMsg_HostRegistReq{
-		char HostSerialNum[64];
+		char HostSerialNum[1];//max 64
 	}stMsg_HostRegistReq;
 
 
@@ -170,7 +170,7 @@ namespace SmartLink{
 	//SMARTLINK_MSG_APP::MsgType =  0x1001
 	typedef struct tag_stMsg_HostLogonReq{
 		unsigned __int32 ID;
-		char HostSerialNum[64];
+		char HostSerialNum[1];//max 64
 	} stMsg_HostLogonReq;
 
 	//Host Log response
@@ -184,8 +184,8 @@ namespace SmartLink{
 	//SMARTLINK_MSG_APP::MsgType =  0x3000
 	typedef struct tag_stMsg_ClientLoginReq{
 		unsigned __int16 ClientVersion;
-		char UserName[32];
-		char Password[32];
+		char UserNameAndPasswd[1];//max 65
+		//char Password[1];//max 32
 	}stMsg_ClientLoginReq;
 
 	//User Log response
@@ -246,7 +246,7 @@ namespace SmartLink{
 
 	//0x3001
 	typedef struct tag_stMsg_ClientLogoutReq{
-		char UserName[32];
+		char UserName[1];//max 32
 	}stMsg_ClientLogoutReq;
 
 	//0x3801

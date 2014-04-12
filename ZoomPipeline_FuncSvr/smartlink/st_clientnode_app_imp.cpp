@@ -16,7 +16,16 @@ namespace SmartLink{
 				(const SMARTLINK_MSG_APP *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(SMARTLINK_MSG)-1);
-		//form Msgs
+		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1);
+
+		QString strSerial ;
+		for (int i=0;i<nAppLen /*64*/ && pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i]!=0 ;i++)
+		{
+			strSerial+= pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i];
+			m_serialNum[i] =  pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i];
+		}
+
+		//form return  Msgs
 		quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
 				+sizeof(stMsg_HostRegistRsp);
 		QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
@@ -53,12 +62,7 @@ namespace SmartLink{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			QString strSerial ;
-			for (int i=0;i<64 && pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i]!=0 ;i++)
-			{
-				strSerial+= pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i];
-				m_serialNum[i] =  pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i];
-			}
+
 			QString sql = "select host_serial_num,equip_id,first_login from instruments where host_serial_num = ?;";
 			query.prepare(sql);
 			query.addBindValue(strSerial);
@@ -137,6 +141,14 @@ namespace SmartLink{
 				(const SMARTLINK_MSG_APP *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(SMARTLINK_MSG)-1);
+		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1);
+		QString strSerial ;
+		for (int i=0;i<nAppLen && pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i]!=0;i++)
+		{
+			strSerial+= pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i];
+			m_serialNum[i] = pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i];
+		}
+
 		//form Msgs
 		quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
 				+sizeof(stMsg_HostLogonRsp);
@@ -173,12 +185,7 @@ namespace SmartLink{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			QString strSerial ;
-			for (int i=0;i<64 && pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i]!=0;i++)
-			{
-				strSerial+= pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i];
-				m_serialNum[i] = pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[i];
-			}
+
 			QString sql = "select host_serial_num,equip_id from instruments where host_serial_num = ?;";
 			query.prepare(sql);
 			query.addBindValue(strSerial);
@@ -249,6 +256,21 @@ namespace SmartLink{
 				(const SMARTLINK_MSG_APP *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(SMARTLINK_MSG)-1);
+		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1) - sizeof (quint16);
+		QString strUserName, strPasswd ;
+		int nSwim = 0;
+		int usernameLen = 0, passwordlen = 0;
+		while (nSwim < nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim]!=0 )
+		{
+			m_username[usernameLen++] = pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim];
+			strUserName+= pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim];
+			++nSwim;
+		}
+		++nSwim;
+		while (  nSwim < nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim]!=0 )
+			strPasswd+= pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim++];
+
+
 		//form Msgs
 		quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
 				+sizeof(stMsg_ClientLoginRsp);
@@ -285,14 +307,6 @@ namespace SmartLink{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			QString strUserName, strPasswd ;
-			for (int i=0;i<32 && pAppLayer->MsgUnion.msg_ClientLoginReq.UserName[i]!=0;i++)
-			{
-				m_username[i] = pAppLayer->MsgUnion.msg_ClientLoginReq.UserName[i];
-				strUserName+= pAppLayer->MsgUnion.msg_ClientLoginReq.UserName[i];
-			}
-			for (int i=0;i<32 && pAppLayer->MsgUnion.msg_ClientLoginReq.Password[i]!=0;i++)
-				strPasswd+= pAppLayer->MsgUnion.msg_ClientLoginReq.Password[i];
 
 			QString sql = "select user_name,user_id,password from users where user_name = ? and password = ?;";
 			query.prepare(sql);

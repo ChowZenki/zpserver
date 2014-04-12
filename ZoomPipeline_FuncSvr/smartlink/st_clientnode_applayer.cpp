@@ -256,10 +256,10 @@ namespace SmartLink{
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
-			if (m_currentMessageSize!=
+			if (m_currentMessageSize>
 					sizeof(SMARTLINK_MSG) - 1
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_HostRegistReq))
+					+ sizeof (stMsg_HostRegistReq)+64)
 			{
 				emit evt_Message(tr("Broken Message stMsg_HostRegistReq, size not correct."));
 				res = false;
@@ -271,10 +271,10 @@ namespace SmartLink{
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
-			if (m_currentMessageSize!=
+			if (m_currentMessageSize>
 					sizeof(SMARTLINK_MSG) - 1
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_HostLogonReq))
+					+ sizeof (stMsg_HostLogonReq)+64)
 			{
 				emit evt_Message(tr("Broken Message stMsg_HostLogonReq, size not correct."));
 				res = false;
@@ -286,10 +286,10 @@ namespace SmartLink{
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
-			if (m_currentMessageSize!=
+			if (m_currentMessageSize>
 					sizeof(SMARTLINK_MSG) - 1
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_ClientLoginReq))
+					+ sizeof (stMsg_ClientLoginReq)+66)
 			{
 				emit evt_Message(tr("Broken Message stMsg_ClientLoginReq, size not correct."));
 				res = false;

@@ -135,6 +135,7 @@ namespace SmartLink{
 	{
 		//then , Start deal to-server messages
 		//Server - deal messages
+		emit evt_Message("Debug:" + m_currentBlock.toHex());
 		if (m_currentHeader.destin_id==0x00000001)
 		{
 			if (this->m_bLoggedIn==false || this->m_bUUIDRecieved==false)
@@ -229,7 +230,8 @@ namespace SmartLink{
 	bool st_clientNodeAppLayer::Deal_ToServer_Handshakes()
 	{
 		bool res = true;
-
+		//qDebug()<<m_currentHeader.data_length<<"\n";
+		//qDebug()<<this->m_currentBlock.toHex()<<"\n";
 		if (m_currentHeader.data_length < sizeof (SMARTLINK_MSG_APP::tag_app_layer_header))
 			return false;
 		if (m_currentMessageSize < sizeof(SMARTLINK_MSG) - 1 + sizeof (SMARTLINK_MSG_APP::tag_app_layer_header))
@@ -250,6 +252,7 @@ namespace SmartLink{
 			return false;
 		}
 		//do
+		qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.header.MsgType)
 		{
 		case 0x1000:

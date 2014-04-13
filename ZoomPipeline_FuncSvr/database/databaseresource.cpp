@@ -11,8 +11,14 @@ namespace ZPDatabase{
 	{
 		bTerm = false;
 	}
-	//!Get an database connection belong to current thread.
-	//!if database does not exist, it will be added using dbtype
+
+	/**
+	 * @brief Get an database connection belong to current thread.
+	 * if database does not exist, it will be added using dbtype
+	 * @fn DatabaseResource::databse
+	 * @param strDBName the database name
+	 * @return QSqlDatabase return the database object
+	 */
 	QSqlDatabase  DatabaseResource::databse(const QString & strDBName)
 	{
 		QMutexLocker locker(&m_mutex_reg);
@@ -58,6 +64,22 @@ namespace ZPDatabase{
 		m_dbNames.remove(strDBName) ;
 
 	}
+	/**
+	 * @brief add a database connection resource
+	 *
+	 * @fn DatabaseResource::addConnection
+	 * @param connName the user-specified name standing for this connection
+	 * @param type the Qt-Sql database driver name, QPSQL, QMYSQL, etc.
+	 * @param HostAddr the host address will connect to.
+	 * @param port the port will connect to.
+	 * @param dbName the database schema name
+	 * @param User username
+	 * @param Pass password
+	 * @param ExtraOptions some extra options.
+	 * @param testSQL if this para is not empty, confirmConnection will call this SQL to confirm the db is OK,
+	 * for example, select 1+1 , will return 2 if db is ok.
+	 * @return bool succeed : true
+	 */
 	bool DatabaseResource::addConnection(
 			const QString & connName,
 			const QString & type,
@@ -114,6 +136,14 @@ namespace ZPDatabase{
 		m_dbNames.remove(connName) ;
 		return false;
 	}
+	/**
+	 * @brief this method runs in a special guarding thread
+	 * to confirm the connection resource is still OK
+	 * see  DatabaseResource::run()
+	 * @fn DatabaseResource::confirmConnection
+	 * @param connName the connection name which to be tested.
+	 * @return bool the check result.
+	 */
 	bool DatabaseResource::confirmConnection (const QString & connName)
 	{
 		QMutexLocker locker(&m_mutex_reg);

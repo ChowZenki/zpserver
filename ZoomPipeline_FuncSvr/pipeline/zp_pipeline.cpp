@@ -6,6 +6,13 @@ namespace ZPTaskEngine{
 		m_nExistingThreads = 0;
 	}
 
+	/**
+	 * @brief Add nThreads to the thread pool
+	 *
+	 * @fn zp_pipeline::addThreads
+	 * @param nThreads how many threads you want to add.
+	 * @return int current threads count after add.
+	 */
 	int zp_pipeline::addThreads(int nThreads)
 	{
 		if (nThreads>=1 && nThreads <=128)
@@ -31,7 +38,13 @@ namespace ZPTaskEngine{
 		return m_vec_workingThreads.size();
 	}
 
-	//remove n threads and kill them.nthreads=-1 means kill all.
+	/**
+	 * @brief remove n threads and kill them.nthreads=-1 means kill all.
+	 *
+	 * @fn zp_pipeline::removeThreads
+	 * @param nThreads how many threads to kill
+	 * @return int the threads count after del
+	 */
 	int zp_pipeline::removeThreads(int nThreads)
 	{
 		int nsz =  m_vec_workingThreads.size();
@@ -47,8 +60,13 @@ namespace ZPTaskEngine{
 		return m_vec_workingThreads.size();
 	}
 
-	//Threads call this function to get next task, task will be popped from list.
-
+	/**
+	 * @brief  Threads call this function to get next task, task will be popped from list.
+	 *
+	 * @fn zp_pipeline::popTask
+	 * @param bValid return whether this task is valid
+	 * @return zp_plTaskBase the top-task in queue
+	 */
 	zp_plTaskBase * zp_pipeline::popTask( bool * bValid)
 	{
 		*bValid = false;
@@ -64,7 +82,13 @@ namespace ZPTaskEngine{
 		return funcres;
 	}
 
-	//Call this function to insert func
+	/**
+	 * @brief Call this function to insert an task into queue.
+	 * task will be put into the tail of the fifo
+	 * @fn zp_pipeline::pushTask
+	 * @param task the pointer to this task object
+	 * @param bFire if true, will fire an deal-event immediately
+	 */
 	void zp_pipeline::pushTask(zp_plTaskBase * task,bool bFire )
 	{
 		m_mutex_protect.lock();
@@ -111,6 +135,13 @@ namespace ZPTaskEngine{
 		return idle;
 	}
 
+	/**
+	 * @brief this slot will be called when a task is finished,
+	 * in this method, it will check whether the queue is still not empty
+	 * and fire the event to deal with next job.
+	 * @fn zp_pipeline::on_finished_task
+	 * @param task
+	 */
 	void  zp_pipeline::on_finished_task (zp_plWorkingThread * task)
 	{
 		int res = 0;

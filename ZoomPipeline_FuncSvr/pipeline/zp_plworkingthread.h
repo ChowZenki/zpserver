@@ -6,8 +6,11 @@
 namespace ZPTaskEngine{
 
 	class zp_pipeline;
-	//Working thread, reading functions from queue,
-	//running tasks
+	/**
+	 * @brief /Working thread, reading functions from queue,
+	 * call the tasks' "run" method, doing actual works.
+	 * @class zp_plWorkingThread zp_plworkingthread.h "ZoomPipeline_FuncSvr/pipeline/zp_plworkingthread.h"
+	 */
 	class zp_plWorkingThread : public QObject
 	{
 		Q_OBJECT

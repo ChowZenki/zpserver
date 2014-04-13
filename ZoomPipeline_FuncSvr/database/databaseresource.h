@@ -7,10 +7,14 @@
 #include <QString>
 #include <QMutex>
 #include <QThread>
-//!this class provide an database reource,
-//!In different thread, workers can get existing db connections
-//! immediately without re-creation operations.
+
 namespace ZPDatabase{
+	/**
+	 * @brief this class provide an database reource pool.In different thread, workers can get existing db connections
+	 *  immediately without re-creation operations. The working thread does not maintain db connections, instead of
+	 * maintaining, it just using db resources from DatabaseResource
+	 * @class DatabaseResource databaseresource.h "ZoomPipeline_FuncSvr/database/databaseresource.h"
+	 */
 	class DatabaseResource : public QThread
 	{
 		Q_OBJECT

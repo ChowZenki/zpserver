@@ -9,7 +9,7 @@
 #include <QThread>
 #include "zp_plworkingthread.h"
 #include "zp_pltaskbase.h"
-/*!
+/**!
   The pipe line will process each task item group by group.
   quit your task as soon as possible, so that other tasks can get more cpu time.
 */
@@ -18,6 +18,11 @@ namespace ZPTaskEngine{
 
 	class zp_plWorkingThread;
 
+	/**
+	 * @brief the task engine class. hold some threads to do fifo-like tasks.
+	 *
+	 * @class zp_pipeline zp_pipeline.h "ZoomPipeline_FuncSvr/pipeline/zp_pipeline.h"
+	 */
 	class zp_pipeline : public QObject
 	{
 		Q_OBJECT

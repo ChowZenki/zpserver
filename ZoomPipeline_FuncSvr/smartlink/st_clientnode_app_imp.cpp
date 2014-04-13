@@ -259,15 +259,15 @@ namespace SmartLink{
 		int nAppLen = m_currentBlock.length()- (sizeof(SMARTLINK_MSG)-1)- sizeof(tag_smartlink_app_layer::tag_app_layer_header) - sizeof (quint16);
 		QString strUserName, strPasswd ;
 		int nSwim = 0;
-		int usernameLen = 0, passwordlen = 0;
-		while (nSwim < nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim]!=0 )
+		int usernameLen = 0;
+		while (nSwim < 33 && nSwim <nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim]!=0 )
 		{
 			m_username[usernameLen++] = pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim];
 			strUserName+= pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim];
 			++nSwim;
 		}
 		++nSwim;
-		while (  nSwim < nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim]!=0 )
+		while (  nSwim < 66 && nSwim <nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim]!=0 )
 			strPasswd+= pAppLayer->MsgUnion.msg_ClientLoginReq.UserNameAndPasswd[nSwim++];
 
 

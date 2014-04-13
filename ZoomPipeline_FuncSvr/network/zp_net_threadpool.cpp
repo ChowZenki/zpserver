@@ -34,7 +34,7 @@ namespace ZPNetwork{
 	}
 
 	/**
-	 * @brief Return how many threads is now actived for TCP transmitions.
+	 * @brief Return how many threads is now actived for TCP transfer.
 	 *
 	 * @fn zp_net_ThreadPool::TransThreadNum
 	 * @return int 0 means no thread is active.
@@ -44,11 +44,11 @@ namespace ZPNetwork{
 		return m_vec_NetTransThreads.size();
 	}
 	/**
-	 * @brief Return how many threads is now actived for SSL/Plain TCP transmitions.
+	 * @brief Return how many threads is now actived for SSL/Plain TCP transfer.
 	 *
 	 * @fn zp_net_ThreadPool::TransThreadNum
 	 * @param bSSL true means SSL Connection, false is Plain Connection
-	 * @return int The transmition thread count for SSL connections.
+	 * @return int The transfer thread count for SSL connections.
 	 */
 	int zp_net_ThreadPool::TransThreadNum(bool bSSL)
 	{
@@ -221,7 +221,7 @@ namespace ZPNetwork{
 	}
 	//Add n client-Trans Thread(s).
 	/**
-	 * @brief Add some threads to hold transmitions between server and client.
+	 * @brief Add some threads to hold transfer between server and client.
 	 * The send and recieve approaches are all managed by these threads, instead of main-GUI thread.
 	 * @fn zp_net_ThreadPool::AddClientTransThreads
 	 * @param nThreads
@@ -359,8 +359,8 @@ namespace ZPNetwork{
 
 	/**
 	 * @brief This slot send some data to a client.
-	 * Because a client socket is actually belongs to a transmition-thread,
-	 * this event will be re-fired as evt_SendDataToClient,  transmition-threads will
+	 * Because a client socket is actually belongs to a transfer-thread,
+	 * this event will be re-fired as evt_SendDataToClient,  transfer-threads will
 	 * @fn zp_net_ThreadPool::SendDataToClient
 	 * @param objClient The destin client
 	 * @param dtarray data to be sent

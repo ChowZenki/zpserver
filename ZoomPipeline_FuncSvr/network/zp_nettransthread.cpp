@@ -15,6 +15,11 @@ namespace ZPNetwork{
 		m_bSSLConnection = true;
 		assert(m_nPayLoad>=256 && m_nPayLoad<=16*1024*1024);
 	}
+	/**
+	 * @brief return a list contains all of online-clients objects.
+	 *
+	 * @return QList<QObject *> Online clients
+	 */
 	QList <QObject *> zp_netTransThread::clientsList()
 	{
 		QList <QObject *> lsts ;
@@ -23,6 +28,11 @@ namespace ZPNetwork{
 		m_mutex_protect.unlock();
 		return lsts;
 	}
+	/**
+	 * @brief return howmany clients holded by this zp_netTransThread
+	 *
+	 * @return int the clients count
+	 */
 	int zp_netTransThread::CurrentClients()
 	{
 		int nres = 0;
@@ -31,6 +41,13 @@ namespace ZPNetwork{
 		m_mutex_protect.unlock();
 		return nres;
 	}
+	/**
+	 * @brief this slot recieves evt_DeactivateImmediately message,
+	 * if this message is sent to this object, a "KickAllClients"
+	 * method will be called.
+	 *
+	 * @param ptr
+	 */
 	void zp_netTransThread::DeactivateImmediately(zp_netTransThread * ptr)
 	{
 		if (ptr!=this)
@@ -39,12 +56,28 @@ namespace ZPNetwork{
 		this->KickAllClients(ptr);
 	}
 
+	/**
+	 * @brief set the payload of this object. data large than nPayload will be
+	 * cutted into pieces, each piece is nPayload bytes. the last piece may be
+	 * shorter than nPayload.
+	 *
+	 * @param nPayload bytes a signal block contains .
+	 */
 	void zp_netTransThread::SetPayload(int nPayload)
 	{
 		m_nPayLoad = nPayload;
 		assert(m_nPayLoad>=256 && m_nPayLoad<=16*1024*1024);
 	}
 
+	/**
+	 * @brief This slot dealing with multi-thread client socket accept.
+	 * accepy works start from zp_netListenThread::m_tcpserver, end with this method.
+	 * the socketDescriptor is delivered from zp_netListenThread(a Listening thread)
+	 *  to zp_net_ThreadPool(Normally in main-gui thread), and then zp_netTransThread.
+	 *
+	 * @param threadid if threadid is not equal to this object, this message is just omitted.
+	 * @param socketDescriptor socketDescriptor for incomming client.
+	 */
 	void zp_netTransThread::incomingConnection(QObject * threadid,qintptr socketDescriptor)
 	{
 		if (threadid!=this)
@@ -85,6 +118,13 @@ namespace ZPNetwork{
 
 	}
 
+	/**
+	 * @brief This method will create a socket, and directly connect to destion address.
+	 *
+	 * @param threadid if threadid is not equal to this object, this message is just omitted.
+	 * @param addr address to which the socket should be connected.
+	 * @param port port to which the socket should be connected.
+	 */
 	void zp_netTransThread::startConnection(QObject * threadid,const QHostAddress & addr, quint16 port)
 	{
 		if (threadid!=this)
@@ -175,6 +215,13 @@ namespace ZPNetwork{
 		if (pSock)
 			emit evt_Data_recieved(pSock,pSock->readAll());
 	}
+	/**
+	 * @brief this slot will be called when internal socket successfully
+	 * sent some data. in this method, zp_netTransThread object will check
+	 * the sending-queue, and send more data to buffer.
+	 *
+	 * @param wsended
+	 */
 	void zp_netTransThread::some_data_sended(qint64 wsended)
 	{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());

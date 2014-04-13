@@ -1,3 +1,6 @@
+/**
+ * @brief class zp_netTransThread by goldenhawking, 2013,2014
+ */
 #ifndef ZP_NETTRANSTHREAD_H
 #define ZP_NETTRANSTHREAD_H
 
@@ -8,6 +11,11 @@
 #include <QMutex>
 namespace ZPNetwork{
 	class zp_net_ThreadPool;
+	/**
+	 * @brief class zp_netTransThread is a QObject-derived object class.
+	 * Objects of this type will be binded to a QThread, in which TCP transfer
+	 * will work
+	 */
 	class zp_netTransThread : public QObject
 	{
 		Q_OBJECT
@@ -37,7 +45,7 @@ namespace ZPNetwork{
 	public slots:
 		//This slot dealing with multi-thread client socket accept.
 		void incomingConnection(QObject * threadid,qintptr socketDescriptor);
-		//This slot dealing with possive connect to method.
+		//This slot dealing with possive connecting-to method.
 		void startConnection(QObject * threadid,const QHostAddress & addr, quint16 port);
 		//sending dtarray to objClient. dtarray will be pushed into m_buffer_sending
 		void SendDataToClient(QObject * objClient,const QByteArray &  dtarray);

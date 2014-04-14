@@ -311,7 +311,7 @@ void MainDialog::on_pushButton_CrTime_clicked()
 	}
 	saveIni();
 	quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_HostTimeCorrectReq);
+			/*+sizeof(stMsg_HostTimeCorrectReq)*/;
 	QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
@@ -405,7 +405,7 @@ void MainDialog::on_pushButton_box_download_uid_clicked()
 	}
 	saveIni();
 	quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_DownloadUserListReq);
+			/*+sizeof(stMsg_DownloadUserListReq)*/;
 	QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
@@ -446,7 +446,7 @@ void  MainDialog::on_pushButton_client_downHost_clicked()
 	}
 	saveIni();
 	quint16 nMsgLen = sizeof(SMARTLINK_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_GetHostListReq);
+			/*+sizeof(stMsg_GetHostListReq)*/;
 	QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;

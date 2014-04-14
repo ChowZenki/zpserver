@@ -346,7 +346,7 @@ namespace SmartLink{
 			if (m_currentMessageSize!=
 					sizeof(SMARTLINK_MSG) - 1
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_HostTimeCorrectReq))
+					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
 			{
 				emit evt_Message(tr("Broken Message stMsg_HostRegistReq, size not correct."));
 				res = false;
@@ -376,7 +376,7 @@ namespace SmartLink{
 			if (m_currentMessageSize!=
 					sizeof(SMARTLINK_MSG) - 1
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_DownloadUserListReq))
+					/*+ sizeof (stMsg_DownloadUserListReq)*/)
 			{
 				emit evt_Message(tr("Broken Message stMsg_DownloadUserListReq, size not correct."));
 				res = false;
@@ -406,7 +406,7 @@ namespace SmartLink{
 			if (m_currentMessageSize!=
 					sizeof(SMARTLINK_MSG) - 1
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_GetHostListReq))
+					/*+ sizeof (stMsg_GetHostListReq)*/)
 			{
 				emit evt_Message(tr("Broken Message stMsg_GetHostListReq, size not correct."));
 				res = false;

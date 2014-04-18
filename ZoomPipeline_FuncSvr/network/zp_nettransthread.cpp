@@ -261,13 +261,14 @@ namespace ZPNetwork{
 
 	void zp_netTransThread::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
 	{
-		m_mutex_protect.lock();
-		if (m_clientList.find(objClient)==m_clientList.end())
+//		m_mutex_protect.lock();
+//		if (m_clientList.find(objClient)==m_clientList.end())
+		if (objClient->parent()!=this)//this approach is very effective
 		{
-			m_mutex_protect.unlock();
+//			m_mutex_protect.unlock();
 			return;
 		}
-		m_mutex_protect.unlock();
+//		m_mutex_protect.unlock();
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
 		if (pSock&&dtarray.size())
 		{
@@ -338,13 +339,14 @@ namespace ZPNetwork{
 
 	void zp_netTransThread::KickClient(QObject * objClient)
 	{
-		m_mutex_protect.lock();
-		if (m_clientList.find(objClient)==m_clientList.end())
+//		m_mutex_protect.lock();
+//		if (m_clientList.find(objClient)==m_clientList.end())
+		if (objClient->parent()!=this)//this approach is very effective
 		{
-			m_mutex_protect.unlock();
+//			m_mutex_protect.unlock();
 			return;
 		}
-		m_mutex_protect.unlock();
+//		m_mutex_protect.unlock();
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
 		if (pSock)
 		{

@@ -28,9 +28,6 @@ namespace ZPNetwork{
 	public:
 		explicit zp_net_ThreadPool(int nPayLoad = 4096,QObject *parent = 0);
 
-		// Dump errmessage
-		static QString GenSockMsg(QObject * pSock);
-
 		//Listening Ctrl
 		//Begin a listening socket at special address and port. The socket will be activated as soon as possible
 		void AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn = true);

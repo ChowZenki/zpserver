@@ -1,8 +1,7 @@
 #include "zp_net_threadpool.h"
 #include <QCoreApplication>
 #include <QStringList>
-#include <QTcpSocket>
-#include <QSslSocket>
+
 namespace ZPNetwork{
 	/**
 	 * @brief Construct a net thread pool object.
@@ -80,33 +79,6 @@ namespace ZPNetwork{
 			return m_vec_NetTransThreads[idxThread]->CurrentClients();
 		else
 			return 0;
-	}
-
-	QString zp_net_ThreadPool::GenSockMsg(QObject * pSock)
-	{
-		QString msg;
-		msg += tr("Obj=%1").arg((unsigned int)pSock);
-		QTcpSocket * pSocket = qobject_cast<QTcpSocket *>(pSock);
-		QTcpSocket * pSocketSSL = qobject_cast<QSslSocket *>(pSock);
-		if (pSocketSSL)
-		{
-			msg += tr (",SSLSock,Local=(%1:%2),Peer=%3(%4:%5)")
-					.arg(pSocket->localAddress().toString())
-					.arg(pSocket->localPort())
-					.arg(pSocket->peerName())
-					.arg(pSocket->peerAddress().toString())
-					.arg(pSocket->peerPort());
-		}
-		else if (pSocket)
-		{
-			msg += tr (",TcpSock,Local=(%1:%2),Peer=%3(%4:%5)")
-					.arg(pSocket->localAddress().toString())
-					.arg(pSocket->localPort())
-					.arg(pSocket->peerName())
-					.arg(pSocket->peerAddress().toString())
-					.arg(pSocket->peerPort());
-		}
-		return msg;
 	}
 
 	/**
@@ -207,9 +179,10 @@ namespace ZPNetwork{
 			}
 			//qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
 		}
-//		for (int i=0;i<nsz;i++)
-//			if (m_vec_NetTransThreads[i]->isActive()==false )
-//				TransThreadDel(m_vec_NetTransThreads[i]);
+		//remove old threads
+		for (int i=0;i<nsz;i++)
+			if (m_vec_NetTransThreads[i]->isActive()==false )
+				TransThreadDel(m_vec_NetTransThreads[i]);
 
 		if (nMinIdx>=0 && nMinIdx<nsz)
 			emit evt_EstablishConnection(m_vec_NetTransThreads[nMinIdx],socketDescriptor);
@@ -483,9 +456,10 @@ namespace ZPNetwork{
 			}
 			//qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
 		}
-//		for (int i=0;i<nsz;i++)
-//			if (m_vec_NetTransThreads[i]->isActive()==false )
-//				TransThreadDel(m_vec_NetTransThreads[i]);
+		//remove old threads
+		for (int i=0;i<nsz;i++)
+			if (m_vec_NetTransThreads[i]->isActive()==false )
+				TransThreadDel(m_vec_NetTransThreads[i]);
 
 		if (nMinIdx>=0 && nMinIdx<nsz)
 		{

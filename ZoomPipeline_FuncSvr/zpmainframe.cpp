@@ -7,6 +7,9 @@
 #include <QFileDialog>
 #include <QSqlDatabase>
 #include <QMap>
+#include <QTcpSocket>
+#include <QSslSocket>
+#include "smartlink/st_clientnode_basetrans.h"
 #include "dialogaddressinput.h"
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
@@ -20,7 +23,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
 	//Create net engine
 	m_netEngine = new zp_net_ThreadPool (8192);
-	connect (m_netEngine,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_Message);
+	connect (m_netEngine,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_MessageNetwork);
 	connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
 	//Create TaskEngine
 	m_taskEngine = new zp_pipeline(this);
@@ -64,12 +67,22 @@ ZPMainFrame::~ZPMainFrame()
 	m_pClusterTerm->netEng()->KickAllClients();
 	m_pClusterTerm->netEng()->DeactiveImmediately();
 	m_pClusterTerm->taskEng()->removeThreads(-1);
-
+	int maxWait = 0;
 	while (m_netEngine->CanExit()==false || m_taskEngine->canClose()==false
 		   || m_pDatabases->isRunning()==true || m_pClusterTerm->canExit()==false)
 	{
 		QCoreApplication::processEvents();
 		QThread::currentThread()->msleep(200);
+		maxWait ++;
+		if (maxWait>=150)
+		{
+			if (QMessageBox::information(0,tr("Confire Exit"),
+										 tr("There are still some clients alive in the server. continue waiting?"),
+										 QMessageBox::Yes|QMessageBox::No)==QMessageBox::Yes)
+				maxWait = 0;
+			else
+				break;
+		}
 	}
 
 	delete ui;
@@ -90,12 +103,10 @@ void ZPMainFrame::changeEvent(QEvent *e)
 void ZPMainFrame::initUI()
 {
 	//Message Shown model
-	m_pMsgModel = new QStandardItemModel(this);
-	ui->listView_msg->setModel(m_pMsgModel);
+	m_pMsgModelNetwork = new QStandardItemModel(this);
+	ui->listView_msg->setModel(m_pMsgModelNetwork);
 	m_pMsgModelCluster = new QStandardItemModel(this);
 	ui->listView_msg_cluster->setModel(m_pMsgModelCluster);
-	m_pMsgModelDebug = new QStandardItemModel(this);
-	ui->listView_msg_debug->setModel(m_pMsgModelDebug);
 	m_pMsgModelDatabase = new QStandardItemModel(this);
 	ui->listView_msg_database->setModel(m_pMsgModelDatabase);
 	m_pMsgModelSmartlink = new QStandardItemModel(this);
@@ -128,67 +139,39 @@ void ZPMainFrame::initUI()
 	ui->comboBox_db_type->setModel(pCombo);
 }
 
-
-void  ZPMainFrame::on_evt_Message(QObject * psource,const QString & strMsg)
+void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,const QString & strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	if (strMsg.left(5)==QString("Debug"))
-	{
-		int nrows = m_pMsgModelDebug->rowCount();
-		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
-	}
-	else
-	{
-		int nrows = m_pMsgModel->rowCount();
-		m_pMsgModel->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
-	}
-
+	msg += tr(",Source=%1").arg((unsigned int)psource);
+	int nrows = m_pMsgModelNetwork->rowCount();
+	m_pMsgModelNetwork->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 4096)
+		m_pMsgModelNetwork->removeRow(m_pMsgModelNetwork->rowCount()-1);
 }
 
 void  ZPMainFrame::on_evt_Message_Database(QObject * psource,const QString &strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	if (strMsg.left(5)==QString("Debug"))
-	{
-		int nrows = m_pMsgModelDebug->rowCount();
-		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
-	}
-	else
-	{
-		int nrows = m_pMsgModelDatabase->rowCount();
-		m_pMsgModelDatabase->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelDatabase->removeRow(m_pMsgModelDatabase->rowCount()-1);
-	}
-
+	msg += tr(",Source=%1").arg((unsigned int)psource);
+	int nrows = m_pMsgModelDatabase->rowCount();
+	m_pMsgModelDatabase->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 4096)
+		m_pMsgModelDatabase->removeRow(m_pMsgModelDatabase->rowCount()-1);
 }
 
 void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,const QString &strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	if (strMsg.left(5)==QString("Debug"))
-	{
-		int nrows = m_pMsgModelDebug->rowCount();
-		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
-	}
-	else
-	{
-		int nrows = m_pMsgModelSmartlink->rowCount();
-		m_pMsgModelSmartlink->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelSmartlink->removeRow(m_pMsgModelSmartlink->rowCount()-1);
-	}
+	msg += tr(",Source=%1").arg((unsigned int)psource);
+
+	int nrows = m_pMsgModelSmartlink->rowCount();
+	m_pMsgModelSmartlink->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 4096)
+		m_pMsgModelSmartlink->removeRow(m_pMsgModelSmartlink->rowCount()-1);
+
 }
 
 //The socket error message
@@ -197,10 +180,10 @@ void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::Soc
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + QString("SockError %1 with code %2")
 			.arg((quint64)senderSock).arg((quint32)socketError);
-	int nrows = m_pMsgModelDebug->rowCount();
-	m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 16384)
-		m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
+	int nrows = m_pMsgModelNetwork->rowCount();
+	m_pMsgModelNetwork->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 4096)
+		m_pMsgModelNetwork->removeRow(m_pMsgModelNetwork->rowCount()-1);
 
 }
 
@@ -208,33 +191,23 @@ void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,const QString & strM
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	if (strMsg.left(5)==QString("Debug"))
-	{
-		int nrows = m_pMsgModelDebug->rowCount();
-		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
-	}
-	else
-	{
-		int nrows = m_pMsgModelCluster->rowCount();
-		m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
-		while (nrows-- > 16384)
-			m_pMsgModelCluster->removeRow(m_pMsgModelCluster->rowCount()-1);
-	}
-
+	msg += tr(",Source=%1").arg((unsigned int)psource);
+	int nrows = m_pMsgModelCluster->rowCount();
+	m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 4096)
+		m_pMsgModelCluster->removeRow(m_pMsgModelCluster->rowCount()-1);
 }
 
 //The socket error message
 void  ZPMainFrame::on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSocket::SocketError socketError)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
-	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " (Cluster)" + QString("SockError %1 with code %2")
+	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + QString("SockError %1 with code %2")
 			.arg((quint64)senderSock).arg((quint32)socketError);
-	int nrows = m_pMsgModelDebug->rowCount();
-	m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 16384)
-		m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
+	int nrows = m_pMsgModelCluster->rowCount();
+	m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
+	while (nrows-- > 4096)
+		m_pMsgModelCluster->removeRow(m_pMsgModelCluster->rowCount()-1);
 
 }
 
@@ -449,8 +422,13 @@ void ZPMainFrame::forkServer(const QString & config_file)
 	int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
 	this->m_pClusterTerm->netEng()->RemoveAllAddresses();
 	this->m_pClusterTerm->netEng()->RemoveClientTransThreads(-1,false);
-	this->m_pClusterTerm->netEng()->AddClientTransThreads(nClusterTransThreads,false);
 	this->m_pClusterTerm->taskEng()->removeThreads(-1);
+	while (m_pClusterTerm->netEng()->ListenerNames().size())
+	{
+		QThread::currentThread()->msleep(200);
+		QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	}
+	this->m_pClusterTerm->netEng()->AddClientTransThreads(nClusterTransThreads,false);
 	this->m_pClusterTerm->taskEng()->addThreads(nClusterWorkingThreads);
 	this->m_pClusterTerm->setName(strClusterPubName);
 	this->m_pClusterTerm->setPublishAddr(QHostAddress(strClusterPubAddr));

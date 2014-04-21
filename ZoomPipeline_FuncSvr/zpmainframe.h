@@ -22,13 +22,13 @@ public:
 	explicit ZPMainFrame(QWidget *parent = 0);
 	~ZPMainFrame();
 	void timerEvent(QTimerEvent *);
+
 protected:
 	void changeEvent(QEvent *e);
-	QStandardItemModel * m_pMsgModel;
+	QStandardItemModel * m_pMsgModelNetwork;
 	QStandardItemModel * m_pMsgModelCluster;
 	QStandardItemModel * m_pMsgModelDatabase;
 	QStandardItemModel * m_pMsgModelSmartlink;
-	QStandardItemModel * m_pMsgModelDebug;
 	//Config File Name
 	QString m_currentConffile;
 	//Listeners settings
@@ -57,7 +57,7 @@ private:
 	void forkServer(const QString & config_file);
 protected slots:
 
-	void on_evt_Message(QObject * psource,const QString &);
+	void on_evt_MessageNetwork(QObject * psource,const QString &);
 	//The socket error message
 	void on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 	void on_evt_Message_Cluster(QObject * psource,const QString &);

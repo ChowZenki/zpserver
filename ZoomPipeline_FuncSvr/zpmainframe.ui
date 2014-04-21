@@ -938,20 +938,6 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_msg_debug">
-           <attribute name="icon">
-            <iconset resource="resource.qrc">
-             <normaloff>:/icons/Resources/BackUp-4.png</normaloff>:/icons/Resources/BackUp-4.png</iconset>
-           </attribute>
-           <attribute name="title">
-            <string>Debug</string>
-           </attribute>
-           <layout class="QHBoxLayout" name="horizontalLayout_20">
-            <item>
-             <widget class="QListView" name="listView_msg_debug"/>
-            </item>
-           </layout>
-          </widget>
          </widget>
         </item>
        </layout>

@@ -35,6 +35,7 @@ namespace ZP_Cluster{
 				unsigned __int16 data_length;
 				unsigned __int8 data[1];
 			} plainData;
+
 		} payload;
 	} CROSS_SVR_MSG;
 

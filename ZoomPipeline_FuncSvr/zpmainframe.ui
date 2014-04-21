@@ -870,9 +870,89 @@
        <attribute name="title">
         <string>Messages</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="horizontalLayout_18">
         <item>
-         <widget class="QListView" name="listView_msg"/>
+         <widget class="QTabWidget" name="tabWidget_msgs">
+          <property name="tabPosition">
+           <enum>QTabWidget::South</enum>
+          </property>
+          <property name="tabShape">
+           <enum>QTabWidget::Triangular</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab_msg_nodes">
+           <attribute name="icon">
+            <iconset resource="resource.qrc">
+             <normaloff>:/icons/Resources/019-1.png</normaloff>:/icons/Resources/019-1.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Nodes</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QListView" name="listView_msg"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_msg_db">
+           <attribute name="icon">
+            <iconset resource="resource.qrc">
+             <normaloff>:/icons/Resources/Backup drive.png</normaloff>:/icons/Resources/Backup drive.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Database</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QListView" name="listView_msg_database"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_msg_cluster">
+           <attribute name="icon">
+            <iconset resource="resource.qrc">
+             <normaloff>:/icons/Resources/hanukkah_03.png</normaloff>:/icons/Resources/hanukkah_03.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Cluster</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_19">
+            <item>
+             <widget class="QListView" name="listView_msg_cluster"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_msg_smartlink">
+           <attribute name="icon">
+            <iconset resource="resource.qrc">
+             <normaloff>:/icons/Resources/+_Sign_Alt.png</normaloff>:/icons/Resources/+_Sign_Alt.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Smartlink</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QListView" name="listView_msg_smartlink"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_msg_debug">
+           <attribute name="icon">
+            <iconset resource="resource.qrc">
+             <normaloff>:/icons/Resources/BackUp-4.png</normaloff>:/icons/Resources/BackUp-4.png</iconset>
+           </attribute>
+           <attribute name="title">
+            <string>Debug</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_20">
+            <item>
+             <widget class="QListView" name="listView_msg_debug"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>

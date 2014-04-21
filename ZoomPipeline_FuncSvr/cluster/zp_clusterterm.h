@@ -34,8 +34,8 @@ namespace ZP_Cluster{
 		ZPNetwork::zp_net_ThreadPool * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
 	signals:
-		//These Message is nessery.-------------------------------------
-		void evt_Message(const QString &);
+
+		void evt_Message(QObject * ,const QString &);
 		//The socket error message
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 	protected slots:

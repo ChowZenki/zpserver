@@ -8,9 +8,11 @@ namespace ZP_Cluster{
 		m_pClusterNet = new ZPNetwork::zp_net_ThreadPool(8192,this);
 		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Message, this,&zp_ClusterTerm::evt_Message);
 		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_SocketError, this,&zp_ClusterTerm::evt_SocketError);
-
-
-
+		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved, this,&zp_ClusterTerm::on_evt_Data_recieved);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred, this,&zp_ClusterTerm::on_evt_Data_transferred);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected, this,&zp_ClusterTerm::on_evt_ClientDisconnected);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected);
+		//connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_ClientEncrypted, this,&zp_ClusterTerm::on_evt_ClientEncrypted);
 		m_nPortPublish = 0;
 
 	}

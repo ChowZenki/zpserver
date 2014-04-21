@@ -38,6 +38,7 @@ namespace ZPNetwork{
 		QMap<QObject *,QList<QByteArray> > m_buffer_sending;
 
 		QMap<QObject *,QList<qint64> > m_buffer_sending_offset;
+		//The socket and the connection-direction, 0 is passive, 1 is postive.
 		QMap<QObject*,int> m_clientList;
 		int m_nPayLoad;
 		QMutex m_mutex_protect;
@@ -71,7 +72,7 @@ namespace ZPNetwork{
 		//SSL Encrypted started
 		void on_encrypted();
 	signals:
-
+		void evt_Message(QObject * psource,const QString &);
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		void evt_NewClientConnected(QObject * client);
 		void evt_ClientEncrypted(QObject * client);

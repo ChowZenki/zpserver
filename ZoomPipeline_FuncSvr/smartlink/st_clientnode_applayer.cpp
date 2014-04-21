@@ -27,7 +27,7 @@ namespace SmartLink{
 				sql += "equip_id from relations where user_id = ?;";
 			else
 			{
-				emit evt_Message(tr("try to save relations before login!"));
+				emit evt_Message(this,tr("try to save relations before login!"));
 				return false;
 			}
 			QSqlQuery query(db);
@@ -35,7 +35,7 @@ namespace SmartLink{
 			query.addBindValue((quint32)m_uuid);
 			if (false== query.exec())
 			{
-				emit evt_Message(tr("try to get relations Failed! ")+ query.lastError().text());
+				emit evt_Message(this,tr("try to get relations Failed! ")+ query.lastError().text());
 				return false;
 			}
 
@@ -50,7 +50,7 @@ namespace SmartLink{
 		else
 		{
 			//Server db is currently not accessable, wait.
-			emit evt_Message("Server Not Accessable Now.");
+			emit evt_Message(this,"Server Not Accessable Now.");
 		}
 		return false;
 	}
@@ -69,7 +69,7 @@ namespace SmartLink{
 				query.addBindValue((quint32)m_uuid);
 				if (false== query.exec())
 				{
-					emit evt_Message(tr("try to del old relations Failed! ")+ query.lastError().text());
+					emit evt_Message(this,tr("try to del old relations Failed! ")+ query.lastError().text());
 					return false;
 				}
 			}
@@ -81,13 +81,13 @@ namespace SmartLink{
 				query.addBindValue((quint32)m_uuid);
 				if (false== query.exec())
 				{
-					emit evt_Message(tr("try to del old relations Failed! ")+ query.lastError().text());
+					emit evt_Message(this,tr("try to del old relations Failed! ")+ query.lastError().text());
 					return false;
 				}
 			}
 			else
 			{
-				emit evt_Message(tr("try to save relations before login!"));
+				emit evt_Message(this,tr("try to save relations before login!"));
 				return false;
 			}
 
@@ -116,7 +116,7 @@ namespace SmartLink{
 				}
 				if (false== query.exec())
 				{
-					emit evt_Message(tr("try to insert new relations Failed! ")+ query.lastError().text());
+					emit evt_Message(this,tr("try to insert new relations Failed! ")+ query.lastError().text());
 					return false;
 				}
 			}
@@ -125,7 +125,7 @@ namespace SmartLink{
 		else
 		{
 			//Server db is currently not accessable, wait.
-			emit evt_Message("Server Not Accessable Now.");
+			emit evt_Message(this,"Server Not Accessable Now.");
 		}
 		return false;
 	}
@@ -135,7 +135,7 @@ namespace SmartLink{
 	{
 		//then , Start deal to-server messages
 		//Server - deal messages
-		emit evt_Message("Debug:" + m_currentBlock.toHex());
+		emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 		if (m_currentHeader.destin_id==0x00000001)
 		{
 			if (this->m_bLoggedIn==false || this->m_bUUIDRecieved==false)
@@ -144,7 +144,7 @@ namespace SmartLink{
 				if (false==Deal_ToServer_Handshakes())
 				{
 					m_currentBlock = QByteArray();
-					emit evt_Message(tr("To-server Message Failed."));
+					emit evt_Message(this,tr("To-server Message Failed."));
 					emit evt_close_client(this->sock());
 				}
 			}
@@ -156,7 +156,7 @@ namespace SmartLink{
 					if (false==Deal_Node2Svr_Msgs())
 					{
 						m_currentBlock = QByteArray();
-						emit evt_Message(tr("Box To Server Message Failed."));
+						emit evt_Message(this,tr("Box To Server Message Failed."));
 						emit evt_close_client(this->sock());
 					}
 				}
@@ -166,20 +166,20 @@ namespace SmartLink{
 					if (false==Deal_Node2Svr_Msgs())
 					{
 						m_currentBlock = QByteArray();
-						emit evt_Message(tr("Client To Server Message Failed."));
+						emit evt_Message(this,tr("Client To Server Message Failed."));
 						emit evt_close_client(this->sock());
 					}
 				}
 				else if (m_currentHeader.source_id==0xFFFFFFFF)
 				{
 					m_currentBlock = QByteArray();
-					emit evt_Message(tr("warning, UUID 0xFFFFFFFF.ignore"));
+					emit evt_Message(this,tr("warning, UUID 0xFFFFFFFF.ignore"));
 
 				}
 				else
 				{
 					m_currentBlock = QByteArray();
-					emit evt_Message(tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.source_id));
+					emit evt_Message(this,tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.source_id));
 					emit evt_close_client(this->sock());
 				}
 			}
@@ -190,14 +190,14 @@ namespace SmartLink{
 		{
 			//need furture works.
 			//Do Nothing
-			emit evt_Message(tr("Broadcast Message is not currently supported."));
+			emit evt_Message(this,tr("Broadcast Message is not currently supported."));
 			m_currentBlock = QByteArray();
 		}
 		else if (m_currentHeader.destin_id==0xFFFFFFFD)
 		{
 			//need furture works.
 			//Do Nothing
-			emit evt_Message(tr("Broadcast Message is not currently supported."));
+			emit evt_Message(this,tr("Broadcast Message is not currently supported."));
 			m_currentBlock = QByteArray();
 		}
 		else
@@ -209,7 +209,7 @@ namespace SmartLink{
 				//need further dev, insert into db, or catched on disk.
 				//destin client is un-reachable, or in another function server.
 				//need server-to-server channels to re-post this message.
-				emit evt_Message(tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
+				emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
 
 				//Do Nothing
 			}
@@ -247,12 +247,12 @@ namespace SmartLink{
 				   );
 		if (m_current_app_header.header.MsgFmtVersion!=0x01)
 		{
-			emit evt_Message(tr("Application Layer Version too new."));
+			emit evt_Message(this,tr("Application Layer Version too new."));
 			emit evt_close_client(this->sock());
 			return false;
 		}
 		//do
-		qDebug()<<m_current_app_header.header.MsgType<<"\n";
+		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.header.MsgType)
 		{
 		case 0x1000:
@@ -264,7 +264,7 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					+ sizeof (stMsg_HostRegistReq)+64)
 			{
-				emit evt_Message(tr("Broken Message stMsg_HostRegistReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
 				res = false;
 			}
 			else
@@ -279,7 +279,7 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					+ sizeof (stMsg_HostLogonReq)+64)
 			{
-				emit evt_Message(tr("Broken Message stMsg_HostLogonReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_HostLogonReq, size not correct."));
 				res = false;
 			}
 			else
@@ -294,14 +294,14 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					+ sizeof (stMsg_ClientLoginReq)+66)
 			{
-				emit evt_Message(tr("Broken Message stMsg_ClientLoginReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_ClientLoginReq, size not correct."));
 				res = false;
 			}
 			else
 				res = this->LoginClient();
 			break;
 		default:
-			emit evt_Message(tr("Message type not supported."));
+			emit evt_Message(this,tr("Message type not supported."));
 			res = false;
 			break;
 		}
@@ -332,7 +332,7 @@ namespace SmartLink{
 				   );
 		if (m_current_app_header.header.MsgFmtVersion!=0x01)
 		{
-			emit evt_Message(tr("Application Layer Version too new."));
+			emit evt_Message(this,tr("Application Layer Version too new."));
 			emit evt_close_client(this->sock());
 			return false;
 		}
@@ -348,7 +348,7 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
 			{
-				emit evt_Message(tr("Broken Message stMsg_HostRegistReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
 				res = false;
 			}
 			else
@@ -363,7 +363,7 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					+ sizeof (stMsg_UploadUserListReq) - sizeof(quint32))
 			{
-				emit evt_Message(tr("Broken Message stMsg_UploadUserListReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_UploadUserListReq, size not correct."));
 				res = false;
 			}
 			else
@@ -378,7 +378,7 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					/*+ sizeof (stMsg_DownloadUserListReq)*/)
 			{
-				emit evt_Message(tr("Broken Message stMsg_DownloadUserListReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_DownloadUserListReq, size not correct."));
 				res = false;
 			}
 			else
@@ -393,7 +393,7 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					+ sizeof (stMsg_ClientLogoutReq))
 			{
-				emit evt_Message(tr("Broken Message stMsg_ClientLogoutReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_ClientLogoutReq, size not correct."));
 				res = false;
 			}
 			else
@@ -408,14 +408,14 @@ namespace SmartLink{
 					+ sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 					/*+ sizeof (stMsg_GetHostListReq)*/)
 			{
-				emit evt_Message(tr("Broken Message stMsg_GetHostListReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message stMsg_GetHostListReq, size not correct."));
 				res = false;
 			}
 			else
 				res = this->GetHostList();
 			break;
 		default:
-			emit evt_Message(tr("Message type not supported."));
+			emit evt_Message(this,tr("Message type not supported."));
 			res = false;
 			break;
 		}

@@ -1,6 +1,8 @@
 #include "zp_net_threadpool.h"
 #include <QCoreApplication>
 #include <QStringList>
+#include <QTcpSocket>
+#include <QSslSocket>
 namespace ZPNetwork{
 	/**
 	 * @brief Construct a net thread pool object.
@@ -80,6 +82,33 @@ namespace ZPNetwork{
 			return 0;
 	}
 
+	QString zp_net_ThreadPool::GenSockMsg(QObject * pSock)
+	{
+		QString msg;
+		msg += tr("Obj=%1").arg((unsigned int)pSock);
+		QTcpSocket * pSocket = qobject_cast<QTcpSocket *>(pSock);
+		QTcpSocket * pSocketSSL = qobject_cast<QSslSocket *>(pSock);
+		if (pSocketSSL)
+		{
+			msg += tr (",SSLSock,Local=(%1:%2),Peer=%3(%4:%5)")
+					.arg(pSocket->localAddress().toString())
+					.arg(pSocket->localPort())
+					.arg(pSocket->peerName())
+					.arg(pSocket->peerAddress().toString())
+					.arg(pSocket->peerPort());
+		}
+		else if (pSocket)
+		{
+			msg += tr (",TcpSock,Local=(%1:%2),Peer=%3(%4:%5)")
+					.arg(pSocket->localAddress().toString())
+					.arg(pSocket->localPort())
+					.arg(pSocket->peerName())
+					.arg(pSocket->peerAddress().toString())
+					.arg(pSocket->peerPort());
+		}
+		return msg;
+	}
+
 	/**
 	 * @brief Begin a listening socket at special address and port. The socket will be activated as soon as possible
 	 * The Wait-and-Accept approaches are all managed by Listening thread, instead of main-GUI thread.
@@ -113,7 +142,7 @@ namespace ZPNetwork{
 			emit startListen(id);
 		}
 		else
-			emit evt_Message("Warning>"+QString(tr("This ID has been used.")));
+			emit evt_Message(this,"Warning>"+QString(tr("This ID has been used.")));
 	}
 
 	/**
@@ -153,11 +182,11 @@ namespace ZPNetwork{
 		zp_netListenThread * pSource = qobject_cast<zp_netListenThread *>(sender());
 		if (!pSource)
 		{
-			emit evt_Message("Waring>"+QString(tr("Non-zp_netListenThread type detected.")));
+			emit evt_Message(this,"Warning>"+QString(tr("Non-zp_netListenThread type detected.")));
 			return;
 		}
 
-		emit evt_Message("Info>"+QString(tr("New Client Arriverd.")));
+		emit evt_Message(this,"Info>" +  QString(tr("Incomming client arriverd.")));
 		//m_mutex_trans.lock();
 		int nsz = m_vec_NetTransThreads.size();
 		int nMinPay = 0x7fffffff;
@@ -178,15 +207,15 @@ namespace ZPNetwork{
 			}
 			//qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
 		}
-		for (int i=0;i<nsz;i++)
-			if (m_vec_NetTransThreads[i]->isActive()==false )
-				TransThreadDel(m_vec_NetTransThreads[i]);
+//		for (int i=0;i<nsz;i++)
+//			if (m_vec_NetTransThreads[i]->isActive()==false )
+//				TransThreadDel(m_vec_NetTransThreads[i]);
 
 		if (nMinIdx>=0 && nMinIdx<nsz)
 			emit evt_EstablishConnection(m_vec_NetTransThreads[nMinIdx],socketDescriptor);
 		else
 		{
-			emit evt_Message("Waring>"+QString(tr("Need Trans Thread Object for clients.")));
+			emit evt_Message(this,"Warning>"+QString(tr("Need Trans Thread Object for clients.")));
 		}
 		//m_mutex_trans.unlock();
 	}
@@ -214,6 +243,7 @@ namespace ZPNetwork{
 			disconnect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_ThreadPool::on_New_Arrived_Client);
 			pListenObj->deleteLater();
 			pThread->quit();
+			pThread->wait();
 			pThread->deleteLater();
 
 		}
@@ -248,6 +278,7 @@ namespace ZPNetwork{
 				connect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected,Qt::QueuedConnection);
 				connect (clientTH,&zp_netTransThread::evt_ClientEncrypted,this,&zp_net_ThreadPool::evt_ClientEncrypted,Qt::QueuedConnection);
 				connect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_ThreadPool::evt_Message,Qt::QueuedConnection);
 				connect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection,Qt::QueuedConnection);
 				connect (this,&zp_net_ThreadPool::evt_FireConnection,clientTH,&zp_netTransThread::startConnection,Qt::QueuedConnection);
 				connect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData,Qt::QueuedConnection);
@@ -287,6 +318,7 @@ namespace ZPNetwork{
 			disconnect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected);
 			disconnect (clientTH,&zp_netTransThread::evt_ClientEncrypted,this,&zp_net_ThreadPool::evt_ClientEncrypted);
 			disconnect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError);
+			disconnect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_ThreadPool::evt_Message);
 			disconnect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection);
 			disconnect (this,&zp_net_ThreadPool::evt_FireConnection,clientTH,&zp_netTransThread::startConnection);
 			disconnect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData);
@@ -294,7 +326,9 @@ namespace ZPNetwork{
 			disconnect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
 			disconnect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately);
 			disconnect (this,&zp_net_ThreadPool::evt_KickClient,clientTH,&zp_netTransThread::KickClient);
+
 			m_vec_netInternalTransThreads[idx]->quit();
+			m_vec_netInternalTransThreads[idx]->wait();
 			m_vec_netInternalTransThreads[idx]->deleteLater();
 			m_vec_NetTransThreads[idx]->deleteLater();
 			m_vec_netInternalTransThreads.remove(idx);
@@ -354,6 +388,8 @@ namespace ZPNetwork{
 				nCount ++;
 			}
 		}
+		//Fire TransThreadDel Immediately
+		this->CanExit();
 		//m_mutex_trans.unlock();
 	}
 
@@ -447,9 +483,9 @@ namespace ZPNetwork{
 			}
 			//qDebug()<<i<<" "<<nPat<<" "<<nMinIdx;
 		}
-		for (int i=0;i<nsz;i++)
-			if (m_vec_NetTransThreads[i]->isActive()==false )
-				TransThreadDel(m_vec_NetTransThreads[i]);
+//		for (int i=0;i<nsz;i++)
+//			if (m_vec_NetTransThreads[i]->isActive()==false )
+//				TransThreadDel(m_vec_NetTransThreads[i]);
 
 		if (nMinIdx>=0 && nMinIdx<nsz)
 		{
@@ -458,7 +494,7 @@ namespace ZPNetwork{
 		}
 		else
 		{
-			emit evt_Message("Waring>"+QString(tr("Need Trans Thread Object for clients.")));
+			emit evt_Message(this,"Warning>"+QString(tr("Need Trans Thread Object for clients.")));
 		}
 		//m_mutex_trans.unlock();
 		return res;

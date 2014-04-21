@@ -61,7 +61,7 @@ namespace SmartLink{
 
 
 	signals:
-		void evt_Message (const QString &);
+		void evt_Message (QObject * psource,const QString &);
 
 	public slots:
 		//this event indicates new client connected.

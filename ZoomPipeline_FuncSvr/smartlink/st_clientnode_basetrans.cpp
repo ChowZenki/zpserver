@@ -176,7 +176,7 @@ namespace SmartLink{
 			} //end deal trans message
 			else
 			{
-				emit evt_Message(tr("Client Send a unknown start Header %1 %2. Close client immediately.")
+				emit evt_Message(this,tr("Client Send a unknown start Header %1 %2. Close client immediately.")
 								 .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
 				m_currentMessageSize = 0;
 				m_currentBlock = QByteArray();
@@ -213,7 +213,7 @@ namespace SmartLink{
 			}
 			else //Invalid
 			{
-				emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
+				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
 			}
@@ -227,7 +227,7 @@ namespace SmartLink{
 				  (m_currentHeader.source_id==0xffffffff)
 				  ))
 			{
-				emit evt_Message(tr("Client ID is invalid! Close client immediatly."));
+				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
 			}
@@ -242,7 +242,7 @@ namespace SmartLink{
 		qint64 usc = this->m_last_Report.secsTo(dtm);
 		if (usc >=m_pClientTable->heartBeatingThrd())
 		{
-			emit evt_Message(tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));
+			emit evt_Message(this,tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));
 			emit evt_close_client(this->sock());
 		}
 	}

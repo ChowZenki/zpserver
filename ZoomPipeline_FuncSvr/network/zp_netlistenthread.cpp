@@ -31,7 +31,7 @@ namespace ZPNetwork{
 				if (false==m_tcpServer->listen(m_address,m_port))
 				{
 					disconnect (m_tcpServer,&ZP_TcpServer::evt_NewClientArrived,this,&zp_netListenThread::evt_NewClientArrived);
-					emit evt_Message("Error>"+QString(tr("Can not start listen!")));
+					emit evt_Message(this,"Error>"+QString(tr("Can not start listen!")));
 					m_tcpServer->deleteLater();
 					m_tcpServer = 0;
 					//Close this thread.
@@ -57,7 +57,7 @@ namespace ZPNetwork{
 				m_tcpServer->deleteLater();
 				m_tcpServer = 0;
 				//Close this thread.
-				emit evt_Message("Info>"+QString(tr("Listen Closed!")));
+				emit evt_Message(this,"Info>"+QString(tr("Listen Closed!")));
 				emit evt_ListenClosed(m_id);
 			}
 		}

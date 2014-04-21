@@ -24,8 +24,8 @@ namespace ZPDatabase{
 		QMutexLocker locker(&m_mutex_reg);
 		if (false==QSqlDatabase::contains(strDBName))
 		{
-			QString msg = tr(" Connection name ")+strDBName+ tr(" does not exist.");
-			emit evt_Message(msg);
+			QString msg =  "Database:"+tr(" Connection name ")+strDBName+ tr(" does not exist.");
+			emit evt_Message(this,msg);
 			return QSqlDatabase();
 		}
 		return  QSqlDatabase::database(strDBName);
@@ -52,14 +52,14 @@ namespace ZPDatabase{
 			if (db.isOpen()==true)
 				db.close();
 			QSqlDatabase::removeDatabase(strDBName);
-			QString msg = tr(" Connection removed ")+strDBName+ tr(" .");
-			emit evt_Message(msg);
+			QString msg = "Database:"+tr(" Connection removed ")+strDBName+ tr(" .");
+			emit evt_Message(this,msg);
 
 		}
 		else
 		{
-			QString msg = tr(" Connection name ")+strDBName+ tr(" does not exist.");
-			emit evt_Message(msg);
+			QString msg = "Database:"+tr(" Connection name ")+strDBName+ tr(" does not exist.");
+			emit evt_Message(this,msg);
 		}
 		m_dbNames.remove(strDBName) ;
 
@@ -111,8 +111,8 @@ namespace ZPDatabase{
 			if (db.isOpen()==true)
 				db.close();
 			QSqlDatabase::removeDatabase(connName);
-			QString msg = tr(" Connection removed ")+connName+ tr(" .");
-			emit evt_Message(msg);
+			QString msg = "Database:"+tr(" Connection removed ")+connName+ tr(" .");
+			emit evt_Message(this,msg);
 		}
 
 		m_dbNames[connName] = para;
@@ -125,13 +125,13 @@ namespace ZPDatabase{
 		db.setConnectOptions(ExtraOptions);
 		if (db.open()==true)
 		{
-			QString msg = tr(" Connection  ")+connName+ tr(" Established.");
-			emit evt_Message(msg);
+			QString msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Established.");
+			emit evt_Message(this,msg);
 			return true;
 		}
-		QString msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
+		QString msg = "Database:"+tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
 		msg += db.lastError().text();
-		emit evt_Message(msg);
+		emit evt_Message(this,msg);
 		QSqlDatabase::removeDatabase(connName);
 		m_dbNames.remove(connName) ;
 		return false;
@@ -149,8 +149,8 @@ namespace ZPDatabase{
 		QMutexLocker locker(&m_mutex_reg);
 		if (false==m_dbNames.contains(connName))
 		{
-			QString msg = tr(" Connection ")+connName+ tr(" has not been added.");
-			emit evt_Message(msg);
+			QString msg = "Database:"+tr(" Connection ")+connName+ tr(" has not been added.");
+			emit evt_Message(this,msg);
 			return false;
 		}
 		tagConnectionPara & para = m_dbNames[connName];
@@ -166,9 +166,9 @@ namespace ZPDatabase{
 					query.exec(para.testSQL);
 					if (query.lastError().type()!=QSqlError::NoError)
 					{
-						QString msg = tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
+						QString msg = "Database:"+tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
 						msg += query.lastError().text();
-						emit evt_Message(msg);
+						emit evt_Message(this,msg);
 						bNeedDisconnect = true;
 					}
 				}
@@ -181,8 +181,8 @@ namespace ZPDatabase{
 				else
 					return true;
 			}
-			QString msg = tr(" Connection ")+connName+ tr(" has not been opened.");
-			emit evt_Message(msg);
+			QString msg = "Database:"+tr(" Connection ")+connName+ tr(" has not been opened.");
+			emit evt_Message(this,msg);
 			db = QSqlDatabase::addDatabase(para.type,para.connName);
 			db.setHostName(para.HostAddr);
 			db.setPort(para.port);
@@ -194,14 +194,14 @@ namespace ZPDatabase{
 			{
 				para.status = true;
 				para.lastError = "";
-				msg = tr(" Connection  ")+connName+ tr(" Re-Established.");
-				emit evt_Message(msg);
+				msg = "Database:"+tr(" Connection  ")+connName+ tr(" Re-Established.");
+				emit evt_Message(this,msg);
 				return true;
 			}
 			QSqlDatabase::removeDatabase(connName);
-			msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
+			msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
 			msg += db.lastError().text();
-			emit evt_Message(msg);
+			emit evt_Message(this,msg);
 			para.status = false;
 			para.lastError = db.lastError().text();
 			return false;
@@ -218,13 +218,13 @@ namespace ZPDatabase{
 		{
 			para.status = true;
 			para.lastError = "";
-			QString msg = tr(" Connection  ")+connName+ tr(" Re-Established.");
-			emit evt_Message(msg);
+			QString msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Re-Established.");
+			emit evt_Message(this,msg);
 			return true;
 		}
-		QString msg = tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
+		QString msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
 		msg += db.lastError().text();
-		emit evt_Message(msg);
+		emit evt_Message(this,msg);
 		QSqlDatabase::removeDatabase(connName);
 		para.status = false;
 		para.lastError = db.lastError().text();

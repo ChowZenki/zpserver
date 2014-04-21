@@ -116,7 +116,7 @@ namespace SmartLink{
 			else
 			{
 				//strcpy(reply.TextInfo,"Server Access Error.");
-				emit evt_Message(tr("Database Access Error :")+query.lastError().text());
+				emit evt_Message(this,tr("Database Access Error :")+query.lastError().text());
 			}
 		}
 		else
@@ -232,7 +232,7 @@ namespace SmartLink{
 			else
 			{
 				//strcpy(reply.TextInfo,"Server Access Error.");
-				emit evt_Message(tr("Database Access Error :")+query.lastError().text());
+				emit evt_Message(this,tr("Database Access Error :")+query.lastError().text());
 			}
 		}
 		else
@@ -351,7 +351,7 @@ namespace SmartLink{
 			else
 			{
 				//strcpy(reply.TextInfo,"Server Access Error.");
-				emit evt_Message(tr("Database Access Error :")+query.lastError().text());
+				emit evt_Message(this,tr("Database Access Error :")+query.lastError().text());
 			}
 		}
 		else
@@ -430,7 +430,7 @@ namespace SmartLink{
 				+ sizeof (quint32) * (pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum)
 				)
 		{
-			emit evt_Message(tr("Broken Message stMsg_UploadUserListReq, size not correct."));
+			emit evt_Message(this,tr("Broken Message stMsg_UploadUserListReq, size not correct."));
 			return false;
 		}
 

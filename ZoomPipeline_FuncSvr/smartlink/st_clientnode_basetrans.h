@@ -79,7 +79,7 @@ namespace SmartLink{
 		void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
 		void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
 		void evt_close_client(QObject * objClient);
-		void evt_Message (const QString &);
+		void evt_Message (QObject * psource,const QString &);
 
 	};
 }

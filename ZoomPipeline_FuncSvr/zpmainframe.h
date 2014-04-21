@@ -25,7 +25,10 @@ public:
 protected:
 	void changeEvent(QEvent *e);
 	QStandardItemModel * m_pMsgModel;
-
+	QStandardItemModel * m_pMsgModelCluster;
+	QStandardItemModel * m_pMsgModelDatabase;
+	QStandardItemModel * m_pMsgModelSmartlink;
+	QStandardItemModel * m_pMsgModelDebug;
 	//Config File Name
 	QString m_currentConffile;
 	//Listeners settings
@@ -53,12 +56,13 @@ private:
 	void SaveSettings(const QString & config_file);
 	void forkServer(const QString & config_file);
 protected slots:
-	//These Message is nessery.-------------------------------------
-	void on_evt_Message(const QString &);
+
+	void on_evt_Message(QObject * psource,const QString &);
 	//The socket error message
 	void on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
-	//These Message is nessery.-------------------------------------
-	void on_evt_Message_Cluster(const QString &);
+	void on_evt_Message_Cluster(QObject * psource,const QString &);
+	void on_evt_Message_Database(QObject * psource,const QString &);
+	void on_evt_Message_Smartlink(QObject * psource,const QString &);
 	//The socket error message
 	void on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 public slots:

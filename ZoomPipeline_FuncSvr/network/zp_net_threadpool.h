@@ -28,6 +28,9 @@ namespace ZPNetwork{
 	public:
 		explicit zp_net_ThreadPool(int nPayLoad = 4096,QObject *parent = 0);
 
+		// Dump errmessage
+		static QString GenSockMsg(QObject * pSock);
+
 		//Listening Ctrl
 		//Begin a listening socket at special address and port. The socket will be activated as soon as possible
 		void AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn = true);
@@ -72,8 +75,8 @@ namespace ZPNetwork{
 		QVector<QThread *> m_vec_netInternalTransThreads;
 		bool TransThreadDel(zp_netTransThread * pThreadObj);
 	signals:
-		//These Message is nessery.-------------------------------------
-		void evt_Message(const QString &);
+
+		void evt_Message(QObject * pSource,const QString &);
 		//The socket error message
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		//this event indicates new client connected.

@@ -68,7 +68,7 @@ namespace ZPDatabase{
 		QMutex m_mutex_reg;
 		QMap <QString,tagConnectionPara> m_dbNames;
 	signals:
-		void evt_Message(const QString &);
+		void evt_Message(QObject *,const QString &);
 	public slots:
 
 	};

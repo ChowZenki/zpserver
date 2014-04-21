@@ -32,7 +32,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 
 	//Create databases
 	m_pDatabases = new ZPDatabase::DatabaseResource(this);
-	connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message);
+	connect (m_pDatabases,&ZPDatabase::DatabaseResource::evt_Message,this,&ZPMainFrame::on_evt_Message_Database);
 	m_pDatabases->start();
 
 	//Create Smartlink client table
@@ -40,7 +40,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 													m_taskEngine,
 													m_pDatabases,
 													this);
-	connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message);
+	connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message_Smartlink);
 
 
 	m_nTimerId = startTimer(2000);
@@ -92,7 +92,14 @@ void ZPMainFrame::initUI()
 	//Message Shown model
 	m_pMsgModel = new QStandardItemModel(this);
 	ui->listView_msg->setModel(m_pMsgModel);
-
+	m_pMsgModelCluster = new QStandardItemModel(this);
+	ui->listView_msg_cluster->setModel(m_pMsgModelCluster);
+	m_pMsgModelDebug = new QStandardItemModel(this);
+	ui->listView_msg_debug->setModel(m_pMsgModelDebug);
+	m_pMsgModelDatabase = new QStandardItemModel(this);
+	ui->listView_msg_database->setModel(m_pMsgModelDatabase);
+	m_pMsgModelSmartlink = new QStandardItemModel(this);
+	ui->listView_msg_smartlink->setModel(m_pMsgModelSmartlink);
 	//Network listeners setting model
 	m_pListenerModel = new QStandardItemModel(0,4,this);
 	m_pListenerModel->setHeaderData(0,Qt::Horizontal,tr("Name"));
@@ -121,15 +128,67 @@ void ZPMainFrame::initUI()
 	ui->comboBox_db_type->setModel(pCombo);
 }
 
-//These Message is nessery.-------------------------------------
-void  ZPMainFrame::on_evt_Message(const QString & strMsg)
+
+void  ZPMainFrame::on_evt_Message(QObject * psource,const QString & strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	int nrows = m_pMsgModel->rowCount();
-	m_pMsgModel->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 16384)
-		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+	if (strMsg.left(5)==QString("Debug"))
+	{
+		int nrows = m_pMsgModelDebug->rowCount();
+		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
+	}
+	else
+	{
+		int nrows = m_pMsgModel->rowCount();
+		m_pMsgModel->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+	}
+
+}
+
+void  ZPMainFrame::on_evt_Message_Database(QObject * psource,const QString &strMsg)
+{
+	QDateTime dtm = QDateTime::currentDateTime();
+	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
+	if (strMsg.left(5)==QString("Debug"))
+	{
+		int nrows = m_pMsgModelDebug->rowCount();
+		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
+	}
+	else
+	{
+		int nrows = m_pMsgModelDatabase->rowCount();
+		m_pMsgModelDatabase->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelDatabase->removeRow(m_pMsgModelDatabase->rowCount()-1);
+	}
+
+}
+
+void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,const QString &strMsg)
+{
+	QDateTime dtm = QDateTime::currentDateTime();
+	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
+	if (strMsg.left(5)==QString("Debug"))
+	{
+		int nrows = m_pMsgModelDebug->rowCount();
+		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
+	}
+	else
+	{
+		int nrows = m_pMsgModelSmartlink->rowCount();
+		m_pMsgModelSmartlink->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelSmartlink->removeRow(m_pMsgModelSmartlink->rowCount()-1);
+	}
 }
 
 //The socket error message
@@ -138,21 +197,32 @@ void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::Soc
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + QString("SockError %1 with code %2")
 			.arg((quint64)senderSock).arg((quint32)socketError);
-	int nrows = m_pMsgModel->rowCount();
-	m_pMsgModel->insertRow(0,new QStandardItem(msg));
+	int nrows = m_pMsgModelDebug->rowCount();
+	m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
 	while (nrows-- > 16384)
-		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+		m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
 
 }
-//These Message is nessery.-------------------------------------
-void  ZPMainFrame::on_evt_Message_Cluster(const QString & strMsg)
+
+void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,const QString & strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
-	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " (Cluster)" + strMsg;
-	int nrows = m_pMsgModel->rowCount();
-	m_pMsgModel->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 16384)
-		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
+	if (strMsg.left(5)==QString("Debug"))
+	{
+		int nrows = m_pMsgModelDebug->rowCount();
+		m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
+	}
+	else
+	{
+		int nrows = m_pMsgModelCluster->rowCount();
+		m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
+		while (nrows-- > 16384)
+			m_pMsgModelCluster->removeRow(m_pMsgModelCluster->rowCount()-1);
+	}
+
 }
 
 //The socket error message
@@ -161,10 +231,10 @@ void  ZPMainFrame::on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSoc
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " (Cluster)" + QString("SockError %1 with code %2")
 			.arg((quint64)senderSock).arg((quint32)socketError);
-	int nrows = m_pMsgModel->rowCount();
-	m_pMsgModel->insertRow(0,new QStandardItem(msg));
+	int nrows = m_pMsgModelDebug->rowCount();
+	m_pMsgModelDebug->insertRow(0,new QStandardItem(msg));
 	while (nrows-- > 16384)
-		m_pMsgModel->removeRow(m_pMsgModel->rowCount()-1);
+		m_pMsgModelDebug->removeRow(m_pMsgModelDebug->rowCount()-1);
 
 }
 

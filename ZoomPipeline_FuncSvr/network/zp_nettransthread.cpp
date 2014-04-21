@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QHostAddress>
+#include "zp_net_threadpool.h"
 namespace ZPNetwork{
 	zp_netTransThread::zp_netTransThread(zp_net_ThreadPool *pThreadPool,int nPayLoad,QObject *parent) :
 		QObject(parent)
@@ -111,6 +112,7 @@ namespace ZPNetwork{
 					psslsock->startServerEncryption();
 				}
 				emit evt_NewClientConnected(sock_client);
+				emit evt_Message(sock_client,"Info>" +  QString(tr("Client Accepted.")));
 			}
 			else
 				sock_client->deleteLater();
@@ -151,7 +153,7 @@ namespace ZPNetwork{
 				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_connected,Qt::QueuedConnection);
 				connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
 				m_mutex_protect.lock();
-				m_clientList[sock_client] = 0;
+				m_clientList[sock_client] = 1;
 				m_mutex_protect.unlock();
 
 				psslsock->connectToHostEncrypted(addr.toString(),port);
@@ -164,7 +166,7 @@ namespace ZPNetwork{
 				connect(sock_client, &QTcpSocket::bytesWritten, this,&zp_netTransThread::some_data_sended,Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_connected,Qt::QueuedConnection);
 				m_mutex_protect.lock();
-				m_clientList[sock_client] = 0;
+				m_clientList[sock_client] = 1;
 				m_mutex_protect.unlock();
 				sock_client->connectToHost(addr,port);
 
@@ -177,12 +179,14 @@ namespace ZPNetwork{
 	{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		emit evt_NewClientConnected(pSock);
+		emit evt_Message(pSock,"Info>" +  QString(tr("Client connected.")));
 	}
 
 	void zp_netTransThread::on_encrypted()
 	{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		emit evt_ClientEncrypted(pSock);
+		emit evt_Message(pSock,"Info>" +  QString(tr("Client Encrypted.")));
 	}
 
 	void zp_netTransThread::client_closed()
@@ -200,6 +204,8 @@ namespace ZPNetwork{
 			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
 			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
 			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
+			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
+
 			m_buffer_sending.remove(pSock);
 			m_buffer_sending_offset.remove(pSock);
 			m_mutex_protect.lock();
@@ -207,6 +213,7 @@ namespace ZPNetwork{
 			m_mutex_protect.unlock();
 			pSock->deleteLater();
 			emit evt_ClientDisconnected(pSock);
+			emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
 		}
 	}
 	void zp_netTransThread::new_data_recieved()
@@ -254,21 +261,21 @@ namespace ZPNetwork{
 		if (pSock)
 		{
 			emit evt_SocketError(pSock,socketError);
-			qDebug()<<(pSock->errorString());
+			emit evt_Message(pSock,"Debug:" + pSock->errorString());
 			pSock->abort();
 		}
 	}
 
 	void zp_netTransThread::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
 	{
-//		m_mutex_protect.lock();
-//		if (m_clientList.find(objClient)==m_clientList.end())
-		if (objClient->parent()!=this)//this approach is very effective
+		m_mutex_protect.lock();
+		if (m_clientList.find(objClient)==m_clientList.end())
+//		if (objClient->parent()!=this)//this approach is very effective, but can cause memory problems
 		{
-//			m_mutex_protect.unlock();
+			m_mutex_protect.unlock();
 			return;
 		}
-//		m_mutex_protect.unlock();
+		m_mutex_protect.unlock();
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
 		if (pSock&&dtarray.size())
 		{
@@ -325,32 +332,35 @@ namespace ZPNetwork{
 			return;
 		m_mutex_protect.lock();
 		QList<QObject *> clientList = m_clientList.keys();
-		m_mutex_protect.unlock();
+
 		foreach(QObject * obj,clientList)
 		{
 			QTcpSocket * pSock = qobject_cast<QTcpSocket*>(obj);
-			if (pSock)
-			{
+			if (m_clientList[pSock]==0)
 				pSock->abort();
-			}
+			else
+				pSock->disconnectFromHost();
 		}
-
+		m_mutex_protect.unlock();
 	}
 
 	void zp_netTransThread::KickClient(QObject * objClient)
 	{
-//		m_mutex_protect.lock();
-//		if (m_clientList.find(objClient)==m_clientList.end())
-		if (objClient->parent()!=this)//this approach is very effective
+		m_mutex_protect.lock();
+		if (m_clientList.find(objClient)==m_clientList.end())
+//		if (objClient->parent()!=this)//this approach is very effective, but will cause memory crush .
 		{
-//			m_mutex_protect.unlock();
+			m_mutex_protect.unlock();
 			return;
 		}
-//		m_mutex_protect.unlock();
+		m_mutex_protect.unlock();
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
 		if (pSock)
 		{
-			pSock->abort();
+			if (m_clientList[objClient]==0)
+				pSock->abort();
+			else
+				pSock->disconnectFromHost();
 		}
 	}
 

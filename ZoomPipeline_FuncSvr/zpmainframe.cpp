@@ -143,7 +143,7 @@ void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,const QString & strMs
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	msg += tr(",Source=%1").arg((unsigned int)psource);
+	msg += tr(",Source=%1").arg((quint64)psource);
 	int nrows = m_pMsgModelNetwork->rowCount();
 	m_pMsgModelNetwork->insertRow(0,new QStandardItem(msg));
 	while (nrows-- > 4096)
@@ -154,7 +154,7 @@ void  ZPMainFrame::on_evt_Message_Database(QObject * psource,const QString &strM
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	msg += tr(",Source=%1").arg((unsigned int)psource);
+	msg += tr(",Source=%1").arg((quint64)psource);
 	int nrows = m_pMsgModelDatabase->rowCount();
 	m_pMsgModelDatabase->insertRow(0,new QStandardItem(msg));
 	while (nrows-- > 4096)
@@ -165,7 +165,7 @@ void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,const QString &str
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	msg += tr(",Source=%1").arg((unsigned int)psource);
+	msg += tr(",Source=%1").arg((quint64)psource);
 
 	int nrows = m_pMsgModelSmartlink->rowCount();
 	m_pMsgModelSmartlink->insertRow(0,new QStandardItem(msg));
@@ -191,7 +191,7 @@ void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,const QString & strM
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
-	msg += tr(",Source=%1").arg((unsigned int)psource);
+	msg += tr(",Source=%1").arg((quint64)psource);
 	int nrows = m_pMsgModelCluster->rowCount();
 	m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
 	while (nrows-- > 4096)

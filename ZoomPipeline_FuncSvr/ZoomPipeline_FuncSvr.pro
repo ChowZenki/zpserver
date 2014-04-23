@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     smartlink/st_clientnode_app_imp.cpp \
     smartlink/st_clientnode_applayer.cpp \
     cluster/zp_clusterterm.cpp \
-    dialogaddressinput.cpp
+    dialogaddressinput.cpp \
+    cluster/zp_clusternode.cpp
 
 HEADERS  += zpmainframe.h \
     network/zp_tcpserver.h \
@@ -45,7 +46,8 @@ HEADERS  += zpmainframe.h \
     smartlink/st_clientnode_applayer.h \
     cluster/zp_clusterterm.h \
     cluster/cross_svr_messages.h \
-    dialogaddressinput.h
+    dialogaddressinput.h \
+    cluster/zp_clusternode.h
 
 FORMS    += zpmainframe.ui \
     dialogaddressinput.ui

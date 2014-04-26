@@ -23,7 +23,7 @@ namespace SmartLink{
 		st_clientNode_baseTrans * clientNodeFromSocket(QObject *);
 
 		//Heart beating and healthy
-		void KickDealClients();
+		void KickDeadClients();
 		int heartBeatingThrd(){return m_nHeartBeatingDeadThrd;}
 		void setHeartBeatingThrd(int h) {m_nHeartBeatingDeadThrd = h;}
 

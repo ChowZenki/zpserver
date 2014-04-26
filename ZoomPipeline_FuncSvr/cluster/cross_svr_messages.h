@@ -10,12 +10,10 @@ namespace ZP_Cluster{
 		struct tag_header{
 			__UINT16_TYPE__ Mark;    //Always be "0x1234"
 			__UINT8_TYPE__ messagetype;
+			__INT32_TYPE__ data_length;
 		} hearder;
 		union uni_payload{
-			struct tag_plainData{
-				__UINT16_TYPE__ data_length;
-				__UINT8_TYPE__ data[1];
-			} plainData;
+			__UINT8_TYPE__ data[1];
 		} payload;
 
 	} CROSS_SVR_MSG;
@@ -28,14 +26,10 @@ namespace ZP_Cluster{
 		struct tag_header{
 			unsigned __int16 Mark;    //Always be 0x1234
 			unsigned __int8 messagetype;
-
+			__int32 data_length;
 		}  hearder;
 		union uni_payload{
-			struct tag_plainData{
-				unsigned __int16 data_length;
-				unsigned __int8 data[1];
-			} plainData;
-
+			unsigned __int8 data[1];
 		} payload;
 	} CROSS_SVR_MSG;
 

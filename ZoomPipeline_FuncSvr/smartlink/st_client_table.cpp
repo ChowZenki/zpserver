@@ -23,7 +23,7 @@ namespace SmartLink{
 	st_client_table::~st_client_table()
 	{
 	}
-	void  st_client_table::KickDealClients()
+	void  st_client_table::KickDeadClients()
 	{
 		m_hash_mutex.lock();
 		for (QMap<QObject *,st_clientNode_baseTrans *>::iterator p =m_hash_sock2node.begin();
@@ -71,7 +71,7 @@ namespace SmartLink{
 	//this event indicates new client encrypted.
 	void st_client_table::on_evt_ClientEncrypted(QObject * clientHandle)
 	{
-		bool nHashContains = 0;
+		bool nHashContains = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
 		nHashContains = m_hash_sock2node.contains(clientHandle);
@@ -98,7 +98,7 @@ namespace SmartLink{
 	//this event indicates new client connected.
 	void  st_client_table::on_evt_NewClientConnected(QObject * clientHandle)
 	{
-		bool nHashContains = 0;
+		bool nHashContains = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
 		nHashContains = m_hash_sock2node.contains(clientHandle);
@@ -174,7 +174,7 @@ namespace SmartLink{
 	void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray & datablock )
 	{
 		//Push Clients to nodes if it is not exist
-		bool nHashContains = 0;
+		bool nHashContains = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
 		nHashContains = m_hash_sock2node.contains(clientHandle);

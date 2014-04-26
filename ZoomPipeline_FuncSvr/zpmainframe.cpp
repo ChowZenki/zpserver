@@ -84,7 +84,10 @@ ZPMainFrame::~ZPMainFrame()
 				break;
 		}
 	}
-
+	m_netEngine->deleteLater();
+	m_pDatabases->deleteLater();
+	m_taskEngine->deleteLater();
+	m_pClusterTerm->deleteLater();
 	delete ui;
 }
 
@@ -282,8 +285,9 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 	{
 		killTimer(m_nTimerCheck);
 		m_nTimerCheck = -1;
-		m_clientTable->KickDealClients();
-		m_nTimerCheck = startTimer(10000);
+		m_clientTable->KickDeadClients();
+		m_pClusterTerm->KickDeadClients();
+		m_nTimerCheck = startTimer(5000);
 	}
 
 }

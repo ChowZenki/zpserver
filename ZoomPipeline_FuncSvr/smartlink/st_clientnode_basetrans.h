@@ -29,10 +29,7 @@ namespace SmartLink{
 		bool uuidValid(){return m_bUUIDRecieved;}
 		bool bTermSet;
 
-		QDateTime lastActiveTime()
-		{
-			return m_last_Report;
-		}
+		QDateTime lastActiveTime(){ return m_last_Report;}
 		qint32 bytesLeft()
 		{
 			return m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1

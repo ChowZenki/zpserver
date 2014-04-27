@@ -7,7 +7,7 @@
 #include <QHostAddress>
 #include "zp_net_threadpool.h"
 namespace ZPNetwork{
-	zp_netTransThread::zp_netTransThread(zp_net_ThreadPool *pThreadPool,int nPayLoad,QObject *parent) :
+	zp_netTransThread::zp_netTransThread(zp_net_Engine *pThreadPool,int nPayLoad,QObject *parent) :
 		QObject(parent)
 	  ,m_pThreadPool(pThreadPool)
 	{

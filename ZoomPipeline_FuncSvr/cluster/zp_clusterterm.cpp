@@ -7,13 +7,13 @@ namespace ZP_Cluster{
 	  ,m_strTermName(name)
 	{
 		m_pClusterEng = new ZPTaskEngine::zp_pipeline(this);
-		m_pClusterNet = new ZPNetwork::zp_net_ThreadPool(8192,this);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Message, this,&zp_ClusterTerm::evt_Message);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_SocketError, this,&zp_ClusterTerm::evt_SocketError);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved, this,&zp_ClusterTerm::on_evt_Data_recieved);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred, this,&zp_ClusterTerm::on_evt_Data_transferred);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected, this,&zp_ClusterTerm::on_evt_ClientDisconnected);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected);
+		m_pClusterNet = new ZPNetwork::zp_net_Engine(8192,this);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Message, this,&zp_ClusterTerm::evt_Message);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_SocketError, this,&zp_ClusterTerm::evt_SocketError);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Data_recieved, this,&zp_ClusterTerm::on_evt_Data_recieved);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Data_transferred, this,&zp_ClusterTerm::on_evt_Data_transferred);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected, this,&zp_ClusterTerm::on_evt_ClientDisconnected);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected);
 		//connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_ClientEncrypted, this,&zp_ClusterTerm::on_evt_ClientEncrypted);
 		m_nPortPublish = 0;
 		m_nHeartBeatingTime = 20;
@@ -39,6 +39,11 @@ namespace ZP_Cluster{
 		if (c->termName().length()<1)
 			return false;
 		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(c->termName())==true)
+		{
+			m_hash_mutex.unlock();
+			return false;
+		}
 		m_hash_Name2node[c->termName()] = c;
 		m_hash_mutex.unlock();
 		return true;
@@ -80,10 +85,11 @@ namespace ZP_Cluster{
 		{
 			zp_ClusterNode * pnode = new zp_ClusterNode(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
 			pClientNode = pnode;
@@ -94,6 +100,8 @@ namespace ZP_Cluster{
 		}
 		m_hash_mutex.unlock();
 		assert(nHashContains!=0 && pClientNode !=0);
+		//Send Hello Package
+		pClientNode->SendHelloPackage();
 	}
 
 	//this event indicates new client encrypted.
@@ -107,10 +115,11 @@ namespace ZP_Cluster{
 		{
 			zp_ClusterNode * pnode = new zp_ClusterNode(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
 			pClientNode = pnode;
@@ -121,6 +130,8 @@ namespace ZP_Cluster{
 		}
 		m_hash_mutex.unlock();
 		assert(nHashContains!=0 && pClientNode !=0);
+		//Send Hello Package
+		pClientNode->SendHelloPackage();
 	}
 
 	//this event indicates a client disconnected.
@@ -139,11 +150,11 @@ namespace ZP_Cluster{
 				m_hash_Name2node.remove(pClientNode->termName());
 
 			pClientNode->bTermSet = true;
-			disconnect (pClientNode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
-			disconnect (pClientNode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
-			disconnect (pClientNode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::KickClients);
+			disconnect (pClientNode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient);
+			disconnect (pClientNode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
+			disconnect (pClientNode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients);
 			disconnect (pClientNode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message);
-
+			disconnect (pClientNode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo);
 			m_nodeToBeDel.push_back(pClientNode);
 			//qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
 		}
@@ -166,6 +177,8 @@ namespace ZP_Cluster{
 			//qDebug()<<QString("%1(ref %2) deleting.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
 			pdelobj->deleteLater();
 		}
+		//re-Broadcast Servers
+		BroadcastServers();
 	}
 
 	//some data arrival
@@ -180,10 +193,11 @@ namespace ZP_Cluster{
 		{
 			zp_ClusterNode * pnode = new zp_ClusterNode(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
 			pClientNode = pnode;
@@ -212,5 +226,45 @@ namespace ZP_Cluster{
 	void  zp_ClusterTerm::on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/)
 	{
 
+	}
+	void zp_ClusterTerm::BroadcastServers()
+	{
+		m_hash_mutex.lock();
+		QList<QString> keys =  m_hash_Name2node.keys();
+		int nsz = keys.size();
+		//Msgs
+		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
+		QByteArray array(nMsgLen,0);
+		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
+		pMsg->hearder.Mark = 0x1234;
+		pMsg->hearder.data_length = sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
+		pMsg->hearder.messagetype = 0x02;
+		int ct = 0;
+		foreach (QString key,keys)
+		{
+			zp_ClusterNode * pNode = m_hash_Name2node[key];
+			strncpy((char *)pMsg->payload.broadcastMsg[ct].name,
+					pNode->termName().toStdString().c_str(),
+					sizeof(pMsg->payload.broadcastMsg[ct].name)-1);
+			strncpy((char *)pMsg->payload.broadcastMsg[ct].Address,
+					pNode->addrPublish().toString().toStdString().c_str(),
+					sizeof(pMsg->payload.broadcastMsg[ct].Address)-1);
+			pMsg->payload.broadcastMsg[ct].port = pNode->portPublish();
+			++ct;
+		}
+		m_hash_mutex.unlock();
+		m_pClusterNet->BroadcastData(0,array);
+	}
+
+	void zp_ClusterTerm::SendHeartBeatings()
+	{
+		//Msgs
+		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder);
+		QByteArray array(nMsgLen,0);
+		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
+		pMsg->hearder.Mark = 0x1234;
+		pMsg->hearder.data_length = 0;
+		pMsg->hearder.messagetype = 0x00;
+		m_pClusterNet->BroadcastData(0,array);
 	}
 }

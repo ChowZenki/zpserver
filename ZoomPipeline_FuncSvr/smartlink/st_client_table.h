@@ -15,7 +15,7 @@ namespace SmartLink{
 	{
 		Q_OBJECT
 	public:
-		explicit st_client_table(ZPNetwork::zp_net_ThreadPool * pool, ZPTaskEngine::zp_pipeline * taskeng, ZPDatabase::DatabaseResource *pDb, QObject *parent = 0);
+		explicit st_client_table(ZPNetwork::zp_net_Engine * pool, ZPTaskEngine::zp_pipeline * taskeng, ZPDatabase::DatabaseResource *pDb, QObject *parent = 0);
 		~st_client_table();
 
 		bool regisitClientUUID(st_clientNode_baseTrans *);
@@ -46,7 +46,7 @@ namespace SmartLink{
 		QMap<QObject *,st_clientNode_baseTrans *> m_hash_sock2node;
 
 		//Concurrent Network frame work
-		ZPNetwork::zp_net_ThreadPool * m_pThreadPool;
+		ZPNetwork::zp_net_Engine * m_pThreadPool;
 		//The piple-line
 		ZPTaskEngine::zp_pipeline * m_pTaskEngine;
 		//The database pool

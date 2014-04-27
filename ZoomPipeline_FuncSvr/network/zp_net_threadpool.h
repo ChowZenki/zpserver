@@ -22,11 +22,11 @@ namespace ZPNetwork{
 	  * @brief zp_net_ThreadPool provides a  multi-thread listening\transfer network
 	  * framework. SSL and Plain sockets are both supported.
 	  */
-	class zp_net_ThreadPool : public QObject
+	class zp_net_Engine : public QObject
 	{
 		Q_OBJECT
 	public:
-		explicit zp_net_ThreadPool(int nPayLoad = 4096,QObject *parent = 0);
+		explicit zp_net_Engine(int nPayLoad = 4096,QObject *parent = 0);
 
 		//Listening Ctrl
 		//Begin a listening socket at special address and port. The socket will be activated as soon as possible
@@ -113,7 +113,7 @@ namespace ZPNetwork{
 		void KickClients(QObject * object);
 
 		//Possive Connection Methods
-		bool connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn = true);
+		bool connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn);
 
 	};
 }

@@ -45,7 +45,7 @@ protected:
 
 private:
 	Ui::ZPMainFrame *ui;
-	ZPNetwork::zp_net_ThreadPool * m_netEngine;
+	ZPNetwork::zp_net_Engine * m_netEngine;
 	ZPTaskEngine::zp_pipeline * m_taskEngine;
 	SmartLink::st_client_table * m_clientTable;
 	ZPDatabase::DatabaseResource * m_pDatabases;

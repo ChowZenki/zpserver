@@ -38,6 +38,9 @@ namespace ZP_Cluster{
 		QHostAddress addrPublish(){return m_addrPublish;}
 		int portPublish() {return m_nPortPublish;}
 		QObject * sock() { return m_pSock;}
+		//!Messages
+	public:
+		void SendHelloPackage();
 	protected:
 		zp_ClusterTerm * m_pTerm;
 		//Client socket handle of this connection
@@ -63,11 +66,11 @@ namespace ZP_Cluster{
 		CROSS_SVR_MSG::tag_header m_currentHeader;
 
 		QDateTime m_last_Report;
-
 	signals:
 		void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
 		void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
 		void evt_close_client(QObject * objClient);
+		void evt_connect_to(const QHostAddress & address , quint16 nPort,bool bSSLConn);
 		void evt_Message (QObject * psource,const QString &);
 	};
 }

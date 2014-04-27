@@ -9,6 +9,7 @@ namespace ZP_Cluster{
 	{
 		m_currentReadOffset = 0;
 		m_currentMessageSize = 0;
+		m_nPortPublish = 0;
 		m_last_Report = QDateTime::currentDateTime();
 	}
 	int zp_ClusterNode::run()
@@ -170,18 +171,86 @@ namespace ZP_Cluster{
 	//in Trans-Level, do nothing.
 	int zp_ClusterNode::deal_current_message_block()
 	{
+		qint32 bytesLeft = m_currentHeader.data_length + sizeof(CROSS_SVR_MSG::tag_header)
+				-m_currentMessageSize ;
+		const CROSS_SVR_MSG * pMsg =(const CROSS_SVR_MSG *) m_currentBlock.constData();
+		switch(m_currentHeader.messagetype)
+		{
+		case 0x00://Heart Beating
+			break;
+		case 0x01://basicInfo, when connection established, this message should be used
+			if (bytesLeft==0)
+			{
+				QString strName ((const char *)pMsg->payload.basicInfo.name);
+				if (strName != m_pTerm->name())
+				{
+					this->m_strTermName = strName;
+					m_nPortPublish = pMsg->payload.basicInfo.port;
+					m_addrPublish = QHostAddress((const char *)pMsg->payload.basicInfo.Address);
+					if (false==m_pTerm->regisitNewServer(this))
+					{
+						emit evt_Message(this,tr("Info: New Svr already regisited. Ignored."));
+						emit evt_close_client(this->sock());
+					}
+					else
+						m_pTerm->BroadcastServers();
+				}
+				else
+				{
+					emit evt_Message(this,tr("Can not connect to it-self, Loopback connections is forbidden."));
+					emit evt_close_client(this->sock());
+				}
+			}
+			break;
+		case 0x02: //Server - broadcast messages
+			if (bytesLeft==0)
+			{
+				int nSvrs = pMsg->hearder.data_length / sizeof(CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast);
+				for (int i=0;i<nSvrs;i++)
+				{
+					QString strName ((const char *)pMsg->payload.broadcastMsg[i].name);
+					if (strName != m_pTerm->name() && m_pTerm->SvrNodeFromName(strName)==NULL)
+					{
+						QHostAddress addrToConnectTo((const char *)pMsg->payload.broadcastMsg[i].Address);
+						quint16 PortToConnectTo = pMsg->payload.broadcastMsg[i].port;
+						//Connect to New Servers
+						emit evt_connect_to(addrToConnectTo,PortToConnectTo,false);
+					}
+				}
+			}
+			break;
+		default:
+			break;
+		};
+
 		return 0;
 	}
 	void zp_ClusterNode::CheckHeartBeating()
 	{
 		QDateTime dtm = QDateTime::currentDateTime();
 		qint64 usc = this->m_last_Report.secsTo(dtm);
-		int nThredHold =  12;
-		nThredHold = m_pTerm->heartBeatingThrdHold();
+		int nThredHold = m_pTerm->heartBeatingThrdHold();
 		if (usc >= nThredHold)
 		{
 			emit evt_Message(this,tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));
 			emit evt_close_client(this->sock());
 		}
+	}
+	void zp_ClusterNode::SendHelloPackage()
+	{
+		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_BasicInfo);
+		QByteArray array(nMsgLen,0);
+		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
+		pMsg->hearder.Mark = 0x1234;
+		pMsg->hearder.data_length = sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_BasicInfo);
+		pMsg->hearder.messagetype = 0x01;
+		strncpy((char *)pMsg->payload.basicInfo.name,
+				m_pTerm->name().toStdString().c_str(),
+				sizeof(pMsg->payload.basicInfo.name)-1);
+		strncpy((char *)pMsg->payload.basicInfo.Address,
+				m_pTerm->publishAddr().toString().toStdString().c_str(),
+				sizeof(pMsg->payload.basicInfo.Address)-1);
+		pMsg->payload.basicInfo.port = m_pTerm->publishPort();
+		emit evt_SendDataToClient(sock(),array);
 	}
 }

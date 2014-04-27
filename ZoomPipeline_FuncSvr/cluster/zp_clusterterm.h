@@ -20,7 +20,7 @@ namespace ZP_Cluster{
 	public:
 		explicit zp_ClusterTerm(const QString & name,QObject *parent = 0);
 		//cluster status
-		ZPNetwork::zp_net_ThreadPool * netEng() {return m_pClusterNet;}
+		ZPNetwork::zp_net_Engine * netEng() {return m_pClusterNet;}
 		ZPTaskEngine::zp_pipeline * taskEng() {return m_pClusterEng;}
 		bool canExit();
 
@@ -31,16 +31,26 @@ namespace ZP_Cluster{
 		int publishPort(){return m_nPortPublish;}
 		QHostAddress setPublishAddr(QHostAddress addr){return m_addrPublish = addr;}
 		int setPublishPort(int port){return m_nPortPublish = port;}
-		int heartBeatingThrdHold() {return m_nHeartBeatingTime;}
+		int heartBeatingThrdHold() {
+			return m_nHeartBeatingTime;
+		}
 		void setHeartBeatingThrd(const int n){m_nHeartBeatingTime = n;}
+		bool regisitNewServer(zp_ClusterNode *);
+		void BroadcastServers();
+		void SendHeartBeatings();
 	protected:
+		int m_nHeartBeatingTime;
 		QString m_strTermName;//the Terminal's name
 		QHostAddress m_addrPublish;	//The publish address for other terms to connect to
 		int m_nPortPublish;//The publish port for other terms to connect to
-		ZPNetwork::zp_net_ThreadPool * m_pClusterNet;
+		ZPNetwork::zp_net_Engine * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
-		int m_nHeartBeatingTime;
+
 		//Server Group Mapping
+	public:
+		zp_ClusterNode * SvrNodeFromName(const QString &);
+		zp_ClusterNode * SvrNodeFromSocket(QObject *);
+
 	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash
 		QList<zp_ClusterNode *> m_nodeToBeDel;
@@ -48,9 +58,6 @@ namespace ZP_Cluster{
 		QMutex m_hash_mutex;
 		QMap<QString , zp_ClusterNode *> m_hash_Name2node;
 		QMap<QObject *,zp_ClusterNode *> m_hash_sock2node;
-		bool regisitNewServer(zp_ClusterNode *);
-		zp_ClusterNode * SvrNodeFromName(const QString &);
-		zp_ClusterNode * SvrNodeFromSocket(QObject *);
 	signals:
 
 		void evt_Message(QObject * ,const QString &);

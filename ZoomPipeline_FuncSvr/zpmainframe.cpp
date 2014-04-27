@@ -22,9 +22,9 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 	ui->setupUi(this);
 
 	//Create net engine
-	m_netEngine = new zp_net_ThreadPool (8192);
-	connect (m_netEngine,&zp_net_ThreadPool::evt_Message,this,&ZPMainFrame::on_evt_MessageNetwork);
-	connect (m_netEngine,&zp_net_ThreadPool::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
+	m_netEngine = new zp_net_Engine (8192);
+	connect (m_netEngine,&zp_net_Engine::evt_Message,this,&ZPMainFrame::on_evt_MessageNetwork);
+	connect (m_netEngine,&zp_net_Engine::evt_SocketError,this,&ZPMainFrame::on_evt_SocketError);
 	//Create TaskEngine
 	m_taskEngine = new zp_pipeline(this);
 
@@ -286,6 +286,7 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		killTimer(m_nTimerCheck);
 		m_nTimerCheck = -1;
 		m_clientTable->KickDeadClients();
+		m_pClusterTerm->SendHeartBeatings();
 		m_pClusterTerm->KickDeadClients();
 		m_nTimerCheck = startTimer(5000);
 	}

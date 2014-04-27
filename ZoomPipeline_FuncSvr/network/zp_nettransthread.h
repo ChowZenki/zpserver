@@ -10,7 +10,7 @@
 #include <QAbstractSocket>
 #include <QMutex>
 namespace ZPNetwork{
-	class zp_net_ThreadPool;
+	class zp_net_Engine;
 	/**
 	 * @brief class zp_netTransThread is a QObject-derived object class.
 	 * Objects of this type will be binded to a QThread, in which TCP transfer
@@ -20,7 +20,7 @@ namespace ZPNetwork{
 	{
 		Q_OBJECT
 	public:
-		explicit zp_netTransThread(zp_net_ThreadPool * pThreadPool,int nPayLoad = 4096,QObject *parent = 0);
+		explicit zp_netTransThread(zp_net_Engine * pThreadPool,int nPayLoad = 4096,QObject *parent = 0);
 
 		QList <QObject *> clientsList();
 		int CurrentClients();
@@ -42,7 +42,7 @@ namespace ZPNetwork{
 		QMap<QObject*,int> m_clientList;
 		int m_nPayLoad;
 		QMutex m_mutex_protect;
-		zp_net_ThreadPool * m_pThreadPool;
+		zp_net_Engine * m_pThreadPool;
 	public slots:
 		//This slot dealing with multi-thread client socket accept.
 		void incomingConnection(QObject * threadid,qintptr socketDescriptor);

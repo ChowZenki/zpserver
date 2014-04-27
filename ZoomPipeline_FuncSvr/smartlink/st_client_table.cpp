@@ -4,7 +4,7 @@
 #include <functional>
 namespace SmartLink{
 	st_client_table::st_client_table(
-			ZPNetwork::zp_net_ThreadPool * pool,
+			ZPNetwork::zp_net_Engine * pool,
 			ZPTaskEngine::zp_pipeline * taskeng,
 			ZPDatabase::DatabaseResource * pDb,
 			QObject *parent) :
@@ -14,11 +14,11 @@ namespace SmartLink{
 	  ,m_pDatabaseRes(pDb)
 	{
 		m_nHeartBeatingDeadThrd = 180;
-		connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientEncrypted,this,&st_client_table::on_evt_ClientEncrypted,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
+		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
+		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_ClientEncrypted,this,&st_client_table::on_evt_ClientEncrypted,Qt::QueuedConnection);
+		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
+		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
+		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
 	}
 	st_client_table::~st_client_table()
 	{
@@ -79,9 +79,9 @@ namespace SmartLink{
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
@@ -106,9 +106,9 @@ namespace SmartLink{
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
@@ -138,9 +138,9 @@ namespace SmartLink{
 				m_hash_uuid2node.remove(pClientNode->uuid());
 
 			pClientNode->bTermSet = true;
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient);
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData);
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients);
+			disconnect (pClientNode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient);
+			disconnect (pClientNode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
+			disconnect (pClientNode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients);
 			disconnect (pClientNode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message);
 
 			m_nodeToBeDel.push_back(pClientNode);
@@ -182,9 +182,9 @@ namespace SmartLink{
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_ThreadPool::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;

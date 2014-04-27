@@ -10,7 +10,7 @@ namespace ZPNetwork{
 	 * @param nPayLoad The data to be sent in buffer will be cutted into pieces, each pieces equals to nPayLoad bytes
 	 * @param parent a Qt-style parent pointer. this object will be auto-deleted when parent is about to be destoryed.
 	 */
-	zp_net_ThreadPool::zp_net_ThreadPool(int nPayLoad,QObject *parent) :
+	zp_net_Engine::zp_net_Engine(int nPayLoad,QObject *parent) :
 		QObject(parent)
 	{
 		m_nPayLoad = nPayLoad;
@@ -29,7 +29,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::ListenerNames
 	 * @return QStringList listener names.
 	 */
-	QStringList zp_net_ThreadPool::ListenerNames()
+	QStringList zp_net_Engine::ListenerNames()
 	{
 		return m_map_netListenThreads.keys();
 	}
@@ -40,7 +40,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::TransThreadNum
 	 * @return int 0 means no thread is active.
 	 */
-	int zp_net_ThreadPool::TransThreadNum()
+	int zp_net_Engine::TransThreadNum()
 	{
 		return m_vec_NetTransThreads.size();
 	}
@@ -51,7 +51,7 @@ namespace ZPNetwork{
 	 * @param bSSL true means SSL Connection, false is Plain Connection
 	 * @return int The transfer thread count for SSL connections.
 	 */
-	int zp_net_ThreadPool::TransThreadNum(bool bSSL)
+	int zp_net_Engine::TransThreadNum(bool bSSL)
 	{
 		//m_mutex_trans.lock();
 		int nsz = m_vec_NetTransThreads.size();
@@ -72,7 +72,7 @@ namespace ZPNetwork{
 	 * @param idxThread The thread index between 0 and TransThreadNum()-1
 	 * @return int Clients which are currently online
 	 */
-	int zp_net_ThreadPool::totalClients(int idxThread)
+	int zp_net_Engine::totalClients(int idxThread)
 	{
 		int nsz = m_vec_NetTransThreads.size();
 		if (idxThread >=0 && idxThread<nsz)
@@ -90,7 +90,7 @@ namespace ZPNetwork{
 	 * @param nPort Listening Port. in Linux, this value should larger than 1024.
 	 * @param bSSLConn True means this address using OpenSSL . False means plain TCP
 	 */
-	void zp_net_ThreadPool::AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn /*= true*/)
+	void zp_net_Engine::AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn /*= true*/)
 	{
 		if (m_map_netListenThreads.find(id)==m_map_netListenThreads.end())
 		{
@@ -103,11 +103,11 @@ namespace ZPNetwork{
 			m_map_netListenThreads[id] = pListenObj;
 			//m_mutex_listen.unlock();
 			//Bind Object to New thread
-			connect(this,&zp_net_ThreadPool::startListen,pListenObj,&zp_netListenThread::startListen,Qt::QueuedConnection);
-			connect(this,&zp_net_ThreadPool::stopListen,pListenObj,&zp_netListenThread::stopListen,Qt::QueuedConnection);
-			connect(pListenObj,&zp_netListenThread::evt_Message,this,&zp_net_ThreadPool::evt_Message,Qt::QueuedConnection);
-			connect(pListenObj,&zp_netListenThread::evt_ListenClosed,this,&zp_net_ThreadPool::on_ListenClosed,Qt::QueuedConnection);
-			connect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_ThreadPool::on_New_Arrived_Client,Qt::QueuedConnection);
+			connect(this,&zp_net_Engine::startListen,pListenObj,&zp_netListenThread::startListen,Qt::QueuedConnection);
+			connect(this,&zp_net_Engine::stopListen,pListenObj,&zp_netListenThread::stopListen,Qt::QueuedConnection);
+			connect(pListenObj,&zp_netListenThread::evt_Message,this,&zp_net_Engine::evt_Message,Qt::QueuedConnection);
+			connect(pListenObj,&zp_netListenThread::evt_ListenClosed,this,&zp_net_Engine::on_ListenClosed,Qt::QueuedConnection);
+			connect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_Engine::on_New_Arrived_Client,Qt::QueuedConnection);
 
 			pListenObj->moveToThread(pThread);
 			//Start Listen Immediately
@@ -123,7 +123,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::RemoveListeningAddress
 	 * @param id Listening-Address name specified by AddListeningAddress()
 	 */
-	void zp_net_ThreadPool::RemoveListeningAddress(const QString & id)
+	void zp_net_Engine::RemoveListeningAddress(const QString & id)
 	{
 		//m_mutex_listen.lock();
 		if (m_map_netListenThreads.find(id)!=m_map_netListenThreads.end())
@@ -135,7 +135,7 @@ namespace ZPNetwork{
 	 *
 	 * @fn zp_net_ThreadPool::RemoveAllAddresses
 	 */
-	void zp_net_ThreadPool::RemoveAllAddresses()
+	void zp_net_Engine::RemoveAllAddresses()
 	{
 		//m_mutex_listen.lock();
 		foreach (QString id,m_map_netListenThreads.keys())
@@ -149,7 +149,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::on_New_Arrived_Client
 	 * @param socketDescriptor the socket descriptor for incomming client.
 	 */
-	void zp_net_ThreadPool::on_New_Arrived_Client(qintptr socketDescriptor)
+	void zp_net_Engine::on_New_Arrived_Client(qintptr socketDescriptor)
 	{
 		zp_netListenThread * pSource = qobject_cast<zp_netListenThread *>(sender());
 		if (!pSource)
@@ -198,7 +198,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::on_ListenClosed
 	 * @param id the terminated thread id.
 	 */
-	void zp_net_ThreadPool::on_ListenClosed(const QString & id)
+	void zp_net_Engine::on_ListenClosed(const QString & id)
 	{
 		//m_mutex_listen.lock();
 		if (m_map_netListenThreads.find(id)!=m_map_netListenThreads.end())
@@ -209,11 +209,11 @@ namespace ZPNetwork{
 			m_map_netListenThreads.remove(id);
 			m_map_netInternalListenThreads.remove(id);
 			//disconnect signals;
-			disconnect(this,&zp_net_ThreadPool::startListen,pListenObj,&zp_netListenThread::startListen);
-			disconnect(this,&zp_net_ThreadPool::stopListen,pListenObj,&zp_netListenThread::stopListen);
-			disconnect(pListenObj,&zp_netListenThread::evt_Message,this,&zp_net_ThreadPool::evt_Message);
-			disconnect(pListenObj,&zp_netListenThread::evt_ListenClosed,this,&zp_net_ThreadPool::on_ListenClosed);
-			disconnect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_ThreadPool::on_New_Arrived_Client);
+			disconnect(this,&zp_net_Engine::startListen,pListenObj,&zp_netListenThread::startListen);
+			disconnect(this,&zp_net_Engine::stopListen,pListenObj,&zp_netListenThread::stopListen);
+			disconnect(pListenObj,&zp_netListenThread::evt_Message,this,&zp_net_Engine::evt_Message);
+			disconnect(pListenObj,&zp_netListenThread::evt_ListenClosed,this,&zp_net_Engine::on_ListenClosed);
+			disconnect(pListenObj,&zp_netListenThread::evt_NewClientArrived,this,&zp_net_Engine::on_New_Arrived_Client);
 			pListenObj->deleteLater();
 			pThread->quit();
 			pThread->wait();
@@ -230,7 +230,7 @@ namespace ZPNetwork{
 	 * @param nThreads
 	 * @param bSSL
 	 */
-	void zp_net_ThreadPool::AddClientTransThreads(int nThreads,bool bSSL)
+	void zp_net_Engine::AddClientTransThreads(int nThreads,bool bSSL)
 	{
 		if (nThreads>0 && nThreads<256)
 		{
@@ -245,20 +245,20 @@ namespace ZPNetwork{
 				//m_mutex_trans.unlock();
 				pThread->start();
 				//Connect signals
-				connect (clientTH,&zp_netTransThread::evt_ClientDisconnected,this,&zp_net_ThreadPool::evt_ClientDisconnected,Qt::QueuedConnection);
-				connect (clientTH,&zp_netTransThread::evt_Data_recieved,this,&zp_net_ThreadPool::evt_Data_recieved,Qt::QueuedConnection);
-				connect (clientTH,&zp_netTransThread::evt_Data_transferred,this,&zp_net_ThreadPool::evt_Data_transferred,Qt::QueuedConnection);
-				connect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected,Qt::QueuedConnection);
-				connect (clientTH,&zp_netTransThread::evt_ClientEncrypted,this,&zp_net_ThreadPool::evt_ClientEncrypted,Qt::QueuedConnection);
-				connect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError,Qt::QueuedConnection);
-				connect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_ThreadPool::evt_Message,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_FireConnection,clientTH,&zp_netTransThread::startConnection,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately,Qt::QueuedConnection);
-				connect (this,&zp_net_ThreadPool::evt_KickClient,clientTH,&zp_netTransThread::KickClient,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_ClientDisconnected,this,&zp_net_Engine::evt_ClientDisconnected,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_Data_recieved,this,&zp_net_Engine::evt_Data_recieved,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_Data_transferred,this,&zp_net_Engine::evt_Data_transferred,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_Engine::evt_NewClientConnected,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_ClientEncrypted,this,&zp_net_Engine::evt_ClientEncrypted,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_Engine::evt_SocketError,Qt::QueuedConnection);
+				connect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_Engine::evt_Message,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_FireConnection,clientTH,&zp_netTransThread::startConnection,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately,Qt::QueuedConnection);
+				connect (this,&zp_net_Engine::evt_KickClient,clientTH,&zp_netTransThread::KickClient,Qt::QueuedConnection);
 
 				clientTH->moveToThread(pThread);
 			}
@@ -271,7 +271,7 @@ namespace ZPNetwork{
 	 * @param pThreadObj The closing thread object.
 	 * @return bool in normal situation, this slot is always return true.
 	 */
-	bool zp_net_ThreadPool::TransThreadDel(zp_netTransThread * pThreadObj)
+	bool zp_net_Engine::TransThreadDel(zp_netTransThread * pThreadObj)
 	{
 		if (pThreadObj->CanExit()==false)
 			return false;
@@ -285,20 +285,20 @@ namespace ZPNetwork{
 		if (idx>=0 && idx <nsz)
 		{
 			zp_netTransThread * clientTH =  m_vec_NetTransThreads[idx];
-			disconnect (clientTH,&zp_netTransThread::evt_ClientDisconnected,this,&zp_net_ThreadPool::evt_ClientDisconnected);
-			disconnect (clientTH,&zp_netTransThread::evt_Data_recieved,this,&zp_net_ThreadPool::evt_Data_recieved);
-			disconnect (clientTH,&zp_netTransThread::evt_Data_transferred,this,&zp_net_ThreadPool::evt_Data_transferred);
-			disconnect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_ThreadPool::evt_NewClientConnected);
-			disconnect (clientTH,&zp_netTransThread::evt_ClientEncrypted,this,&zp_net_ThreadPool::evt_ClientEncrypted);
-			disconnect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_ThreadPool::evt_SocketError);
-			disconnect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_ThreadPool::evt_Message);
-			disconnect (this,&zp_net_ThreadPool::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection);
-			disconnect (this,&zp_net_ThreadPool::evt_FireConnection,clientTH,&zp_netTransThread::startConnection);
-			disconnect (this,&zp_net_ThreadPool::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData);
-			disconnect (this,&zp_net_ThreadPool::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient);
-			disconnect (this,&zp_net_ThreadPool::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
-			disconnect (this,&zp_net_ThreadPool::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately);
-			disconnect (this,&zp_net_ThreadPool::evt_KickClient,clientTH,&zp_netTransThread::KickClient);
+			disconnect (clientTH,&zp_netTransThread::evt_ClientDisconnected,this,&zp_net_Engine::evt_ClientDisconnected);
+			disconnect (clientTH,&zp_netTransThread::evt_Data_recieved,this,&zp_net_Engine::evt_Data_recieved);
+			disconnect (clientTH,&zp_netTransThread::evt_Data_transferred,this,&zp_net_Engine::evt_Data_transferred);
+			disconnect (clientTH,&zp_netTransThread::evt_NewClientConnected,this,&zp_net_Engine::evt_NewClientConnected);
+			disconnect (clientTH,&zp_netTransThread::evt_ClientEncrypted,this,&zp_net_Engine::evt_ClientEncrypted);
+			disconnect (clientTH,&zp_netTransThread::evt_SocketError,this,&zp_net_Engine::evt_SocketError);
+			disconnect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_Engine::evt_Message);
+			disconnect (this,&zp_net_Engine::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection);
+			disconnect (this,&zp_net_Engine::evt_FireConnection,clientTH,&zp_netTransThread::startConnection);
+			disconnect (this,&zp_net_Engine::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData);
+			disconnect (this,&zp_net_Engine::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient);
+			disconnect (this,&zp_net_Engine::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
+			disconnect (this,&zp_net_Engine::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately);
+			disconnect (this,&zp_net_Engine::evt_KickClient,clientTH,&zp_netTransThread::KickClient);
 
 			m_vec_netInternalTransThreads[idx]->quit();
 			m_vec_netInternalTransThreads[idx]->wait();
@@ -316,7 +316,7 @@ namespace ZPNetwork{
 	 * approach only "suggests" all these trans threads, that client should be kicked later.
 	 * @fn zp_net_ThreadPool::KickAllClients
 	 */
-	void zp_net_ThreadPool::KickAllClients()
+	void zp_net_Engine::KickAllClients()
 	{
 		//m_mutex_trans.lock();
 		int nsz = m_vec_NetTransThreads.size();
@@ -329,7 +329,7 @@ namespace ZPNetwork{
 	 *  This Method is designed as an "Mandatory" method, which means all clients will be sooner kicked out.
 	 * @fn zp_net_ThreadPool::DeactiveImmediately
 	 */
-	void zp_net_ThreadPool::DeactiveImmediately()
+	void zp_net_Engine::DeactiveImmediately()
 	{
 		//m_mutex_trans.lock();
 		int nsz = m_vec_NetTransThreads.size();
@@ -345,7 +345,7 @@ namespace ZPNetwork{
 	 * @param nThreads how many threads will be marked as "removed"
 	 * @param bSSL true means SSL threads, false means Plain
 	 */
-	void zp_net_ThreadPool::RemoveClientTransThreads(int nThreads,bool bSSL)
+	void zp_net_Engine::RemoveClientTransThreads(int nThreads,bool bSSL)
 	{
 
 		//m_mutex_trans.lock();
@@ -374,7 +374,7 @@ namespace ZPNetwork{
 	 * @param objClient The destin client
 	 * @param dtarray data to be sent
 	 */
-	void zp_net_ThreadPool::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
+	void zp_net_Engine::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
 	{
 		emit evt_SendDataToClient(objClient,dtarray);
 	}
@@ -384,7 +384,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::KickClients
 	 * @param object Client to be kicked.
 	 */
-	void zp_net_ThreadPool::KickClients(QObject * object)
+	void zp_net_Engine::KickClients(QObject * object)
 	{
 		emit evt_KickClient(object);
 	}
@@ -396,7 +396,7 @@ namespace ZPNetwork{
 	 * @param objFromClient the source object.
 	 * @param dtarray data to be sent.
 	 */
-	void zp_net_ThreadPool::BroadcastData(QObject * objFromClient,const QByteArray &  dtarray)
+	void zp_net_Engine::BroadcastData(QObject * objFromClient,const QByteArray &  dtarray)
 	{
 		emit evt_BroadcastData(objFromClient,dtarray);
 	}
@@ -408,7 +408,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_ThreadPool::CanExit
 	 * @return bool true means can close, false mean can not close.
 	 */
-	bool zp_net_ThreadPool::CanExit()
+	bool zp_net_Engine::CanExit()
 	{
 		bool res = true;
 		//m_mutex_trans.lock();
@@ -433,7 +433,7 @@ namespace ZPNetwork{
 	 * @param bSSLConn if true, SSL connections will be used
 	 * @return bool
 	 */
-	bool zp_net_ThreadPool::connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn)
+	bool zp_net_Engine::connectTo (const QHostAddress & address , quint16 nPort,bool bSSLConn)
 	{
 		bool res= false;
 		//m_mutex_trans.lock();

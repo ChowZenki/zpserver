@@ -232,6 +232,11 @@ namespace ZP_Cluster{
 		m_hash_mutex.lock();
 		QList<QString> keys =  m_hash_Name2node.keys();
 		int nsz = keys.size();
+		if (nsz==0)
+		{
+			m_hash_mutex.unlock();
+			return;
+		}
 		//Msgs
 		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
 		QByteArray array(nMsgLen,0);

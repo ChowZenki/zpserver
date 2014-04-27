@@ -177,8 +177,6 @@ namespace ZP_Cluster{
 			//qDebug()<<QString("%1(ref %2) deleting.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
 			pdelobj->deleteLater();
 		}
-		//re-Broadcast Servers
-		BroadcastServers();
 	}
 
 	//some data arrival
@@ -229,20 +227,17 @@ namespace ZP_Cluster{
 	}
 	void zp_ClusterTerm::BroadcastServers()
 	{
+		if (name().length()<1)
+			return;
 		m_hash_mutex.lock();
 		QList<QString> keys =  m_hash_Name2node.keys();
 		int nsz = keys.size();
-		if (nsz==0)
-		{
-			m_hash_mutex.unlock();
-			return;
-		}
 		//Msgs
-		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * (nsz+1);
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
 		pMsg->hearder.Mark = 0x1234;
-		pMsg->hearder.data_length = sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
+		pMsg->hearder.data_length = sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * (nsz+1);
 		pMsg->hearder.messagetype = 0x02;
 		int ct = 0;
 		foreach (QString key,keys)
@@ -258,6 +253,13 @@ namespace ZP_Cluster{
 			++ct;
 		}
 		m_hash_mutex.unlock();
+		strncpy((char *)pMsg->payload.broadcastMsg[ct].name,
+				this->name().toStdString().c_str(),
+				sizeof(pMsg->payload.broadcastMsg[ct].name)-1);
+		strncpy((char *)pMsg->payload.broadcastMsg[ct].Address,
+				this->publishAddr().toString().toStdString().c_str(),
+				sizeof(pMsg->payload.broadcastMsg[ct].Address)-1);
+		pMsg->payload.broadcastMsg[ct].port = this->publishPort();
 		m_pClusterNet->BroadcastData(0,array);
 	}
 

@@ -238,7 +238,7 @@ namespace ZP_Cluster{
 	}
 	void zp_ClusterNode::SendHelloPackage()
 	{
-		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_BasicInfo);
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_BasicInfo);
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
 		pMsg->hearder.Mark = 0x1234;

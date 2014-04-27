@@ -238,7 +238,7 @@ namespace ZP_Cluster{
 			return;
 		}
 		//Msgs
-		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) + sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast) * nsz;
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
 		pMsg->hearder.Mark = 0x1234;
@@ -264,7 +264,7 @@ namespace ZP_Cluster{
 	void zp_ClusterTerm::SendHeartBeatings()
 	{
 		//Msgs
-		int nMsgLen = sizeof(CROSS_SVR_MSG::hearder);
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header);
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
 		pMsg->hearder.Mark = 0x1234;

@@ -19,7 +19,7 @@
 namespace ZPNetwork{
 
 	/**
-	  * @brief zp_net_ThreadPool provides a  multi-thread listening\transfer network
+	  * @brief zp_net_Engine provides a  multi-thread listening\transfer network
 	  * framework. SSL and Plain sockets are both supported.
 	  */
 	class zp_net_Engine : public QObject

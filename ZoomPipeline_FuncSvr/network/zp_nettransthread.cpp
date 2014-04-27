@@ -74,7 +74,7 @@ namespace ZPNetwork{
 	 * @brief This slot dealing with multi-thread client socket accept.
 	 * accepy works start from zp_netListenThread::m_tcpserver, end with this method.
 	 * the socketDescriptor is delivered from zp_netListenThread(a Listening thread)
-	 *  to zp_net_ThreadPool(Normally in main-gui thread), and then zp_netTransThread.
+	 *  to zp_net_Engine(Normally in main-gui thread), and then zp_netTransThread.
 	 *
 	 * @param threadid if threadid is not equal to this object, this message is just omitted.
 	 * @param socketDescriptor socketDescriptor for incomming client.

@@ -12,12 +12,12 @@ namespace ZPNetwork{
 	}
 	/**
 	 * @brief The slot recieves startListen command from its parent
-	 * zp_net_ThreadPool object. the Qt's signal-and-slots system
+	 * zp_net_Engine object. the Qt's signal-and-slots system
 	 * likes a broadcast system, so, a string id should be used to
 	 * tell each listening zp_netListenThread, only this id should be
 	 * notified.
 	 *
-	 * @param id the Listening ID that zp_net_ThreadPool really
+	 * @param id the Listening ID that zp_net_Engine really
 	 * want to operate.
 	 */
 	void zp_netListenThread::startListen(const QString & id)
@@ -44,7 +44,7 @@ namespace ZPNetwork{
 	/**
 	 * @brief this method is very similar to zp_netListenThread::startListen(const QString & id)
 	 *
-	 * @param id the Listening ID that zp_net_ThreadPool really want to operate.
+	 * @param id the Listening ID that zp_net_Engine really want to operate.
 	 */
 	void zp_netListenThread::stopListen(const QString & id)
 	{

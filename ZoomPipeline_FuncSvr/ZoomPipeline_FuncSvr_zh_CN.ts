@@ -587,21 +587,21 @@
     <message>
         <location filename="zpmainframe.ui" line="92"/>
         <location filename="zpmainframe.ui" line="353"/>
-        <location filename="zpmainframe.cpp" line="116"/>
-        <location filename="zpmainframe.cpp" line="124"/>
+        <location filename="zpmainframe.cpp" line="119"/>
+        <location filename="zpmainframe.cpp" line="127"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="102"/>
-        <location filename="zpmainframe.cpp" line="117"/>
+        <location filename="zpmainframe.cpp" line="120"/>
         <source>Addr</source>
         <translation>地址</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="112"/>
-        <location filename="zpmainframe.cpp" line="118"/>
-        <location filename="zpmainframe.cpp" line="127"/>
+        <location filename="zpmainframe.cpp" line="121"/>
+        <location filename="zpmainframe.cpp" line="130"/>
         <source>Port</source>
         <translation></translation>
     </message>
@@ -658,13 +658,13 @@
     <message>
         <location filename="zpmainframe.ui" line="342"/>
         <location filename="zpmainframe.ui" line="905"/>
-        <location filename="zpmainframe.cpp" line="128"/>
+        <location filename="zpmainframe.cpp" line="131"/>
         <source>Database</source>
         <translation>数据库资源</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="363"/>
-        <location filename="zpmainframe.cpp" line="125"/>
+        <location filename="zpmainframe.cpp" line="128"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
@@ -842,46 +842,46 @@
         <translation>重新加载配置文件并调整服务器参数</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="119"/>
+        <location filename="zpmainframe.cpp" line="122"/>
         <source>SSL</source>
         <translation>SSL</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="126"/>
+        <location filename="zpmainframe.cpp" line="129"/>
         <source>HostAddr</source>
         <translation>服务地址</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="129"/>
+        <location filename="zpmainframe.cpp" line="132"/>
         <source>Username</source>
         <translation>用户名</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="130"/>
+        <location filename="zpmainframe.cpp" line="133"/>
         <source>Options</source>
         <translation>附加选项</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="131"/>
+        <location filename="zpmainframe.cpp" line="134"/>
         <source>TestSQL</source>
         <translation>用于测试连接的SQL</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="222"/>
+        <location filename="zpmainframe.cpp" line="225"/>
         <source>Current Listen Threads: %1
 </source>
         <translation>监听端口: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="224"/>
+        <location filename="zpmainframe.cpp" line="227"/>
         <source>	Listen Threads %1: %2
 </source>
         <translation>	线程%1 监听 %2 
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="227"/>
+        <location filename="zpmainframe.cpp" line="230"/>
         <source>Current Trans Threads: %1
 </source>
         <translation>传输线程: %1
@@ -904,176 +904,176 @@
         <translation>有尚未主动退出的节点套接字，是否继续等待?</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="146"/>
-        <location filename="zpmainframe.cpp" line="157"/>
-        <location filename="zpmainframe.cpp" line="168"/>
-        <location filename="zpmainframe.cpp" line="194"/>
+        <location filename="zpmainframe.cpp" line="149"/>
+        <location filename="zpmainframe.cpp" line="160"/>
+        <location filename="zpmainframe.cpp" line="171"/>
+        <location filename="zpmainframe.cpp" line="197"/>
         <source>,Source=%1</source>
         <translation>,来源:%1</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="230"/>
-        <location filename="zpmainframe.cpp" line="263"/>
+        <location filename="zpmainframe.cpp" line="233"/>
+        <location filename="zpmainframe.cpp" line="266"/>
         <source>	%1:%2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="236"/>
+        <location filename="zpmainframe.cpp" line="239"/>
         <source>Current Task Threads: %1
 </source>
         <translation>逻辑处理线程: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="237"/>
+        <location filename="zpmainframe.cpp" line="240"/>
         <source>Current Task Payload: %1
 </source>
         <translation>逻辑处理负荷: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="238"/>
+        <location filename="zpmainframe.cpp" line="241"/>
         <source>Current Task Idle Threads: %1
 </source>
         <translation>空闲逻辑处理线程:%1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="242"/>
+        <location filename="zpmainframe.cpp" line="245"/>
         <source>Database Connections: %1
 </source>
         <translation>数据库连接: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="246"/>
+        <location filename="zpmainframe.cpp" line="249"/>
         <source>	%1 status = %2</source>
         <translation>	连接 %1 状态 %2</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="253"/>
+        <location filename="zpmainframe.cpp" line="256"/>
         <source>Cluster Group Paras:
 </source>
         <translation>集群终端参数:
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="254"/>
+        <location filename="zpmainframe.cpp" line="257"/>
         <source>	Terminal %1 : %2, published Address: %3:%4
 </source>
         <translation>	终端 %1 : %2, 发布地址: %3:%4
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="260"/>
+        <location filename="zpmainframe.cpp" line="263"/>
         <source>Trans Threads: %1
 </source>
         <translation>传输线程: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="268"/>
+        <location filename="zpmainframe.cpp" line="271"/>
         <source>	Shift Threads: %1
 </source>
         <translation>	处理线程: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="269"/>
+        <location filename="zpmainframe.cpp" line="272"/>
         <source>	Shift Payload: %1
 </source>
         <translation>	处理线程负荷: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="270"/>
+        <location filename="zpmainframe.cpp" line="273"/>
         <source>	Shift Idle Threads: %1
 </source>
         <translation>	处理线程空闲: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="273"/>
+        <location filename="zpmainframe.cpp" line="276"/>
         <source>Smartlink Function Server Paras:
 </source>
         <translation>Smartlink 功能服务器专有参数:
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="274"/>
+        <location filename="zpmainframe.cpp" line="277"/>
         <source>	User Account Database is : %1
 </source>
         <translation>	用户信息数据库: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="275"/>
+        <location filename="zpmainframe.cpp" line="278"/>
         <source>	Event Database is : %1
 </source>
         <translation>	重要事件数据库: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="276"/>
+        <location filename="zpmainframe.cpp" line="279"/>
         <source>	Local folder for large file is : %1
 </source>
         <translation>	磁盘仓库根路径: %1
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="277"/>
+        <location filename="zpmainframe.cpp" line="280"/>
         <source>	Heart beating Threadhold is : %1
 </source>
         <translation>	心跳保活门限 %1 秒
 </translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="653"/>
+        <location filename="zpmainframe.cpp" line="658"/>
         <source>Name Already Used.</source>
         <translation>名称已经存在.</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="653"/>
+        <location filename="zpmainframe.cpp" line="658"/>
         <source>The listener name has been used.</source>
         <translation>监听器的名称已经被使用了。</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="658"/>
+        <location filename="zpmainframe.cpp" line="663"/>
         <source>Invalid Paraments.</source>
         <translation>无效的参数.</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="658"/>
+        <location filename="zpmainframe.cpp" line="663"/>
         <source>Address must be valid, Port between 1024 to 32767.</source>
         <translation>监听端口需要介于 1024 到 32767之间。</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="704"/>
+        <location filename="zpmainframe.cpp" line="709"/>
         <source>Open Conf file</source>
         <translation>打开配置文件</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="705"/>
+        <location filename="zpmainframe.cpp" line="710"/>
         <source>Ini files(*.ini)</source>
         <translation>Ini文件(*.ini)</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="719"/>
+        <location filename="zpmainframe.cpp" line="724"/>
         <source>Name can&apos;t be empty.</source>
         <translation>名称不能为空.</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="719"/>
+        <location filename="zpmainframe.cpp" line="724"/>
         <source>Database name can not be empty.</source>
         <translation>数据库资源名称不能为空。</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="724"/>
+        <location filename="zpmainframe.cpp" line="729"/>
         <source>Name already exist.</source>
         <translation>名称已经被使用了。</translation>
     </message>
     <message>
-        <location filename="zpmainframe.cpp" line="724"/>
+        <location filename="zpmainframe.cpp" line="729"/>
         <source>Database name already exist.</source>
         <translation>名称已经被使用了。</translation>
     </message>
@@ -1115,7 +1115,7 @@
     </message>
 </context>
 <context>
-    <name>ZPNetwork::zp_net_ThreadPool</name>
+    <name>ZPNetwork::zp_net_Engine</name>
     <message>
         <location filename="network/zp_net_threadpool.cpp" line="117"/>
         <source>This ID has been used.</source>
@@ -1140,6 +1140,34 @@
         <location filename="network/zp_net_threadpool.cpp" line="471"/>
         <source>Need Trans Thread Object for clients.</source>
         <translation>需要一些逻辑处理线程来处理具体的事件。</translation>
+    </message>
+</context>
+<context>
+    <name>ZP_Cluster::zp_ClusterNode</name>
+    <message>
+        <location filename="cluster/zp_clusternode.cpp" line="160"/>
+        <source>Client Send a unknown start Header %1 %2. Close client immediately.</source>
+        <translation>客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
+    </message>
+    <message>
+        <location filename="cluster/zp_clusternode.cpp" line="192"/>
+        <source>Info: New Svr already regisited. Ignored.</source>
+        <translation>Info: 这个节点已经注册过了,忽略请求.</translation>
+    </message>
+    <message>
+        <location filename="cluster/zp_clusternode.cpp" line="200"/>
+        <source>Can not connect to it-self, Loopback connections is forbidden.</source>
+        <translation>请不要连接到自己的服务器节点. 回环连接是不被支持的.</translation>
+    </message>
+    <message>
+        <location filename="cluster/zp_clusternode.cpp" line="235"/>
+        <source>Client </source>
+        <translation>节点 </translation>
+    </message>
+    <message>
+        <location filename="cluster/zp_clusternode.cpp" line="235"/>
+        <source> is dead, kick out.</source>
+        <translation>丢失心跳，终止该节点的连接。</translation>
     </message>
 </context>
 </TS>

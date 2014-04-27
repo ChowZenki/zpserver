@@ -31,15 +31,15 @@ namespace ZP_Cluster{
 		int publishPort(){return m_nPortPublish;}
 		QHostAddress setPublishAddr(QHostAddress addr){return m_addrPublish = addr;}
 		int setPublishPort(int port){return m_nPortPublish = port;}
-		int heartBeatingThrd() {return m_nHeartBeatingDeadThrd;}
-		void setHeartBeatingThrd(const int n){m_nHeartBeatingDeadThrd = n;}
+		int heartBeatingThrdHold() {return m_nHeartBeatingTime;}
+		void setHeartBeatingThrd(const int n){m_nHeartBeatingTime = n;}
 	protected:
 		QString m_strTermName;//the Terminal's name
 		QHostAddress m_addrPublish;	//The publish address for other terms to connect to
 		int m_nPortPublish;//The publish port for other terms to connect to
 		ZPNetwork::zp_net_ThreadPool * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
-		int m_nHeartBeatingDeadThrd;
+		int m_nHeartBeatingTime;
 		//Server Group Mapping
 	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash

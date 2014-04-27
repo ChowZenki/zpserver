@@ -176,7 +176,8 @@ namespace ZP_Cluster{
 	{
 		QDateTime dtm = QDateTime::currentDateTime();
 		qint64 usc = this->m_last_Report.secsTo(dtm);
-		int nThredHold =  m_pTerm->heartBeatingThrd();
+		int nThredHold =  12;
+		nThredHold = m_pTerm->heartBeatingThrdHold();
 		if (usc >= nThredHold)
 		{
 			emit evt_Message(this,tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));

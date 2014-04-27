@@ -16,7 +16,7 @@ namespace ZP_Cluster{
 		connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected);
 		//connect(m_pClusterNet,&ZPNetwork::zp_net_ThreadPool::evt_ClientEncrypted, this,&zp_ClusterTerm::on_evt_ClientEncrypted);
 		m_nPortPublish = 0;
-		m_nHeartBeatingDeadThrd = 20;
+		m_nHeartBeatingTime = 20;
 
 	}
 	void zp_ClusterTerm::StartListen(const QHostAddress &addr, int nPort)

@@ -5,7 +5,10 @@ namespace ZPTaskEngine{
 	{
 		m_nExistingThreads = 0;
 	}
-
+	bool zp_pipeline::canClose()
+	{
+		return m_nExistingThreads==0?true:false;
+	}
 	/**
 	 * @brief Add nThreads to the thread pool
 	 *

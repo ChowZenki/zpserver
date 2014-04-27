@@ -135,7 +135,10 @@ namespace SmartLink{
 	{
 		//then , Start deal to-server messages
 		//Server - deal messages
-		emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+		if (m_currentBlock.length()>=64)
+			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+		else
+			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 		if (m_currentHeader.destin_id==0x00000001)
 		{
 			if (this->m_bLoggedIn==false || this->m_bUUIDRecieved==false)

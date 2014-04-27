@@ -22,26 +22,10 @@ namespace ZPTaskEngine{
 		 * when run() finished, the object will be re-injected into the tail of task-fifo.
 		 */
 		virtual int run() = 0;
-		int addRef()
-		{
-			QMutexLocker locker(&m_mutex_ref);
-			refCount++;
+		int addRef();
+		int delRef();
 
-			return refCount;
-		}
-		int delRef()
-		{
-			QMutexLocker locker(&m_mutex_ref);
-			refCount--;
-
-			return refCount;
-		}
-
-		int ref()
-		{
-			QMutexLocker locker(&m_mutex_ref);
-			return refCount;
-		}
+		int ref();
 
 	private:
 		int refCount;

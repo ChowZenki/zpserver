@@ -12,6 +12,28 @@ namespace ZP_Cluster{
 		m_nPortPublish = 0;
 		m_last_Report = QDateTime::currentDateTime();
 	}
+
+	QDateTime zp_ClusterNode::lastActiveTime()
+	{
+		return m_last_Report;
+	}
+	QString zp_ClusterNode::termName()
+	{
+		return m_strTermName;
+	}
+	QHostAddress zp_ClusterNode::addrPublish()
+	{
+		return m_addrPublish;
+	}
+	int zp_ClusterNode::portPublish()
+	{
+		return m_nPortPublish;
+	}
+	QObject * zp_ClusterNode::sock()
+	{
+		return m_pSock;
+	}
+
 	int zp_ClusterNode::run()
 	{
 		if (bTermSet==true)
@@ -173,6 +195,14 @@ namespace ZP_Cluster{
 	{
 		qint32 bytesLeft = m_currentHeader.data_length + sizeof(CROSS_SVR_MSG::tag_header)
 				-m_currentMessageSize ;
+		if (bytesLeft==0 && m_currentMessageSize>0)
+		{
+			if (m_currentBlock.length()>=64)
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+			else
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+
+		}
 		const CROSS_SVR_MSG * pMsg =(const CROSS_SVR_MSG *) m_currentBlock.constData();
 		switch(m_currentHeader.messagetype)
 		{
@@ -192,8 +222,8 @@ namespace ZP_Cluster{
 						emit evt_Message(this,tr("Info: New Svr already regisited. Ignored."));
 						emit evt_close_client(this->sock());
 					}
-					else
-						m_pTerm->BroadcastServers();
+					//else
+						//m_pTerm->BroadcastServers();
 				}
 				else
 				{
@@ -220,6 +250,8 @@ namespace ZP_Cluster{
 			}
 			break;
 		default:
+			emit evt_Message(this,tr("Info:Unknown Msg Type got."));
+			emit evt_close_client(this->sock());
 			break;
 		};
 
@@ -244,13 +276,16 @@ namespace ZP_Cluster{
 		pMsg->hearder.Mark = 0x1234;
 		pMsg->hearder.data_length = sizeof (CROSS_SVR_MSG::uni_payload::tag_CSM_BasicInfo);
 		pMsg->hearder.messagetype = 0x01;
-		strncpy((char *)pMsg->payload.basicInfo.name,
+		strncpy((char *)(pMsg->payload.basicInfo.name),
 				m_pTerm->name().toStdString().c_str(),
 				sizeof(pMsg->payload.basicInfo.name)-1);
-		strncpy((char *)pMsg->payload.basicInfo.Address,
+		strncpy((char *)(pMsg->payload.basicInfo.Address),
 				m_pTerm->publishAddr().toString().toStdString().c_str(),
 				sizeof(pMsg->payload.basicInfo.Address)-1);
+
 		pMsg->payload.basicInfo.port = m_pTerm->publishPort();
+
+
 		emit evt_SendDataToClient(sock(),array);
 	}
 }

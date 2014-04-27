@@ -24,18 +24,18 @@ namespace SmartLink{
 
 		//Heart beating and healthy
 		void KickDeadClients();
-		int heartBeatingThrd(){return m_nHeartBeatingDeadThrd;}
-		void setHeartBeatingThrd(int h) {m_nHeartBeatingDeadThrd = h;}
+		int heartBeatingThrd();
+		void setHeartBeatingThrd(int h) ;
 
 		//Database and disk resources
-		QString Database_UserAcct(){return m_strDBName_useraccount;}
-		void setDatabase_UserAcct(const QString & s){m_strDBName_useraccount = s;}
-		QString Database_Event(){return m_strDBName_event;}
-		void setDatabase_Event(const QString & s){m_strDBName_event = s;}
-		QString largeFileFolder(){return m_largeFileFolder;}
-		void setLargeFileFolder(const QString & s){m_largeFileFolder = s;}
+		QString Database_UserAcct();
+		void setDatabase_UserAcct(const QString & s);
+		QString Database_Event();
+		void setDatabase_Event(const QString & s);
+		QString largeFileFolder();
+		void setLargeFileFolder(const QString & s);
 
-		ZPDatabase::DatabaseResource * dbRes(){return m_pDatabaseRes;}
+		ZPDatabase::DatabaseResource * dbRes();
 	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash
 		QList<st_clientNode_baseTrans *> m_nodeToBeDel;

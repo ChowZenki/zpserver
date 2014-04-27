@@ -24,19 +24,14 @@ namespace SmartLink{
 		//push new binary data into queue
 		int push_new_data(const  QByteArray &  dtarray);
 
-		quint32 uuid(){return m_uuid;}
-		QObject * sock() {return m_pClientSock;}
-		bool uuidValid(){return m_bUUIDRecieved;}
-		bool bTermSet;
-
-		QDateTime lastActiveTime(){ return m_last_Report;}
-		qint32 bytesLeft()
-		{
-			return m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
-					-m_currentMessageSize ;
-		}
+		quint32 uuid();
+		QObject * sock();
+		bool uuidValid();
+		QDateTime lastActiveTime();
+		qint32 bytesLeft();
 
 		void CheckHeartBeating();
+		bool bTermSet;
 	protected:
 		//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 		//!return bytes Used.
@@ -45,8 +40,8 @@ namespace SmartLink{
 		virtual int deal_current_message_block();
 
 		//judge whether id is valid.
-		bool bIsValidEquipId(quint32 id){return id >=0x00010000 && id <=0x0FFFFFFF;}
-		bool bIsValidUserId(quint32 id){return id >=(unsigned int)0x80000000 && id <=(unsigned int)0xAFFFFFFF;}
+		bool bIsValidEquipId(quint32 id);
+		bool bIsValidUserId(quint32 id);
 
 	protected:
 		//The current Read Offset, from m_list_RawData's beginning

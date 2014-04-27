@@ -20,21 +20,19 @@ namespace ZP_Cluster{
 	public:
 		explicit zp_ClusterTerm(const QString & name,QObject *parent = 0);
 		//cluster status
-		ZPNetwork::zp_net_Engine * netEng() {return m_pClusterNet;}
-		ZPTaskEngine::zp_pipeline * taskEng() {return m_pClusterEng;}
+		ZPNetwork::zp_net_Engine * netEng();
+		ZPTaskEngine::zp_pipeline * taskEng();
 		bool canExit();
 
 		//properties.
-		QString setName(const QString & s){ return m_strTermName = s;}
-		QString name(){return m_strTermName;}
-		QHostAddress publishAddr(){return m_addrPublish;}
-		int publishPort(){return m_nPortPublish;}
-		QHostAddress setPublishAddr(QHostAddress addr){return m_addrPublish = addr;}
-		int setPublishPort(int port){return m_nPortPublish = port;}
-		int heartBeatingThrdHold() {
-			return m_nHeartBeatingTime;
-		}
-		void setHeartBeatingThrd(const int n){m_nHeartBeatingTime = n;}
+		QString setName(const QString & s);
+		QString name();
+		QHostAddress publishAddr();
+		int publishPort();
+		QHostAddress setPublishAddr(QHostAddress addr);
+		int setPublishPort(int port);
+		int heartBeatingThrdHold() ;
+		void setHeartBeatingThrd(const int n);
 		bool regisitNewServer(zp_ClusterNode *);
 		void BroadcastServers();
 		void SendHeartBeatings();
@@ -45,19 +43,17 @@ namespace ZP_Cluster{
 		int m_nPortPublish;//The publish port for other terms to connect to
 		ZPNetwork::zp_net_Engine * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
-
-		//Server Group Mapping
-	public:
-		zp_ClusterNode * SvrNodeFromName(const QString &);
-		zp_ClusterNode * SvrNodeFromSocket(QObject *);
-
-	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash
 		QList<zp_ClusterNode *> m_nodeToBeDel;
 		//important hashes. server name to socket, socket to server name
 		QMutex m_hash_mutex;
 		QMap<QString , zp_ClusterNode *> m_hash_Name2node;
 		QMap<QObject *,zp_ClusterNode *> m_hash_sock2node;
+		//Server Group Mapping
+	public:
+		zp_ClusterNode * SvrNodeFromName(const QString &);
+		zp_ClusterNode * SvrNodeFromSocket(QObject *);
+
 	signals:
 
 		void evt_Message(QObject * ,const QString &);

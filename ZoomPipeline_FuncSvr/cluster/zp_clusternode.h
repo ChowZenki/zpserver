@@ -30,14 +30,14 @@ namespace ZP_Cluster{
 		//!in Trans-Layer, it does nothing.
 		int deal_current_message_block();
 
-		QDateTime lastActiveTime(){ return m_last_Report;}
+		QDateTime lastActiveTime();
 		void CheckHeartBeating();
 
 	public:
-		QString termName(){return m_strTermName;}
-		QHostAddress addrPublish(){return m_addrPublish;}
-		int portPublish() {return m_nPortPublish;}
-		QObject * sock() { return m_pSock;}
+		QString termName();
+		QHostAddress addrPublish();
+		int portPublish() ;
+		QObject * sock() ;
 		//!Messages
 	public:
 		void SendHelloPackage();

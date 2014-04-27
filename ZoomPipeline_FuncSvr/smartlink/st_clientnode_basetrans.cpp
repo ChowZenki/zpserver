@@ -13,6 +13,37 @@ namespace SmartLink{
 		bTermSet = false;
 		m_last_Report = QDateTime::currentDateTime();
 	}
+	quint32 st_clientNode_baseTrans::uuid()
+	{
+		return m_uuid;
+	}
+	QObject * st_clientNode_baseTrans::sock()
+	{
+		return m_pClientSock;
+	}
+	bool st_clientNode_baseTrans::uuidValid()
+	{
+		return m_bUUIDRecieved;
+	}
+	QDateTime st_clientNode_baseTrans::lastActiveTime()
+	{
+		return m_last_Report;
+	}
+	qint32 st_clientNode_baseTrans::bytesLeft()
+	{
+		return m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+				-m_currentMessageSize ;
+	}
+	//judge whether id is valid.
+	bool st_clientNode_baseTrans::bIsValidEquipId(quint32 id)
+	{
+		return id >=0x00010000 && id <=0x0FFFFFFF;
+	}
+	bool st_clientNode_baseTrans::bIsValidUserId(quint32 id)
+	{
+		return id >=(unsigned int)0x80000000 && id <=(unsigned int)0xAFFFFFFF;
+	}
+
 	//The main functional method, will run in thread pool
 	int st_clientNode_baseTrans::run()
 	{

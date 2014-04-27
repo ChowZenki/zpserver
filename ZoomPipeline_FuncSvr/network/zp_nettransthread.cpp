@@ -16,6 +16,23 @@ namespace ZPNetwork{
 		m_bSSLConnection = true;
 		assert(m_nPayLoad>=256 && m_nPayLoad<=16*1024*1024);
 	}
+
+	bool zp_netTransThread::isActive()
+	{
+		return m_bActivated;
+	}
+	bool zp_netTransThread::SSLConnection()
+	{
+		return m_bSSLConnection ;
+	}
+	void zp_netTransThread::SetSSLConnection(bool bssl)
+	{
+		m_bSSLConnection = bssl;
+	}
+	void zp_netTransThread::Deactivate()
+	{
+		m_bActivated = false;
+	}
 	/**
 	 * @brief return a list contains all of online-clients objects.
 	 *

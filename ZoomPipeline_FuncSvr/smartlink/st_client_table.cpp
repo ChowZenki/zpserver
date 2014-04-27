@@ -20,6 +20,47 @@ namespace SmartLink{
 		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
 		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
 	}
+
+	int st_client_table::heartBeatingThrd()
+	{
+		return m_nHeartBeatingDeadThrd;
+	}
+	void st_client_table::setHeartBeatingThrd(int h)
+	{
+		m_nHeartBeatingDeadThrd = h;
+	}
+
+	//Database and disk resources
+	QString st_client_table::Database_UserAcct()
+	{
+		return m_strDBName_useraccount;
+	}
+	void st_client_table::setDatabase_UserAcct(const QString & s)
+	{
+		m_strDBName_useraccount = s;
+	}
+	QString st_client_table::Database_Event()
+	{
+		return m_strDBName_event;
+	}
+	void st_client_table::setDatabase_Event(const QString & s)
+	{
+		m_strDBName_event = s;
+	}
+	QString st_client_table::largeFileFolder()
+	{
+		return m_largeFileFolder;
+	}
+	void st_client_table::setLargeFileFolder(const QString & s)
+	{
+		m_largeFileFolder = s;
+	}
+
+	ZPDatabase::DatabaseResource * st_client_table::dbRes()
+	{
+		return m_pDatabaseRes;
+	}
+
 	st_client_table::~st_client_table()
 	{
 	}

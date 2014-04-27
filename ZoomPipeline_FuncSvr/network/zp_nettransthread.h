@@ -25,11 +25,11 @@ namespace ZPNetwork{
 		QList <QObject *> clientsList();
 		int CurrentClients();
 		void SetPayload(int nPayload);
-		bool isActive(){return m_bActivated;}
+		bool isActive();
 
 		bool CanExit();
-		bool SSLConnection(){return m_bSSLConnection ;}
-		void SetSSLConnection(bool bssl){ m_bSSLConnection = bssl;}
+		bool SSLConnection();
+		void SetSSLConnection(bool bssl);
 
 	private:
 		bool m_bActivated;
@@ -53,7 +53,7 @@ namespace ZPNetwork{
 		//Broadcast dtarray to every client except objFromClient itself
 		void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
 		//Set terminate mark, the thread will quit after last client quit.
-		void Deactivate(){m_bActivated = false;}
+		void Deactivate();
 		//terminate this thread immediately
 		void DeactivateImmediately(zp_netTransThread *);
 		//Kick all clients .

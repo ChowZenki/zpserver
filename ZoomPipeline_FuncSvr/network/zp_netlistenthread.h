@@ -25,7 +25,7 @@ namespace ZPNetwork{
 		bool m_bSSLConn;
 	public:
 		explicit zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL = true,QObject *parent = 0);
-		bool bSSLConn(){return m_bSSLConn;}
+		bool bSSLConn();
 	signals:
 		void evt_Message(QObject *,const QString &);
 		void evt_ListenClosed(const QString &);

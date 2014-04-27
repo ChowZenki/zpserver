@@ -36,7 +36,7 @@ namespace ZPTaskEngine{
 		int payload();
 		int idleThreads();
 
-		bool canClose() {return m_nExistingThreads==0?true:false;}
+		bool canClose() ;
 
 
 

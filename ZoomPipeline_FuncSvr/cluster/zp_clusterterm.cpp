@@ -8,16 +8,56 @@ namespace ZP_Cluster{
 	{
 		m_pClusterEng = new ZPTaskEngine::zp_pipeline(this);
 		m_pClusterNet = new ZPNetwork::zp_net_Engine(8192,this);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Message, this,&zp_ClusterTerm::evt_Message);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_SocketError, this,&zp_ClusterTerm::evt_SocketError);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Data_recieved, this,&zp_ClusterTerm::on_evt_Data_recieved);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Data_transferred, this,&zp_ClusterTerm::on_evt_Data_transferred);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected, this,&zp_ClusterTerm::on_evt_ClientDisconnected);
-		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Message, this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_SocketError, this,&zp_ClusterTerm::evt_SocketError,Qt::QueuedConnection);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Data_recieved, this,&zp_ClusterTerm::on_evt_Data_recieved,Qt::QueuedConnection);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_Data_transferred, this,&zp_ClusterTerm::on_evt_Data_transferred,Qt::QueuedConnection);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected, this,&zp_ClusterTerm::on_evt_ClientDisconnected,Qt::QueuedConnection);
+		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected,Qt::QueuedConnection);
 		//connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientEncrypted, this,&zp_ClusterTerm::on_evt_ClientEncrypted);
 		m_nPortPublish = 0;
 		m_nHeartBeatingTime = 20;
 
+	}
+	int zp_ClusterTerm::publishPort(){
+
+		return m_nPortPublish;
+	}
+	ZPNetwork::zp_net_Engine * zp_ClusterTerm::netEng()
+	{
+		return m_pClusterNet;
+	}
+	ZPTaskEngine::zp_pipeline * zp_ClusterTerm::taskEng()
+	{
+		return m_pClusterEng;
+	}
+	QString zp_ClusterTerm::setName(const QString & s)
+	{
+		return m_strTermName = s;
+	}
+	QString zp_ClusterTerm::name()
+	{
+		return m_strTermName;
+	}
+	QHostAddress zp_ClusterTerm::publishAddr()
+	{
+		return m_addrPublish;
+	}
+	QHostAddress zp_ClusterTerm::setPublishAddr(QHostAddress addr)
+	{
+		return m_addrPublish = addr;
+	}
+	int zp_ClusterTerm::setPublishPort(int port)
+	{
+		return m_nPortPublish = port;
+	}
+	int zp_ClusterTerm::heartBeatingThrdHold()
+	{
+		return m_nHeartBeatingTime;
+	}
+	void zp_ClusterTerm::setHeartBeatingThrd(const int n)
+	{
+		m_nHeartBeatingTime = n;
 	}
 	void zp_ClusterTerm::StartListen(const QHostAddress &addr, int nPort)
 	{
@@ -265,7 +305,6 @@ namespace ZP_Cluster{
 
 	void zp_ClusterTerm::SendHeartBeatings()
 	{
-		//Msgs
 		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header);
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
@@ -273,5 +312,6 @@ namespace ZP_Cluster{
 		pMsg->hearder.data_length = 0;
 		pMsg->hearder.messagetype = 0x00;
 		m_pClusterNet->BroadcastData(0,array);
+		//BroadcastServers();
 	}
 }

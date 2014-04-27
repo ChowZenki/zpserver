@@ -10,6 +10,12 @@ namespace ZPNetwork{
 	{
 
 	}
+
+	bool zp_netListenThread::bSSLConn()
+	{
+		return m_bSSLConn;
+	}
+
 	/**
 	 * @brief The slot recieves startListen command from its parent
 	 * zp_net_Engine object. the Qt's signal-and-slots system

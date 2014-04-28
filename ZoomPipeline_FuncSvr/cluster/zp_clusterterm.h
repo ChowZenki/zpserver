@@ -53,7 +53,9 @@ namespace ZP_Cluster{
 	public:
 		zp_ClusterNode * SvrNodeFromName(const QString &);
 		zp_ClusterNode * SvrNodeFromSocket(QObject *);
-
+		QStringList SvrNames();
+		QHostAddress SvrAddr(const QString & name);
+		int SvrPort(const QString & name);
 	signals:
 
 		void evt_Message(QObject * ,const QString &);

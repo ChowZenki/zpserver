@@ -623,12 +623,9 @@
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_14">
                <item>
-                <widget class="QListView" name="listView_activeTerms">
-                 <property name="movement">
-                  <enum>QListView::Static</enum>
-                 </property>
-                 <property name="viewMode">
-                  <enum>QListView::IconMode</enum>
+                <widget class="QTableView" name="tableView_activeTerms">
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -952,7 +949,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Control">

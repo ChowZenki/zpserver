@@ -41,6 +41,8 @@ protected:
 	//Dead check
 	int m_nTimerCheck;
 
+	QStandardItemModel * m_pModelCluster;
+
 
 
 private:

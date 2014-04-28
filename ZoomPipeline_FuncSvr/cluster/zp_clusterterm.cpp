@@ -72,12 +72,47 @@ namespace ZP_Cluster{
 	{
 		return m_pClusterEng->canClose() && m_pClusterNet->CanExit();
 	}
+	QStringList zp_ClusterTerm::SvrNames()
+	{
+		QStringList lst;
+		m_hash_mutex.lock();
+		QList<QString> keys =  m_hash_Name2node.keys();
+		//Msgs
+		foreach (QString key,keys)
+		{
+			lst.push_back(m_hash_Name2node[key]->termName());
+		}
+		m_hash_mutex.unlock();
+		return lst;
+	}
+	QHostAddress zp_ClusterTerm::SvrAddr(const QString & name)
+	{
+		QHostAddress addr;
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(name))
+			addr = m_hash_Name2node[name]->addrPublish();
+		m_hash_mutex.unlock();
+		return addr;
+	}
+
+	int zp_ClusterTerm::SvrPort(const QString & name)
+	{
+		int port = 0;
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(name))
+			port = m_hash_Name2node[name]->portPublish();
+		m_hash_mutex.unlock();
+		return port;
+	}
 
 	bool zp_ClusterTerm::regisitNewServer(zp_ClusterNode * c)
 	{
 		//Before reg, termname must be recieved.
 		if (c->termName().length()<1)
+		{
+			emit evt_Message(c,tr("Name is empty!")+c->termName());
 			return false;
+		}
 		m_hash_mutex.lock();
 		if (m_hash_Name2node.contains(c->termName())==true)
 		{
@@ -185,16 +220,16 @@ namespace ZP_Cluster{
 			pClientNode =  m_hash_sock2node[clientHandle];
 		if (pClientNode)
 		{
-			m_hash_sock2node.remove(clientHandle);
-			if (pClientNode->termName().length()>0)
-				m_hash_Name2node.remove(pClientNode->termName());
-
-			pClientNode->bTermSet = true;
 			disconnect (pClientNode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient);
 			disconnect (pClientNode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
 			disconnect (pClientNode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients);
 			disconnect (pClientNode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message);
 			disconnect (pClientNode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo);
+			m_hash_sock2node.remove(clientHandle);
+			if (pClientNode->termName().length()>0)
+				m_hash_Name2node.remove(pClientNode->termName());
+
+			pClientNode->bTermSet = true;
 			m_nodeToBeDel.push_back(pClientNode);
 			//qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
 		}

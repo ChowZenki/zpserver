@@ -219,7 +219,7 @@ namespace ZP_Cluster{
 					m_addrPublish = QHostAddress((const char *)pMsg->payload.basicInfo.Address);
 					if (false==m_pTerm->regisitNewServer(this))
 					{
-						emit evt_Message(this,tr("Info: New Svr already regisited. Ignored."));
+						emit evt_Message(this,tr("Info: New Svr already regisited. Ignored.")+strName);
 						emit evt_close_client(this->sock());
 					}
 					//else
@@ -243,8 +243,12 @@ namespace ZP_Cluster{
 					{
 						QHostAddress addrToConnectTo((const char *)pMsg->payload.broadcastMsg[i].Address);
 						quint16 PortToConnectTo = pMsg->payload.broadcastMsg[i].port;
+						//because cross-connection is not good, we just want the low Addr:port connect to max Addr:Port.
 						//Connect to New Servers
-						emit evt_connect_to(addrToConnectTo,PortToConnectTo,false);
+						if (strName > m_pTerm->name())
+							emit evt_connect_to(addrToConnectTo,PortToConnectTo,false);
+						else
+							emit evt_Message(this,tr("Name %1 <= %2, omitted.").arg(strName).arg(m_pTerm->name()));
 					}
 				}
 			}

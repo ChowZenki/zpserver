@@ -140,6 +140,12 @@ void ZPMainFrame::initUI()
 		pCombo->appendRow(new QStandardItem(str));
 	}
 	ui->comboBox_db_type->setModel(pCombo);
+
+	m_pModelCluster= new QStandardItemModel(0,3,this);
+	m_pModelCluster->setHeaderData(0,Qt::Horizontal,tr("Name"));
+	m_pModelCluster->setHeaderData(1,Qt::Horizontal,tr("Address"));
+	m_pModelCluster->setHeaderData(2,Qt::Horizontal,tr("Port"));
+	ui->tableView_activeTerms->setModel(m_pModelCluster);
 }
 
 void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,const QString & strMsg)
@@ -280,6 +286,23 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		str_msg += tr("\tHeart beating Threadhold is : %1\n").arg(m_clientTable->heartBeatingThrd());
 
 		ui->plainTextEdit_status_net->setPlainText(str_msg);
+
+		//The Cluster Info
+		QStringList lstCluster = m_pClusterTerm->SvrNames();
+		m_pModelCluster->removeRows(0,m_pModelCluster->rowCount());
+		int nInserted = 0;
+		foreach (QString strNodeName,lstCluster)
+		{
+			m_pModelCluster->insertRow(nInserted);
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,0),strNodeName);
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,1),m_pClusterTerm->SvrAddr(strNodeName).toString());
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->SvrPort(strNodeName));
+			++nInserted;
+		}
+
+
+
+		nInserted++;
 	}
 	else if (e->timerId()==m_nTimerCheck)
 	{

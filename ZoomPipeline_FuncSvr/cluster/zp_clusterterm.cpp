@@ -300,7 +300,14 @@ namespace ZP_Cluster{
 				this->publishAddr().toString().toStdString().c_str(),
 				sizeof(pMsg->payload.broadcastMsg[ct].Address)-1);
 		pMsg->payload.broadcastMsg[ct].port = this->publishPort();
-		m_pClusterNet->BroadcastData(0,array);
+		m_hash_mutex.lock();
+		QList<QString> sockkeys =  m_hash_Name2node.keys();
+		//Msgs
+		foreach (QString key,sockkeys)
+		{
+			netEng()->SendDataToClient(m_hash_Name2node[key]->sock(),array);
+		}
+		m_hash_mutex.unlock();
 	}
 
 	void zp_ClusterTerm::SendHeartBeatings()
@@ -311,7 +318,16 @@ namespace ZP_Cluster{
 		pMsg->hearder.Mark = 0x1234;
 		pMsg->hearder.data_length = 0;
 		pMsg->hearder.messagetype = 0x00;
-		m_pClusterNet->BroadcastData(0,array);
-		//BroadcastServers();
+		//m_pClusterNet->BroadcastData(0,array);
+
+		m_hash_mutex.lock();
+		QList<QString> keys =  m_hash_Name2node.keys();
+		//Msgs
+		foreach (QString key,keys)
+		{
+			netEng()->SendDataToClient(m_hash_Name2node[key]->sock(),array);
+		}
+		m_hash_mutex.unlock();
+		BroadcastServers();
 	}
 }

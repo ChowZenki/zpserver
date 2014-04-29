@@ -165,6 +165,8 @@ namespace ZP_Cluster{
 			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_NewSvrConnected,this,&zp_ClusterTerm::evt_NewSvrConnected,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_RemoteData_recieved,this,&zp_ClusterTerm::evt_RemoteData_recieved,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
 			pClientNode = pnode;
@@ -195,6 +197,8 @@ namespace ZP_Cluster{
 			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_NewSvrConnected,this,&zp_ClusterTerm::evt_NewSvrConnected,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_RemoteData_recieved,this,&zp_ClusterTerm::evt_RemoteData_recieved,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
 			pClientNode = pnode;
@@ -213,6 +217,7 @@ namespace ZP_Cluster{
 	void  zp_ClusterTerm::on_evt_ClientDisconnected(QObject * clientHandle)
 	{
 		bool nHashContains  = false;
+
 		zp_ClusterNode * pClientNode = 0;
 		m_hash_mutex.lock();
 		nHashContains = m_hash_sock2node.contains(clientHandle);
@@ -220,17 +225,22 @@ namespace ZP_Cluster{
 			pClientNode =  m_hash_sock2node[clientHandle];
 		if (pClientNode)
 		{
+			QString nameCurr = pClientNode->termName();
 			disconnect (pClientNode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient);
 			disconnect (pClientNode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
 			disconnect (pClientNode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients);
 			disconnect (pClientNode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message);
 			disconnect (pClientNode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo);
+			disconnect (pClientNode,&zp_ClusterNode::evt_NewSvrConnected,this,&zp_ClusterTerm::evt_NewSvrConnected);
+			disconnect (pClientNode,&zp_ClusterNode::evt_RemoteData_recieved,this,&zp_ClusterTerm::evt_RemoteData_recieved);
 			m_hash_sock2node.remove(clientHandle);
 			if (pClientNode->termName().length()>0)
 				m_hash_Name2node.remove(pClientNode->termName());
 
 			pClientNode->bTermSet = true;
 			m_nodeToBeDel.push_back(pClientNode);
+			if (nameCurr.length()>0)
+				emit evt_NewSvrDisconnected(nameCurr);
 			//qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
 		}
 		m_hash_mutex.unlock();
@@ -271,6 +281,8 @@ namespace ZP_Cluster{
 			connect (pnode,&zp_ClusterNode::evt_close_client,m_pClusterNet,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_Message,this,&zp_ClusterTerm::evt_Message,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_connect_to,m_pClusterNet,&ZPNetwork::zp_net_Engine::connectTo,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_NewSvrConnected,this,&zp_ClusterTerm::evt_NewSvrConnected,Qt::QueuedConnection);
+			connect (pnode,&zp_ClusterNode::evt_RemoteData_recieved,this,&zp_ClusterTerm::evt_RemoteData_recieved,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
 			pClientNode = pnode;
@@ -296,9 +308,9 @@ namespace ZP_Cluster{
 		m_hash_mutex.unlock();
 	}
 	//a block of data has been successfuly sent
-	void  zp_ClusterTerm::on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/)
+	void  zp_ClusterTerm::on_evt_Data_transferred(QObject *   clientHandle, qint64 bytesent)
 	{
-
+		emit evt_RemoteData_transferred(clientHandle,bytesent);
 	}
 	void zp_ClusterTerm::BroadcastServers()
 	{
@@ -363,6 +375,19 @@ namespace ZP_Cluster{
 			netEng()->SendDataToClient(m_hash_Name2node[key]->sock(),array);
 		}
 		m_hash_mutex.unlock();
-		BroadcastServers();
+	}
+	void zp_ClusterTerm::SendDataToRemoteServer(const QString & svrName,const QByteArray & SourceArray)
+	{
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) +  SourceArray.size();
+		QByteArray array(nMsgLen,0);
+		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
+		pMsg->hearder.Mark = 0x1234;
+		pMsg->hearder.data_length = SourceArray.size();
+		pMsg->hearder.messagetype = 0x03;
+		memcpy (pMsg->payload.data,SourceArray.constData(),SourceArray.size());
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(svrName))
+			netEng()->SendDataToClient(m_hash_Name2node[svrName]->sock(),array);
+		m_hash_mutex.unlock();
 	}
 }

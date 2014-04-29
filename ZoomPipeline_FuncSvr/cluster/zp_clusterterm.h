@@ -61,6 +61,15 @@ namespace ZP_Cluster{
 		void evt_Message(QObject * ,const QString &);
 		//The socket error message
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
+		//this event indicates new svr successfully hand-shaked.
+		void evt_NewSvrConnected(const QString &/*svrHandle*/);
+		//this event indicates a client disconnected.
+		void evt_NewSvrDisconnected(const QString &/*svrHandle*/);
+		//some data arrival
+		void evt_RemoteData_recieved(const QString &/*svrHandle*/,const QByteArray & /*svrHandle*/ );
+		//a block of data has been successfuly sent
+		void evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/);
+
 	protected slots:
 		//this event indicates new client connected.
 		void on_evt_NewClientConnected(QObject * /*clientHandle*/);
@@ -81,6 +90,9 @@ namespace ZP_Cluster{
 		//!an p2p connection will start
 		bool JoinCluster(const QHostAddress &addr, int nPort,bool bSSL=false);
 		void  KickDeadClients();
+
+		//Send Data to Server
+		void SendDataToRemoteServer(const QString & svrName,const QByteArray &);
 
 	};
 }

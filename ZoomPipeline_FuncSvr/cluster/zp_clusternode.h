@@ -72,6 +72,11 @@ namespace ZP_Cluster{
 		void evt_close_client(QObject * objClient);
 		void evt_connect_to(const QHostAddress & address , quint16 nPort,bool bSSLConn);
 		void evt_Message (QObject * psource,const QString &);
+
+		//Notify Messages
+		void evt_NewSvrConnected(const QString & /*svrHandle*/);
+		//some data arrival
+		void evt_RemoteData_recieved(const QString &  /*svrHandle*/,const QByteArray & /*svrHandle*/ );
 	};
 }
 #endif // ZP_CLUSTERNODE_H

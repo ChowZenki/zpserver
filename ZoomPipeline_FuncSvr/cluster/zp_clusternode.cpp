@@ -222,8 +222,11 @@ namespace ZP_Cluster{
 						emit evt_Message(this,tr("Info: New Svr already regisited. Ignored.")+strName);
 						emit evt_close_client(this->sock());
 					}
-					//else
-						//m_pTerm->BroadcastServers();
+					else
+					{
+						emit evt_NewSvrConnected(this->termName());
+						m_pTerm->BroadcastServers();
+					}
 				}
 				else
 				{
@@ -252,6 +255,20 @@ namespace ZP_Cluster{
 					}
 				}
 			}
+			break;
+		case 0x03:
+			if (m_currentMessageSize==m_currentBlock.size())
+			{
+				QByteArray arraySend ((const char *)(pMsg) + sizeof(CROSS_SVR_MSG::tag_header),
+									  m_currentMessageSize - sizeof(CROSS_SVR_MSG::tag_header));
+				emit evt_RemoteData_recieved(this->termName(),arraySend);
+			}
+			else
+			{
+				QByteArray arraySend(m_currentBlock);
+				emit evt_RemoteData_recieved(this->termName(),arraySend);
+			}
+			m_currentBlock = QByteArray();
 			break;
 		default:
 			emit evt_Message(this,tr("Info:Unknown Msg Type got."));

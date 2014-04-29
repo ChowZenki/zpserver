@@ -235,7 +235,12 @@ namespace ZP_Cluster{
 			disconnect (pClientNode,&zp_ClusterNode::evt_RemoteData_recieved,this,&zp_ClusterTerm::evt_RemoteData_recieved);
 			m_hash_sock2node.remove(clientHandle);
 			if (pClientNode->termName().length()>0)
-				m_hash_Name2node.remove(pClientNode->termName());
+			{
+				//This is important. some time m_hash_Name2node and m_hash_sock2node, same uuid has different socket.
+				if (m_hash_Name2node.contains(pClientNode->termName()))
+					if (m_hash_Name2node[pClientNode->termName()]==pClientNode)
+						m_hash_Name2node.remove(pClientNode->termName());
+			}
 
 			pClientNode->bTermSet = true;
 			m_nodeToBeDel.push_back(pClientNode);

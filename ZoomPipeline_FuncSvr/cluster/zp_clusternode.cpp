@@ -195,14 +195,10 @@ namespace ZP_Cluster{
 	{
 		qint32 bytesLeft = m_currentHeader.data_length + sizeof(CROSS_SVR_MSG::tag_header)
 				-m_currentMessageSize ;
-		if (bytesLeft==0 && m_currentMessageSize>0)
-		{
-			if (m_currentBlock.length()>=64)
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-			else
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
-
-		}
+		if (m_currentBlock.length()>=64)
+			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+		else
+			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 		const CROSS_SVR_MSG * pMsg =(const CROSS_SVR_MSG *) m_currentBlock.constData();
 		switch(m_currentHeader.messagetype)
 		{

@@ -9,13 +9,19 @@
 #include "../pipeline/zp_pipeline.h"
 #include "./st_message.h"
 #include "../database/databaseresource.h"
+#include "../cluster/zp_clusterterm.h"
 namespace SmartLink{
 	class st_clientNode_baseTrans;
 	class st_client_table : public QObject
 	{
 		Q_OBJECT
 	public:
-		explicit st_client_table(ZPNetwork::zp_net_Engine * pool, ZPTaskEngine::zp_pipeline * taskeng, ZPDatabase::DatabaseResource *pDb, QObject *parent = 0);
+		explicit st_client_table(
+				ZPNetwork::zp_net_Engine * NetEngine
+				,ZPTaskEngine::zp_pipeline * taskeng
+				,ZPDatabase::DatabaseResource *pDb
+				,ZP_Cluster::zp_ClusterTerm * pCluster
+				,QObject *parent = 0);
 		~st_client_table();
 
 		bool regisitClientUUID(st_clientNode_baseTrans *);
@@ -46,11 +52,13 @@ namespace SmartLink{
 		QMap<QObject *,st_clientNode_baseTrans *> m_hash_sock2node;
 
 		//Concurrent Network frame work
-		ZPNetwork::zp_net_Engine * m_pThreadPool;
+		ZPNetwork::zp_net_Engine * m_pThreadEngine;
 		//The piple-line
 		ZPTaskEngine::zp_pipeline * m_pTaskEngine;
 		//The database pool
 		ZPDatabase::DatabaseResource * m_pDatabaseRes;
+		//The Server Cluster Group
+		ZP_Cluster::zp_ClusterTerm * m_pCluster;
 
 		//The max seconds before dead client be kicked out
 		int m_nHeartBeatingDeadThrd;
@@ -63,7 +71,7 @@ namespace SmartLink{
 	signals:
 		void evt_Message (QObject * psource,const QString &);
 
-	public slots:
+	protected slots:
 		//this event indicates new client connected.
 		void on_evt_NewClientConnected(QObject * /*clientHandle*/);
 		//this event indicates new client encrypted.
@@ -74,6 +82,15 @@ namespace SmartLink{
 		void on_evt_Data_recieved(QObject *  /*clientHandle*/,const QByteArray & /*datablock*/ );
 		//a block of data has been successfuly sent
 		void on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/);
+
+		//this event indicates new svr successfully hand-shaked.
+		void on_evt_NewSvrConnected(const QString &/*svrHandle*/);
+		//this event indicates a client disconnected.
+		void on_evt_NewSvrDisconnected(const QString &/*svrHandle*/);
+		//some data arrival
+		void on_evt_RemoteData_recieved(const QString &/*svrHandle*/,const QByteArray & /*svrHandle*/ );
+		//a block of data has been successfuly sent
+		void on_evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/);
 
 	};
 }

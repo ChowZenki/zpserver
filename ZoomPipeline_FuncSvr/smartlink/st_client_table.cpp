@@ -4,21 +4,29 @@
 #include <functional>
 namespace SmartLink{
 	st_client_table::st_client_table(
-			ZPNetwork::zp_net_Engine * pool,
+			ZPNetwork::zp_net_Engine * NetEngine,
 			ZPTaskEngine::zp_pipeline * taskeng,
 			ZPDatabase::DatabaseResource * pDb,
+			ZP_Cluster::zp_ClusterTerm * pCluster,
 			QObject *parent) :
 		QObject(parent)
-	  ,m_pThreadPool(pool)
+	  ,m_pThreadEngine(NetEngine)
 	  ,m_pTaskEngine(taskeng)
 	  ,m_pDatabaseRes(pDb)
+	  ,m_pCluster(pCluster)
 	{
 		m_nHeartBeatingDeadThrd = 180;
-		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_ClientEncrypted,this,&st_client_table::on_evt_ClientEncrypted,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
-		connect (m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
+		connect (m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
+		connect (m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_ClientEncrypted,this,&st_client_table::on_evt_ClientEncrypted,Qt::QueuedConnection);
+		connect (m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected,this,&st_client_table::on_evt_ClientDisconnected,Qt::QueuedConnection);
+		connect (m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_Data_recieved,this,&st_client_table::on_evt_Data_recieved,Qt::QueuedConnection);
+		connect (m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_Data_transferred,this,&st_client_table::on_evt_Data_transferred,Qt::QueuedConnection);
+
+		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_NewSvrConnected,this,&st_client_table::on_evt_NewSvrConnected,Qt::QueuedConnection);
+		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_NewSvrDisconnected,this,&st_client_table::on_evt_NewSvrDisconnected,Qt::QueuedConnection);
+		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_RemoteData_recieved,this,&st_client_table::on_evt_RemoteData_recieved,Qt::QueuedConnection);
+		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_RemoteData_transferred,this,&st_client_table::on_evt_RemoteData_transferred,Qt::QueuedConnection);
+
 	}
 
 	int st_client_table::heartBeatingThrd()
@@ -120,9 +128,9 @@ namespace SmartLink{
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
@@ -147,9 +155,9 @@ namespace SmartLink{
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
@@ -176,12 +184,17 @@ namespace SmartLink{
 		{
 			m_hash_sock2node.remove(clientHandle);
 			if (pClientNode->uuidValid())
-				m_hash_uuid2node.remove(pClientNode->uuid());
+			{
+				//This is important. some time m_hash_sock2node and m_hash_uuid2node, same uuid has different socket.
+				if (m_hash_uuid2node.contains(pClientNode->uuid()))
+					if (m_hash_uuid2node[pClientNode->uuid()]==pClientNode)
+						m_hash_uuid2node.remove(pClientNode->uuid());
+			}
 
 			pClientNode->bTermSet = true;
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient);
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients);
+			disconnect (pClientNode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient);
+			disconnect (pClientNode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
+			disconnect (pClientNode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients);
 			disconnect (pClientNode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message);
 
 			m_nodeToBeDel.push_back(pClientNode);
@@ -223,9 +236,9 @@ namespace SmartLink{
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
-			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadPool,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadPool,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadPool,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
+			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
 			nHashContains = true;
@@ -248,6 +261,36 @@ namespace SmartLink{
 
 	//a block of data has been successfuly sent
 	void  st_client_table::on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/)
+	{
+
+	}
+
+	//this event indicates new svr successfully hand-shaked.
+	void st_client_table::on_evt_NewSvrConnected(const QString & svrHandle)
+	{
+		const char * pstr = "Hello World!";
+		m_pCluster->SendDataToRemoteServer(svrHandle,QByteArray(pstr));
+		emit evt_Message(this,"Send Svr Msg to "+svrHandle);
+	}
+
+	//this event indicates a client disconnected.
+	void st_client_table::on_evt_NewSvrDisconnected(const QString & svrHandle)
+	{
+		emit evt_Message(this,"Svr DisConnected. " + svrHandle);
+	}
+
+	//some data arrival
+	void st_client_table::on_evt_RemoteData_recieved(const QString & svrHandle,const QByteArray & array )
+	{
+		const char * ptr =  array.constData();
+		QString str;
+		for (int i=0;i<array.size();i++)
+			str.push_back(QChar(ptr[i]));
+		emit evt_Message(this,"Recieved Svr Msg from " + svrHandle +":" +str);
+	}
+
+	//a block of data has been successfuly sent
+	void st_client_table::on_evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/)
 	{
 
 	}

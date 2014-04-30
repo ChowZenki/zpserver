@@ -195,16 +195,17 @@ namespace ZP_Cluster{
 	{
 		qint32 bytesLeft = m_currentHeader.data_length + sizeof(CROSS_SVR_MSG::tag_header)
 				-m_currentMessageSize ;
-		if (m_currentBlock.length()>=64)
-			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-		else
-			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 		const CROSS_SVR_MSG * pMsg =(const CROSS_SVR_MSG *) m_currentBlock.constData();
 		switch(m_currentHeader.messagetype)
 		{
 		case 0x00://Heart Beating
 			break;
 		case 0x01://basicInfo, when connection established, this message should be used
+			if (m_currentBlock.length()>=64)
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+			else
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+
 			if (bytesLeft==0)
 			{
 				QString strName ((const char *)pMsg->payload.basicInfo.name);
@@ -215,6 +216,7 @@ namespace ZP_Cluster{
 					m_addrPublish = QHostAddress((const char *)pMsg->payload.basicInfo.Address);
 					if (false==m_pTerm->regisitNewServer(this))
 					{
+						this->m_strTermName.clear();
 						emit evt_Message(this,tr("Info: New Svr already regisited. Ignored.")+strName);
 						emit evt_close_client(this->sock());
 					}
@@ -232,6 +234,11 @@ namespace ZP_Cluster{
 			}
 			break;
 		case 0x02: //Server - broadcast messages
+			if (m_currentBlock.length()>=64)
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+			else
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+
 			if (bytesLeft==0)
 			{
 				int nSvrs = pMsg->hearder.data_length / sizeof(CROSS_SVR_MSG::uni_payload::tag_CSM_Broadcast);
@@ -253,6 +260,11 @@ namespace ZP_Cluster{
 			}
 			break;
 		case 0x03:
+			if (m_currentBlock.length()>=64)
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+			else
+				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+
 			if (m_currentMessageSize==m_currentBlock.size())
 			{
 				QByteArray arraySend ((const char *)(pMsg) + sizeof(CROSS_SVR_MSG::tag_header),

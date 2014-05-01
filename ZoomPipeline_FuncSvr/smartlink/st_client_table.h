@@ -5,11 +5,13 @@
 #include <QList>
 #include <QMutex>
 #include <QMap>
+#include <hash_map>
 #include "../network/zp_net_threadpool.h"
 #include "../pipeline/zp_pipeline.h"
 #include "./st_message.h"
 #include "../database/databaseresource.h"
 #include "../cluster/zp_clusterterm.h"
+#include "./st_cross_svr_node.h"
 namespace SmartLink{
 	class st_clientNode_baseTrans;
 	class st_client_table : public QObject
@@ -66,6 +68,10 @@ namespace SmartLink{
 		QString m_strDBName_useraccount;
 		QString m_strDBName_event;
 		QString m_largeFileFolder;
+
+		//cluster Nodes Map
+		std::hash_map<quint32,QString> m_hash_remoteClient2SvrName;
+
 
 
 	signals:

@@ -20,18 +20,22 @@ namespace ZP_Cluster{
 		explicit zp_ClusterNode(zp_ClusterTerm * pTerm, QObject * psock,QObject *parent = 0);
 		int run();
 		bool bTermSet;
-		//!deal at most m_nMessageBlockSize messages per deal_message();
-		static const int m_nMessageBlockSize = 8;
 		//push new binary data into queue
 		int push_new_data(const  QByteArray &  dtarray);
+		void CheckHeartBeating();
+
+	protected:
+		//!deal at most m_nMessageBlockSize messages per deal_message();
+		static const int m_nMessageBlockSize = 8;
 		//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 		//!return bytes Used.
 		int filter_message(const QByteArray &, int offset);
 		//!in Trans-Layer, it does nothing.
 		int deal_current_message_block();
+		//!virtual functions, dealing with the user-defined operations.
+		virtual bool deal_user_data(const QByteArray &);
 
 		QDateTime lastActiveTime();
-		void CheckHeartBeating();
 
 	public:
 		QString termName();

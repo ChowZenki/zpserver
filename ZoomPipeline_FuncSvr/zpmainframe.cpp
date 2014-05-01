@@ -20,7 +20,6 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 {
 	m_currentConffile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
-
 	//Create net engine
 	m_netEngine = new zp_net_Engine (8192);
 	connect (m_netEngine,&zp_net_Engine::evt_Message,this,&ZPMainFrame::on_evt_MessageNetwork);
@@ -141,6 +140,7 @@ void ZPMainFrame::initUI()
 		pCombo->appendRow(new QStandardItem(str));
 	}
 	ui->comboBox_db_type->setModel(pCombo);
+
 
 	m_pModelCluster= new QStandardItemModel(0,3,this);
 	m_pModelCluster->setHeaderData(0,Qt::Horizontal,tr("Name"));
@@ -290,7 +290,8 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 
 		//The Cluster Info
 		QStringList lstCluster = m_pClusterTerm->SvrNames();
-		m_pModelCluster->removeRows(0,m_pModelCluster->rowCount());
+		if (m_pModelCluster->rowCount()>0)
+			m_pModelCluster->removeRows(0,m_pModelCluster->rowCount());
 		int nInserted = 0;
 		foreach (QString strNodeName,lstCluster)
 		{
@@ -300,10 +301,6 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 			m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->SvrPort(strNodeName));
 			++nInserted;
 		}
-
-
-
-		nInserted++;
 	}
 	else if (e->timerId()==m_nTimerCheck)
 	{

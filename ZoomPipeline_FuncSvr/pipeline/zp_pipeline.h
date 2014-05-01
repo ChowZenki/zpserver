@@ -5,7 +5,6 @@
 #include <QVector>
 #include <QMutex>
 #include <list>
-#include <functional>
 #include <QThread>
 #include "zp_plworkingthread.h"
 #include "zp_pltaskbase.h"

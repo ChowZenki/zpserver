@@ -2,6 +2,7 @@
 #include "zp_clusternode.h"
 #include <assert.h>
 namespace ZP_Cluster{
+	using namespace std::placeholders;
 	zp_ClusterTerm::zp_ClusterTerm(const QString & name,QObject *parent ) :
 		QObject(parent)
 	  ,m_strTermName(name)
@@ -17,8 +18,42 @@ namespace ZP_Cluster{
 		//connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientEncrypted, this,&zp_ClusterTerm::on_evt_ClientEncrypted);
 		m_nPortPublish = 0;
 		m_nHeartBeatingTime = 20;
-
+		m_factory = std::bind(&zp_ClusterTerm::default_factory,this,_1,_2,_3);
 	}
+
+	/**
+	 * @brief The factory enables user-defined sub-classes inherits from zp_ClusterNode
+	 * Using SetNodeFactory , set your own allocate method.
+	 * @fn zp_ClusterTerm::default_factory the default factory function. just return zp_ClusterTerm *
+	 * @param pTerm Term object
+	 * @param psock Sock Object
+	 * @param parent Parent
+	 * @return zp_ClusterNode *
+	 */
+	zp_ClusterNode * zp_ClusterTerm::default_factory(
+					zp_ClusterTerm * pTerm,
+					QObject * psock,
+					QObject * parent)
+	{
+		return new zp_ClusterNode(pTerm,psock,parent);
+	}
+
+	/**
+	 * @brief Using SetNodeFactory , set your own allocate method.
+	 *
+	 * @fn zp_ClusterTerm::SetNodeFactory
+	 * @param fac The functor
+	 */
+	void  zp_ClusterTerm::SetNodeFactory(std::function<
+						zp_ClusterNode * (
+							zp_ClusterTerm * /*pTerm*/,
+							QObject * /*psock*/,
+							QObject * /*parent*/)> fac
+						)
+	{
+		m_factory = fac;
+	}
+
 	int zp_ClusterTerm::publishPort(){
 
 		return m_nPortPublish;
@@ -158,7 +193,7 @@ namespace ZP_Cluster{
 		nHashContains = m_hash_sock2node.contains(clientHandle);
 		if (false==nHashContains)
 		{
-			zp_ClusterNode * pnode = new zp_ClusterNode(this,clientHandle,0);
+			zp_ClusterNode * pnode = m_factory(this,clientHandle,0);
 			//using queued connection of send and revieve;
 			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
@@ -190,7 +225,7 @@ namespace ZP_Cluster{
 		nHashContains = m_hash_sock2node.contains(clientHandle);
 		if (false==nHashContains)
 		{
-			zp_ClusterNode * pnode = new zp_ClusterNode(this,clientHandle,0);
+			zp_ClusterNode * pnode = m_factory(this,clientHandle,0);
 			//using queued connection of send and revieve;
 			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
@@ -279,7 +314,7 @@ namespace ZP_Cluster{
 		nHashContains = m_hash_sock2node.contains(clientHandle);
 		if (false==nHashContains)
 		{
-			zp_ClusterNode * pnode = new zp_ClusterNode(this,clientHandle,0);
+			zp_ClusterNode * pnode = m_factory(this,clientHandle,0);
 			//using queued connection of send and revieve;
 			connect (pnode,&zp_ClusterNode::evt_SendDataToClient,m_pClusterNet,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
 			connect (pnode,&zp_ClusterNode::evt_BroadcastData,m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);

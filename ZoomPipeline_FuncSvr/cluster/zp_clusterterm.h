@@ -9,7 +9,7 @@
 #include "../network/zp_net_threadpool.h"
 #include "../pipeline/zp_pipeline.h"
 #include "../pipeline/zp_pltaskbase.h"
-
+#include <functional>
 namespace ZP_Cluster{
 	class zp_ClusterNode;
 	//!this class enable server processes can
@@ -19,6 +19,19 @@ namespace ZP_Cluster{
 		Q_OBJECT
 	public:
 		explicit zp_ClusterTerm(const QString & name,QObject *parent = 0);
+
+
+		/**
+		 * The factory enables user-defined sub-classes inherits from zp_ClusterNode
+		 * Using SetNodeFactory , set your own allocate method.
+		 */
+		void SetNodeFactory(std::function<
+							zp_ClusterNode * (
+								zp_ClusterTerm * /*pTerm*/,
+								QObject * /*psock*/,
+								QObject * /*parent*/)>
+							);
+
 		//cluster status
 		ZPNetwork::zp_net_Engine * netEng();
 		ZPTaskEngine::zp_pipeline * taskEng();
@@ -37,6 +50,16 @@ namespace ZP_Cluster{
 		void BroadcastServers();
 		void SendHeartBeatings();
 	protected:
+		std::function<zp_ClusterNode * (
+				zp_ClusterTerm * /*pTerm*/,
+				QObject * /*psock*/,
+				QObject * /*parent*/)> m_factory;
+		zp_ClusterNode * default_factory(
+						zp_ClusterTerm * /*pTerm*/,
+						QObject * /*psock*/,
+						QObject * /*parent*/);
+	protected:
+
 		int m_nHeartBeatingTime;
 		QString m_strTermName;//the Terminal's name
 		QHostAddress m_addrPublish;	//The publish address for other terms to connect to

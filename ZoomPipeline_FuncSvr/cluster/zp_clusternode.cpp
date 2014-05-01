@@ -269,14 +269,14 @@ namespace ZP_Cluster{
 			{
 				QByteArray arraySend ((const char *)(pMsg) + sizeof(CROSS_SVR_MSG::tag_header),
 									  m_currentMessageSize - sizeof(CROSS_SVR_MSG::tag_header));
-				emit evt_RemoteData_recieved(this->termName(),arraySend);
+				if (deal_user_data(arraySend)==true)
+					m_currentBlock = QByteArray();
 			}
 			else
 			{
-				QByteArray arraySend(m_currentBlock);
-				emit evt_RemoteData_recieved(this->termName(),arraySend);
+				if (deal_user_data(m_currentBlock)==true)
+					m_currentBlock = QByteArray();
 			}
-			m_currentBlock = QByteArray();
 			break;
 		default:
 			emit evt_Message(this,tr("Info:Unknown Msg Type got."));
@@ -286,6 +286,13 @@ namespace ZP_Cluster{
 
 		return 0;
 	}
+
+	bool zp_ClusterNode::deal_user_data(const QByteArray & data)
+	{
+		emit evt_RemoteData_recieved(this->termName(),data);
+		return true;
+	}
+
 	void zp_ClusterNode::CheckHeartBeating()
 	{
 		QDateTime dtm = QDateTime::currentDateTime();

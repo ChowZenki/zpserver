@@ -1,7 +1,6 @@
 #include "st_client_table.h"
 #include "st_clientnode_applayer.h"
 #include <assert.h>
-#include <functional>
 namespace SmartLink{
 	st_client_table::st_client_table(
 			ZPNetwork::zp_net_Engine * NetEngine,
@@ -26,6 +25,7 @@ namespace SmartLink{
 		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_NewSvrDisconnected,this,&st_client_table::on_evt_NewSvrDisconnected,Qt::QueuedConnection);
 		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_RemoteData_recieved,this,&st_client_table::on_evt_RemoteData_recieved,Qt::QueuedConnection);
 		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_RemoteData_transferred,this,&st_client_table::on_evt_RemoteData_transferred,Qt::QueuedConnection);
+		Reg_st_cross_svr_node(m_pCluster);
 
 	}
 
@@ -282,11 +282,7 @@ namespace SmartLink{
 	//some data arrival
 	void st_client_table::on_evt_RemoteData_recieved(const QString & svrHandle,const QByteArray & array )
 	{
-		const char * ptr =  array.constData();
-		QString str;
-		for (int i=0;i<array.size();i++)
-			str.push_back(QChar(ptr[i]));
-		emit evt_Message(this,"Recieved Svr Msg from " + svrHandle +":" +str);
+		emit evt_Message(this,tr("Recieved %1 bytes Msg from ").arg(array.length()) + svrHandle);
 	}
 
 	//a block of data has been successfuly sent

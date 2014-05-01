@@ -54,7 +54,7 @@ namespace ZP_Cluster{
 	} CROSS_SVR_MSG;
 
 #endif
-
+#pragma pack(pop)
 }
 
 #endif // CROSS_SVR_MESSAGES_H

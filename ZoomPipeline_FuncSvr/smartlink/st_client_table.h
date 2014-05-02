@@ -45,6 +45,14 @@ namespace SmartLink{
 		void setLargeFileFolder(const QString & s);
 
 		ZPDatabase::DatabaseResource * dbRes();
+
+		//reg new uuids in m_hash_remoteClient2SvrName
+		void cross_svr_add_uuids(const QString & svrname,quint32 * pUUIDs, int nUUIDs);
+		//del uuids in m_hash_remoteClient2SvrName, pUUIDs =0 means del all uuids belong to svrname
+		void cross_svr_del_uuids(const QString & svrname,quint32 * pUUIDs , int nUUIDs);
+		//Tell remote servers of uuid-change
+		void broadcast_client_uuid(quint32 uuid, bool bActive);
+
 	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash
 		QList<st_clientNode_baseTrans *> m_nodeToBeDel;
@@ -72,6 +80,7 @@ namespace SmartLink{
 
 		//cluster Nodes Map
 		std::unordered_map<quint32,QString> m_hash_remoteClient2SvrName;
+		QMutex m_mutex_cross_svr_map;
 		//Cluster Node Factory
 		ZP_Cluster::zp_ClusterNode * cross_svr_node_factory(
 				ZP_Cluster::zp_ClusterTerm * /*pTerm*/,

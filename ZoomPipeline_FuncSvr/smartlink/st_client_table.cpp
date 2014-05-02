@@ -2,7 +2,9 @@
 #include "st_clientnode_applayer.h"
 #include <assert.h>
 #include "st_cross_svr_node.h"
+#include "st_cross_svr_msg.h"
 #include <functional>
+#include <QList>
 namespace SmartLink{
 	using namespace std::placeholders;
 	st_client_table::st_client_table(
@@ -95,6 +97,7 @@ namespace SmartLink{
 		m_hash_mutex.lock();
 		m_hash_uuid2node[c->uuid()] = c;
 		m_hash_mutex.unlock();
+		broadcast_client_uuid(c->uuid(),true);
 		return true;
 	}
 
@@ -194,7 +197,10 @@ namespace SmartLink{
 				//This is important. some time m_hash_sock2node and m_hash_uuid2node, same uuid has different socket.
 				if (m_hash_uuid2node.contains(pClientNode->uuid()))
 					if (m_hash_uuid2node[pClientNode->uuid()]==pClientNode)
+					{
 						m_hash_uuid2node.remove(pClientNode->uuid());
+						broadcast_client_uuid(pClientNode->uuid(),false);
+					}
 			}
 
 			pClientNode->bTermSet = true;
@@ -274,14 +280,50 @@ namespace SmartLink{
 	//this event indicates new svr successfully hand-shaked.
 	void st_client_table::on_evt_NewSvrConnected(const QString & svrHandle)
 	{
-		const char * pstr = "Hello World!";
-		m_pCluster->SendDataToRemoteServer(svrHandle,QByteArray(pstr));
-		emit evt_Message(this,"Send Svr Msg to "+svrHandle);
+		//Send All Client UUIDs to new Svr
+		m_hash_mutex.lock();
+		QList<quint32> uuids = m_hash_uuid2node.keys();
+		int nNodeSz = uuids.size();
+		if (nNodeSz>0)
+		{
+			int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder) +  nNodeSz * sizeof(quint32);
+			QByteArray array(nMsgLen,0);
+			STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) array.data();
+			pMsg->header.Mark = 0x4567;
+			pMsg->header.version = 1;
+			pMsg->header.messageLen = nNodeSz * sizeof(quint32);
+			pMsg->header.mesageType = 0x01;
+			int ct = -1;
+			foreach (quint32 uuid,uuids)
+				pMsg->payload.uuids[++ct] = uuid;
+			m_pCluster->SendDataToRemoteServer(svrHandle,array);
+		}
+		m_hash_mutex.unlock();
+		emit evt_Message(this,tr("Send Initial UUIDs to Remote Svr:") + svrHandle);
+	}
+	void st_client_table::broadcast_client_uuid(quint32 uuid, bool bActive)
+	{
+		QStringList svrs = m_pCluster->SvrNames();
+		if (svrs.empty()==false)
+		{
+			int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder) +  sizeof(quint32);
+			QByteArray array(nMsgLen,0);
+			STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) array.data();
+			pMsg->header.Mark = 0x4567;
+			pMsg->header.version = 1;
+			pMsg->header.messageLen = sizeof(quint32);
+			pMsg->header.mesageType = bActive==true?0x01:0x02;
+			pMsg->payload.uuids[0] = uuid;
+			foreach (QString svr,svrs)
+				m_pCluster->SendDataToRemoteServer(svr,array);
+		}
 	}
 
 	//this event indicates a client disconnected.
 	void st_client_table::on_evt_NewSvrDisconnected(const QString & svrHandle)
 	{
+		//remove all client-maps belongs to this server.
+		this->cross_svr_del_uuids(svrHandle,NULL,0);
 		emit evt_Message(this,"Svr DisConnected. " + svrHandle);
 	}
 
@@ -304,6 +346,43 @@ namespace SmartLink{
 		st_cross_svr_node * pNode = new st_cross_svr_node(pTerm,psock,parent);
 		pNode->setClientTable(this);
 		return pNode;
+	}
+	//reg new uuids in m_hash_remoteClient2SvrName
+	void st_client_table::cross_svr_add_uuids(const QString & svrname,quint32 * pUUIDs, int nUUIDs)
+	{
+		m_mutex_cross_svr_map.lock();
+		for (int i=0;i<nUUIDs;i++)
+			m_hash_remoteClient2SvrName[pUUIDs[i]] = svrname;
+		m_mutex_cross_svr_map.unlock();
+		emit evt_Message(this,tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
+	}
+
+	//del uuids in m_hash_remoteClient2SvrName, pUUIDs =0 means del all uuids belong to svrname
+	void st_client_table::cross_svr_del_uuids(const QString & svrname,quint32 * pUUIDs , int nUUIDs)
+	{
+		m_mutex_cross_svr_map.lock();
+		if (pUUIDs==NULL)
+		{
+			QList<quint32> keys;
+			for(std::unordered_map<quint32,QString>::iterator p =
+				m_hash_remoteClient2SvrName.begin();
+				p!=m_hash_remoteClient2SvrName.end();p++)
+			{
+				if ((*p).second == svrname )
+					keys.push_back((*p).first);
+			}
+			foreach (quint32 key, keys)
+			{
+				m_hash_remoteClient2SvrName.erase(key);
+			}
+		}
+		else
+		{
+			for (int i=0;i<nUUIDs;i++)
+				m_hash_remoteClient2SvrName.erase(pUUIDs[i]);
+		}
+		m_mutex_cross_svr_map.unlock();
+		emit evt_Message(this,tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
 	}
 }
 

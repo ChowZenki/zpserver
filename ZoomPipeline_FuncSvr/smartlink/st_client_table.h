@@ -52,6 +52,10 @@ namespace SmartLink{
 		void cross_svr_del_uuids(const QString & svrname,quint32 * pUUIDs , int nUUIDs);
 		//Tell remote servers of uuid-change
 		void broadcast_client_uuid(quint32 uuid, bool bActive);
+		//Trans user Data
+		void cross_svr_send_data(const QString & svrname,const QByteArray & arr);
+		//Server Name find
+		QString cross_svr_find_uuid(quint32 uuid);
 
 	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash

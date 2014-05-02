@@ -18,7 +18,7 @@ namespace SmartLink{
 	protected:
 		st_client_table * m_pClientTable;
 		//Current Message Offset, according to m_currentHeader
-		int m_currStMegSize;
+		quint32 m_currStMegSize;
 		//Current un-procssed message block.for large blocks,
 		//this array will be re-setted as soon as some part of data has been
 		//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces

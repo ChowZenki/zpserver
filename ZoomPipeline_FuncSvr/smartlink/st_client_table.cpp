@@ -384,5 +384,27 @@ namespace SmartLink{
 		m_mutex_cross_svr_map.unlock();
 		emit evt_Message(this,tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
 	}
+	void st_client_table::cross_svr_send_data(const QString & svrname,const QByteArray & arr)
+	{
+		int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder);
+		QByteArray array(nMsgLen,0);
+		STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) array.data();
+		pMsg->header.Mark = 0x4567;
+		pMsg->header.version = 1;
+		pMsg->header.messageLen = arr.size();
+		pMsg->header.mesageType = 0x03;
+		array.append(arr);
+		m_pCluster->SendDataToRemoteServer(svrname,array);
+	}
+
+	QString  st_client_table::cross_svr_find_uuid(quint32 uuid)
+	{
+		QString svr = "";
+		m_mutex_cross_svr_map.lock();
+		if (m_hash_remoteClient2SvrName.find(uuid)!=m_hash_remoteClient2SvrName.end())
+			svr = m_hash_remoteClient2SvrName[uuid];
+		m_mutex_cross_svr_map.unlock();
+		return svr;
+	}
 }
 

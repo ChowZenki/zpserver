@@ -209,12 +209,14 @@ namespace SmartLink{
 			st_clientNode_baseTrans * destin_node = m_pClientTable->clientNodeFromUUID(m_currentHeader.destin_id);
 			if (destin_node==NULL)
 			{
-				//need further dev, insert into db, or catched on disk.
-				//destin client is un-reachable, or in another function server.
 				//need server-to-server channels to re-post this message.
-				emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
+				QString svr = m_pClientTable->cross_svr_find_uuid(m_currentHeader.destin_id);
+				if (svr.length()<=0)
+					emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
+				else
+					m_pClientTable->cross_svr_send_data(svr,m_currentBlock);
 
-				//Do Nothing
+
 			}
 			else
 			{

@@ -5,7 +5,7 @@
 #include <QList>
 #include <QMutex>
 #include <QMap>
-#include <hash_map>
+#include <unordered_map>
 #include "../network/zp_net_threadpool.h"
 #include "../pipeline/zp_pipeline.h"
 #include "./st_message.h"
@@ -25,6 +25,7 @@ namespace SmartLink{
 				,ZP_Cluster::zp_ClusterTerm * pCluster
 				,QObject *parent = 0);
 		~st_client_table();
+
 
 		bool regisitClientUUID(st_clientNode_baseTrans *);
 		st_clientNode_baseTrans * clientNodeFromUUID(quint32);
@@ -70,8 +71,12 @@ namespace SmartLink{
 		QString m_largeFileFolder;
 
 		//cluster Nodes Map
-		std::hash_map<quint32,QString> m_hash_remoteClient2SvrName;
-
+		std::unordered_map<quint32,QString> m_hash_remoteClient2SvrName;
+		//Cluster Node Factory
+		ZP_Cluster::zp_ClusterNode * cross_svr_node_factory(
+				ZP_Cluster::zp_ClusterTerm * /*pTerm*/,
+				QObject * /*psock*/,
+				QObject * /*parent*/);
 
 
 	signals:

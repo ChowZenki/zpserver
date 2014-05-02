@@ -1,7 +1,10 @@
 #include "st_client_table.h"
 #include "st_clientnode_applayer.h"
 #include <assert.h>
+#include "st_cross_svr_node.h"
+#include <functional>
 namespace SmartLink{
+	using namespace std::placeholders;
 	st_client_table::st_client_table(
 			ZPNetwork::zp_net_Engine * NetEngine,
 			ZPTaskEngine::zp_pipeline * taskeng,
@@ -25,8 +28,11 @@ namespace SmartLink{
 		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_NewSvrDisconnected,this,&st_client_table::on_evt_NewSvrDisconnected,Qt::QueuedConnection);
 		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_RemoteData_recieved,this,&st_client_table::on_evt_RemoteData_recieved,Qt::QueuedConnection);
 		connect (m_pCluster,&ZP_Cluster::zp_ClusterTerm::evt_RemoteData_transferred,this,&st_client_table::on_evt_RemoteData_transferred,Qt::QueuedConnection);
-		Reg_st_cross_svr_node(m_pCluster);
-
+		m_pCluster->SetNodeFactory(
+					std::bind(&st_client_table::cross_svr_node_factory,
+							  this,
+							  _1,_2,_3)
+					);
 	}
 
 	int st_client_table::heartBeatingThrd()
@@ -290,6 +296,14 @@ namespace SmartLink{
 	{
 
 	}
-
+	ZP_Cluster::zp_ClusterNode * st_client_table::cross_svr_node_factory(
+			ZP_Cluster::zp_ClusterTerm * pTerm,
+			QObject * psock,
+			QObject * parent)
+	{
+		st_cross_svr_node * pNode = new st_cross_svr_node(pTerm,psock,parent);
+		pNode->setClientTable(this);
+		return pNode;
+	}
 }
 

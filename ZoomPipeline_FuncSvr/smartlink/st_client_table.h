@@ -30,7 +30,7 @@ namespace SmartLink{
 		bool regisitClientUUID(st_clientNode_baseTrans *);
 		st_clientNode_baseTrans * clientNodeFromUUID(quint32);
 		st_clientNode_baseTrans * clientNodeFromSocket(QObject *);
-
+		bool SendToNode(quint32 uuid, const QByteArray & msg);
 		//Heart beating and healthy
 		void KickDeadClients();
 		int heartBeatingThrd();

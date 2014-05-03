@@ -1,12 +1,14 @@
 #include "st_cross_svr_node.h"
 #include "../cluster/zp_clusterterm.h"
 #include "st_client_table.h"
+#include "st_message.h"
 namespace SmartLink{
 
 	st_cross_svr_node::st_cross_svr_node(ZP_Cluster::zp_ClusterTerm * pTerm, QObject * psock,QObject *parent)
 		:ZP_Cluster::zp_ClusterNode(pTerm,psock,parent)
 	{
 		m_currStMegSize = 0;
+		m_destin_uuid = 0xffffffff;
 	}
 	int st_cross_svr_node::st_bytesLeft()
 	{
@@ -47,6 +49,7 @@ namespace SmartLink{
 			{
 				m_currStMegSize = 0;
 				m_currStBlock.clear();
+				m_destin_uuid = 0xffffffff;
 			}
 		}
 		return ZP_Cluster::zp_ClusterNode::deal_user_data(array);
@@ -75,6 +78,25 @@ namespace SmartLink{
 		}
 			break;
 		case 0x03: // data transfer
+		{
+			if (m_destin_uuid == 0xffffffff)
+			{
+				if (m_currStMegSize >= sizeof(STCROSSSVR_MSG::tag_msgHearder)+ sizeof(SMARTLINK_MSG)-1)
+				{
+					STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) m_currStBlock.constData();
+					SMARTLINK_MSG * pSmMsg = (SMARTLINK_MSG *) pMsg->payload.data;
+					m_destin_uuid = pSmMsg->destin_id;
+				}
+			}
+			if (m_destin_uuid == 0xffffffff)
+				return false;
+			//Transfer
+			if (false==m_pClientTable->SendToNode(this->m_destin_uuid , m_currStBlock))
+			{
+
+			}
+
+		}
 			delCurrBlock = true;
 			break;
 		default:

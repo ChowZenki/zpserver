@@ -318,6 +318,24 @@ namespace SmartLink{
 				m_pCluster->SendDataToRemoteServer(svr,array);
 		}
 	}
+	bool st_client_table::SendToNode(quint32 uuid, const QByteArray & msg)
+	{
+		bool bres = false;
+		m_hash_mutex.lock();
+		if (m_hash_uuid2node.contains(uuid))
+		{
+			st_clientNode_baseTrans * pAppLayer = qobject_cast<st_clientNode_baseTrans *>(m_hash_uuid2node[uuid]);
+			if (pAppLayer)
+			{
+				this->m_pThreadEngine->SendDataToClient(pAppLayer->sock(),msg);
+				bres = true;
+			}
+			m_hash_mutex.unlock();
+
+		}
+		m_hash_mutex.unlock();
+		return bres;
+	}
 
 	//this event indicates a client disconnected.
 	void st_client_table::on_evt_NewSvrDisconnected(const QString & svrHandle)

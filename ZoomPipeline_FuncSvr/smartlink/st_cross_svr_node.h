@@ -25,6 +25,7 @@ namespace SmartLink{
 		QByteArray m_currStBlock;
 		//current Header
 		STCROSSSVR_MSG::tag_msgHearder m_st_Header;
+		quint32 m_destin_uuid;
 	};
 }
 #endif // ST_CROSS_SVR_NODE_H

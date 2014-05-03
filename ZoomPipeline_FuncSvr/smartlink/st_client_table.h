@@ -30,7 +30,6 @@ namespace SmartLink{
 		bool regisitClientUUID(st_clientNode_baseTrans *);
 		st_clientNode_baseTrans * clientNodeFromUUID(quint32);
 		st_clientNode_baseTrans * clientNodeFromSocket(QObject *);
-		bool SendToNode(quint32 uuid, const QByteArray & msg);
 		//Heart beating and healthy
 		void KickDeadClients();
 		int heartBeatingThrd();
@@ -115,6 +114,9 @@ namespace SmartLink{
 		void on_evt_RemoteData_recieved(const QString &/*svrHandle*/,const QByteArray & /*svrHandle*/ );
 		//a block of data has been successfuly sent
 		void on_evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/);
+
+		//send msg to uuid
+		bool SendToNode(quint32 uuid, const QByteArray & msg);
 
 	};
 }

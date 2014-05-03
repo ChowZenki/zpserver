@@ -71,6 +71,7 @@ public slots:
 	void on_pushButton_box_download_uid_clicked();
 	void on_pushButton_client_downHost_clicked();
 	void on_pushButton_clientLogout_clicked();
+	void on_pushButton_sendToClient_clicked();
 
 };
 

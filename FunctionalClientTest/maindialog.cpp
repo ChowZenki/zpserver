@@ -645,7 +645,9 @@ int MainDialog::deal_current_message_block()
 	if (bytesLeft)
 		return 0;
 
-	char * ptr = m_currentBlock.data();
+
+	const char * ptr = m_currentBlock.constData();
+
 	SMARTLINK_MSG_APP * pApp = (SMARTLINK_MSG_APP *)(((unsigned char *)
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
@@ -763,8 +765,57 @@ int MainDialog::deal_current_message_block()
 		else
 			QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
 	}
+	else
+	{
+		QString str;
+		int nLen =  m_currentHeader.data_length;
+		for (int i=0;i<nLen;i++)
+		{
+			str += ptr[i+ sizeof(SMARTLINK_MSG) - 1];
+		}
+		ui->plainTextEdit_msg_recieved->setPlainText(str);
+
+	}
 	m_currentBlock = QByteArray();
 
 
 	return 0;
+}
+
+void MainDialog::on_pushButton_sendToClient_clicked()
+{
+	if (client->isOpen()==false)
+	{
+		QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+		return;
+	}
+	if (m_bLogedIn==false)
+	{
+		QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
+		return;
+	}
+	saveIni();
+	QString strMsg = ui->plainTextEdit_msg_to_client->toPlainText();
+	QByteArray arrMsg(strMsg.toStdString().c_str());
+	QByteArray array(sizeof(SMARTLINK_MSG) - 1,0);
+	char * ptr = array.data();
+	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+
+	pMsg->Mark = 0x55AA;
+	pMsg->version = 1;
+	pMsg->SerialNum = 0;
+	pMsg->Priority = 1;
+	pMsg->Reserved1 = 0;
+
+	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
+
+	pMsg->destin_id = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
+
+	pMsg->data_length = arrMsg.size();
+	pMsg->Reserved2 = 0;
+
+	array.append(arrMsg);
+
+	//3/10 possibility to send a data block to server
+	client->SendData(array);
 }

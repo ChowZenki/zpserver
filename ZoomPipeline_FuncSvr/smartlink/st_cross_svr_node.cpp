@@ -90,11 +90,12 @@ namespace SmartLink{
 			}
 			if (m_destin_uuid == 0xffffffff)
 				return false;
-			//Transfer
-			if (false==m_pClientTable->SendToNode(this->m_destin_uuid , m_currStBlock))
-			{
+			//Send to Client
+//			//Transfer
+//			if (false==m_pClientTable->SendToNode(this->m_destin_uuid , m_currStBlock))
+//			{
 
-			}
+//			}
 
 		}
 			delCurrBlock = true;

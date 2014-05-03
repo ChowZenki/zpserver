@@ -29,6 +29,7 @@ private:
 	void saveIni();
 
 	bool m_bLogedIn;
+	bool m_bBox;
 	bool m_bUUIDGot ;
 
 	//!Message Dealers

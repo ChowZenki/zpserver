@@ -14,6 +14,7 @@ MainDialog::MainDialog(QWidget *parent) :
 {
 	ui->setupUi(this);
 	m_bLogedIn = false;
+	m_bBox = false;
 	m_bUUIDGot = false;
 	nTimer = startTimer(100);
 	ui->listView_msg->setModel(&model);
@@ -667,6 +668,7 @@ int MainDialog::deal_current_message_block()
 		if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
+			m_bBox = true;
 			QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
 		}
 		else
@@ -700,6 +702,7 @@ int MainDialog::deal_current_message_block()
 		if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
+			m_bBox = false;
 			QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
 		}
 		else
@@ -807,8 +810,10 @@ void MainDialog::on_pushButton_sendToClient_clicked()
 	pMsg->Priority = 1;
 	pMsg->Reserved1 = 0;
 
-	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
-
+	if (m_bBox==true)
+		pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
+	else
+		pMsg->source_id = (quint32)((quint64)(ui->lineEdit_userid->text().toUInt()) & 0xffffffff );
 	pMsg->destin_id = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
 
 	pMsg->data_length = arrMsg.size();

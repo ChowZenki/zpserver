@@ -91,12 +91,18 @@ namespace SmartLink{
 			if (m_destin_uuid == 0xffffffff)
 				return false;
 			//Send to Client
-//			//Transfer
-//			if (false==m_pClientTable->SendToNode(this->m_destin_uuid , m_currStBlock))
-//			{
-
-//			}
-
+			//emit evt_SendToNode(this->m_destin_uuid , m_currStBlock);
+			//Transfer
+			bool res = false;
+			if (m_currStMegSize == m_currStBlock.size())
+			{
+				STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) m_currStBlock.constData();
+				SMARTLINK_MSG * pSmMsg = (SMARTLINK_MSG *) pMsg->payload.data;
+				QByteArray blocks((const char *)pSmMsg,m_currStMegSize -  sizeof(STCROSSSVR_MSG::tag_msgHearder));
+				res=m_pClientTable->SendToNode(this->m_destin_uuid , blocks);
+			}
+			else
+				res=m_pClientTable->SendToNode(this->m_destin_uuid , m_currStBlock);
 		}
 			delCurrBlock = true;
 			break;

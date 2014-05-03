@@ -114,7 +114,7 @@ namespace SmartLink{
 		void on_evt_RemoteData_recieved(const QString &/*svrHandle*/,const QByteArray & /*svrHandle*/ );
 		//a block of data has been successfuly sent
 		void on_evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/);
-
+	public slots:
 		//send msg to uuid
 		bool SendToNode(quint32 uuid, const QByteArray & msg);
 

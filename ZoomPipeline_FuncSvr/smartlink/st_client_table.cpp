@@ -330,10 +330,9 @@ namespace SmartLink{
 				this->m_pThreadEngine->SendDataToClient(pAppLayer->sock(),msg);
 				bres = true;
 			}
-			m_hash_mutex.unlock();
-
 		}
 		m_hash_mutex.unlock();
+		emit evt_Message(this,tr("Recieved remote user-data to uuid:%1,DATA:%2").arg(uuid).arg(QString("HEX")+QString(msg.toHex())));
 		return bres;
 	}
 
@@ -363,6 +362,7 @@ namespace SmartLink{
 	{
 		st_cross_svr_node * pNode = new st_cross_svr_node(pTerm,psock,parent);
 		pNode->setClientTable(this);
+		//connect (pNode,&st_cross_svr_node::evt_SendToNode,this,&st_client_table::SendToNode,Qt::QueuedConnection);
 		return pNode;
 	}
 	//reg new uuids in m_hash_remoteClient2SvrName

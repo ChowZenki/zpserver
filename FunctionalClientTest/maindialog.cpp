@@ -32,10 +32,11 @@ MainDialog::MainDialog(QWidget *parent) :
 	QSettings settings("goldenhawking club","FunctionalClientTest",this);
 	ui->lineEdit_ip->setText(settings.value("settings/ip","localhost").toString());
 	ui->lineEdit_Port->setText(settings.value("settings/port","23456").toString());
-	ui->plainTextEdit_boxSerialNum->setPlainText(settings.value("settings/box2svr_insid","Temporary Equip_id for test only, by goldenhawking@163.com.64Bts").toString());
-	ui->lineEdit_username->setText(settings.value("settings/client2svr_username","debug").toString());
-	ui->lineEdit_password->setText(settings.value("settings/client2svr_password","debug").toString());
+	ui->plainTextEdit_boxSerialNum->setPlainText(settings.value("settings/box2svr_insid","equip001").toString());
+	ui->lineEdit_username->setText(settings.value("settings/client2svr_username","client001").toString());
+	ui->lineEdit_password->setText(settings.value("settings/client2svr_password","client001").toString());
 	ui->plainTextEdit_box_userids->setPlainText(settings.value("settings/box2svr_uploadid","0,").toString());
+	ui->lineEdit_client_uuid->setText(settings.value("settings/client_uuid","2147483648").toString());
 }
 
 MainDialog::~MainDialog()
@@ -119,6 +120,8 @@ void MainDialog::saveIni()
 	settings.setValue("settings/client2svr_username", ui->lineEdit_username->text());
 	settings.setValue("settings/client2svr_password", ui->lineEdit_password->text());
 	settings.setValue("settings/box2svr_uploadid", ui->plainTextEdit_box_userids->toPlainText());
+	settings.setValue("settings/client_uuid", ui->lineEdit_client_uuid->text());
+
 }
 
 void MainDialog::timerEvent(QTimerEvent * evt)

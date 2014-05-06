@@ -1,6 +1,6 @@
 #include "st_clientnode_basetrans.h"
 #include "st_client_table.h"
-namespace SmartLink{
+namespace ExampleServer{
 	st_clientNode_baseTrans::st_clientNode_baseTrans(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
 		zp_plTaskBase(parent)
 	{
@@ -31,17 +31,13 @@ namespace SmartLink{
 	}
 	qint32 st_clientNode_baseTrans::bytesLeft()
 	{
-		return m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+		return m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
 				-m_currentMessageSize ;
 	}
 	//judge whether id is valid.
-	bool st_clientNode_baseTrans::bIsValidEquipId(quint32 id)
-	{
-		return id >=0x00010000 && id <=0x0FFFFFFF;
-	}
 	bool st_clientNode_baseTrans::bIsValidUserId(quint32 id)
 	{
-		return id >=(unsigned int)0x80000000 && id <=(unsigned int)0xAFFFFFFF;
+		return id >=(unsigned int)0x00000002 && id <=(unsigned int)0x7FFFFFFF;
 	}
 
 	//The main functional method, will run in thread pool
@@ -132,12 +128,12 @@ namespace SmartLink{
 			//Heart Beating
 			if (m_currentHeader.Mark == 0xBEBE)
 			{
-				while (m_currentMessageSize< sizeof(SMARTLINK_HEARTBEATING) && blocklen>offset )
+				while (m_currentMessageSize< sizeof(EXAMPLE_HEARTBEATING) && blocklen>offset )
 				{
 					m_currentBlock.push_back(dataptr[offset++]);
 					m_currentMessageSize++;
 				}
-				if (m_currentMessageSize < sizeof(SMARTLINK_HEARTBEATING)) //Header not completed.
+				if (m_currentMessageSize < sizeof(EXAMPLE_HEARTBEATING)) //Header not completed.
 					continue;
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
@@ -149,22 +145,22 @@ namespace SmartLink{
 			else if (m_currentHeader.Mark == 0x55AA)
 				//Trans Message
 			{
-				while (m_currentMessageSize< sizeof(SMARTLINK_MSG)-1 && blocklen>offset)
+				while (m_currentMessageSize< sizeof(EXAMPLE_TRANS_MSG)-1 && blocklen>offset)
 				{
 					m_currentBlock.push_back(dataptr[offset++]);
 					m_currentMessageSize++;
 				}
-				if (m_currentMessageSize < sizeof(SMARTLINK_MSG)-1) //Header not completed.
+				if (m_currentMessageSize < sizeof(EXAMPLE_TRANS_MSG)-1) //Header not completed.
 					continue;
-				else if (m_currentMessageSize == sizeof(SMARTLINK_MSG)-1)//Header just  completed.
+				else if (m_currentMessageSize == sizeof(EXAMPLE_TRANS_MSG)-1)//Header just  completed.
 				{
 					const char * headerptr = m_currentBlock.constData();
-					memcpy((void *)&m_currentHeader,headerptr,sizeof(SMARTLINK_MSG)-1);
+					memcpy((void *)&m_currentHeader,headerptr,sizeof(EXAMPLE_TRANS_MSG)-1);
 
 					//continue reading if there is data left behind
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+						qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
 								-m_currentMessageSize ;
 						while (bitLeft>0 && blocklen>offset)
 						{
@@ -186,7 +182,7 @@ namespace SmartLink{
 				{
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.data_length + sizeof(SMARTLINK_MSG) - 1
+						qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
 								-m_currentMessageSize ;
 						while (bitLeft>0 && blocklen>offset)
 						{
@@ -224,14 +220,7 @@ namespace SmartLink{
 		//First, get uuid as soon as possible
 		if (m_bUUIDRecieved==false)
 		{
-			if (bIsValidEquipId( m_currentHeader.source_id) )
-			{
-				m_bUUIDRecieved = true;
-				m_uuid =  m_currentHeader.source_id;
-				//regisit client node to hash-table;
-				m_pClientTable->regisitClientUUID(this);
-			}
-			else if (bIsValidUserId( m_currentHeader.source_id) )
+			if (bIsValidUserId( m_currentHeader.source_id) )
 			{
 				m_bUUIDRecieved = true;
 				m_uuid =  m_currentHeader.source_id;
@@ -251,9 +240,7 @@ namespace SmartLink{
 		}
 		else
 		{
-			if (!(bIsValidEquipId(m_currentHeader.source_id)
-				  ||
-				  bIsValidUserId(m_currentHeader.source_id)
+			if (!( bIsValidUserId(m_currentHeader.source_id)
 				  ||
 				  (m_currentHeader.source_id==0xffffffff)
 				  ))

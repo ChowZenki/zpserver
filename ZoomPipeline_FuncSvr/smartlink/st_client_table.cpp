@@ -5,7 +5,7 @@
 #include "st_cross_svr_msg.h"
 #include <functional>
 #include <QList>
-namespace SmartLink{
+namespace ExampleServer{
 	using namespace std::placeholders;
 	st_client_table::st_client_table(
 			ZPNetwork::zp_net_Engine * NetEngine,
@@ -286,9 +286,9 @@ namespace SmartLink{
 		int nNodeSz = uuids.size();
 		if (nNodeSz>0)
 		{
-			int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder) +  nNodeSz * sizeof(quint32);
+			int nMsgLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) +  nNodeSz * sizeof(quint32);
 			QByteArray array(nMsgLen,0);
-			STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) array.data();
+			EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) array.data();
 			pMsg->header.Mark = 0x4567;
 			pMsg->header.version = 1;
 			pMsg->header.messageLen = nNodeSz * sizeof(quint32);
@@ -306,9 +306,9 @@ namespace SmartLink{
 		QStringList svrs = m_pCluster->SvrNames();
 		if (svrs.empty()==false)
 		{
-			int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder) +  sizeof(quint32);
+			int nMsgLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) +  sizeof(quint32);
 			QByteArray array(nMsgLen,0);
-			STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) array.data();
+			EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) array.data();
 			pMsg->header.Mark = 0x4567;
 			pMsg->header.version = 1;
 			pMsg->header.messageLen = sizeof(quint32);
@@ -404,9 +404,9 @@ namespace SmartLink{
 	}
 	void st_client_table::cross_svr_send_data(const QString & svrname,const QByteArray & arr)
 	{
-		int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder);
+		int nMsgLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder);
 		QByteArray array(nMsgLen,0);
-		STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) array.data();
+		EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) array.data();
 		pMsg->header.Mark = 0x4567;
 		pMsg->header.version = 1;
 		pMsg->header.messageLen = arr.size();

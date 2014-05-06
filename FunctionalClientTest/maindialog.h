@@ -8,7 +8,7 @@
 #include "qghtcpclient.h"
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
 #include "../ZoomPipeline_FuncSvr/smartlink/st_msg_applayer.h"
-using namespace SmartLink;
+using namespace ExampleServer;
 namespace Ui {
 	class MainDialog;
 }
@@ -29,7 +29,6 @@ private:
 	void saveIni();
 
 	bool m_bLogedIn;
-	bool m_bBox;
 	bool m_bUUIDGot ;
 
 	//!Message Dealers
@@ -50,8 +49,8 @@ protected:
 	//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 	QByteArray m_currentBlock;
 	//current Header
-	SMARTLINK_MSG m_currentHeader;
-	SMARTLINK_MSG_APP m_current_app_header;
+	EXAMPLE_TRANS_MSG m_currentHeader;
+	EXAMPLE_MSG_APP m_current_app_header;
 
 
 
@@ -64,13 +63,9 @@ public slots:
 	void displayMessage(const QString &str);
 
 	void on_pushButton_connect_clicked();
-	void on_pushButton_regisit_clicked();
-	void on_pushButton_Login_clicked();
 	void on_pushButton_clientLogin_clicked();
-	void on_pushButton_CrTime_clicked();
 	void on_pushButton_box_upload_uid_clicked();
 	void on_pushButton_box_download_uid_clicked();
-	void on_pushButton_client_downHost_clicked();
 	void on_pushButton_clientLogout_clicked();
 	void on_pushButton_sendToClient_clicked();
 

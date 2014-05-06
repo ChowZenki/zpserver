@@ -1,13 +1,13 @@
 #ifndef ST_CROSS_SVR_MSG_H
 #define ST_CROSS_SVR_MSG_H
 
-namespace SmartLink{
+namespace ExampleServer{
 
 #pragma  pack (push,1)
 
 #if defined(__GNUC__)
 #include <stdint.h>
-	typedef struct tag_smartlink_crosssvr_msg{
+	typedef struct tag_example_crosssvr_msg{
 		struct tag_msgHearder{
 			__UINT16_TYPE__ Mark;    //Always be "0x4567"
 			__UINT16_TYPE__ version; //Structure Version
@@ -18,11 +18,11 @@ namespace SmartLink{
 			__UINT8_TYPE__ data[1];
 			__UINT32_TYPE__ uuids[1];
 		} payload;
-	} STCROSSSVR_MSG;
+	} EXAMPLE_CROSSSVR_MSG;
 #endif
 
 #if defined(_MSC_VER)
-	typedef struct tag_smartlink_crosssvr_msg{
+	typedef struct tag_example_crosssvr_msg{
 		struct tag_msgHearder{
 			unsigned __int16 Mark;    //Always be 0x4567
 			unsigned __int16 version; //Structure Version
@@ -33,7 +33,7 @@ namespace SmartLink{
 			unsigned __int8 data[1];
 			unsigned __int32 uuids[1];
 		} payload;
-	} STCROSSSVR_MSG;
+	} EXAMPLE_CROSSSVR_MSG;
 
 #endif
 

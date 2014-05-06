@@ -38,12 +38,12 @@ ZPMainFrame::ZPMainFrame(QWidget *parent) :
 	m_pDatabases->start();
 
 	//Create Smartlink client table
-	m_clientTable = new SmartLink::st_client_table (m_netEngine,
+	m_clientTable = new ExampleServer::st_client_table (m_netEngine,
 													m_taskEngine,
 													m_pDatabases,
 													m_pClusterTerm,
 													this);
-	connect (m_clientTable,&SmartLink::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message_Smartlink);
+	connect (m_clientTable,&ExampleServer::st_client_table::evt_Message,this,&ZPMainFrame::on_evt_Message_Smartlink);
 
 
 	m_nTimerId = startTimer(2000);

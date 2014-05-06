@@ -49,7 +49,7 @@ private:
 	Ui::ZPMainFrame *ui;
 	ZPNetwork::zp_net_Engine * m_netEngine;
 	ZPTaskEngine::zp_pipeline * m_taskEngine;
-	SmartLink::st_client_table * m_clientTable;
+	ExampleServer::st_client_table * m_clientTable;
 	ZPDatabase::DatabaseResource * m_pDatabases;
 	ZP_Cluster::zp_ClusterTerm * m_pClusterTerm;
 	int m_nTimerId;

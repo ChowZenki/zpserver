@@ -2,7 +2,7 @@
 #define ST_CROSS_SVR_NODE_H
 #include "../cluster/zp_clusternode.h"
 #include "st_cross_svr_msg.h"
-namespace SmartLink{
+namespace ExampleServer{
 	class st_client_table;
 	class st_cross_svr_node : public ZP_Cluster::zp_ClusterNode
 	{
@@ -24,7 +24,7 @@ namespace SmartLink{
 		//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 		QByteArray m_currStBlock;
 		//current Header
-		STCROSSSVR_MSG::tag_msgHearder m_st_Header;
+		EXAMPLE_CROSSSVR_MSG::tag_msgHearder m_st_Header;
 		quint32 m_destin_uuid;
 	signals:
 		void evt_SendToNode(quint32 uuid, const QByteArray & msg);

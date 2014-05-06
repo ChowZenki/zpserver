@@ -2,7 +2,7 @@
 #include "../cluster/zp_clusterterm.h"
 #include "st_client_table.h"
 #include "st_message.h"
-namespace SmartLink{
+namespace ExampleServer{
 
 	st_cross_svr_node::st_cross_svr_node(ZP_Cluster::zp_ClusterTerm * pTerm, QObject * psock,QObject *parent)
 		:ZP_Cluster::zp_ClusterNode(pTerm,psock,parent)
@@ -12,7 +12,7 @@ namespace SmartLink{
 	}
 	int st_cross_svr_node::st_bytesLeft()
 	{
-		return m_st_Header.messageLen + sizeof(STCROSSSVR_MSG::tag_msgHearder) - m_currStMegSize ;
+		return m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) - m_currStMegSize ;
 	}
 
 	bool st_cross_svr_node::deal_user_data(const QByteArray &array)
@@ -22,16 +22,16 @@ namespace SmartLink{
 		int nOffset = 0;
 		while (nOffset < nBlockSize )
 		{
-			while (m_currStMegSize < sizeof(STCROSSSVR_MSG::tag_msgHearder) && nOffset< nBlockSize)
+			while (m_currStMegSize < sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) && nOffset< nBlockSize)
 			{
 				m_currStBlock.push_back(pData[nOffset++]);
 				++m_currStMegSize;
 			}
-			if (m_currStMegSize < sizeof(STCROSSSVR_MSG::tag_msgHearder))
+			if (m_currStMegSize < sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder))
 				return true;
-			if (m_currStMegSize == sizeof(STCROSSSVR_MSG::tag_msgHearder))
+			if (m_currStMegSize == sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder))
 			{
-				memcpy (&m_st_Header,m_currStBlock.constData(),sizeof(STCROSSSVR_MSG::tag_msgHearder));
+				memcpy (&m_st_Header,m_currStBlock.constData(),sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder));
 				if (m_st_Header.Mark != 0x4567)
 				{
 					m_currStMegSize = 0;
@@ -39,7 +39,7 @@ namespace SmartLink{
 					return true;
 				}
 			}
-			while (nOffset<nBlockSize && m_currStMegSize < m_st_Header.messageLen + sizeof(STCROSSSVR_MSG::tag_msgHearder) )
+			while (nOffset<nBlockSize && m_currStMegSize < m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) )
 			{
 				m_currStBlock.push_back(pData[nOffset++]);
 				++m_currStMegSize;
@@ -63,7 +63,7 @@ namespace SmartLink{
 		{
 			if (st_bytesLeft()>0)
 				return delCurrBlock;
-			STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) m_currStBlock.constData();
+			EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) m_currStBlock.constData();
 			int nUUIDs = pMsg->header.messageLen / sizeof(quint32);
 			this->m_pClientTable->cross_svr_add_uuids(this->termName(),pMsg->payload.uuids,nUUIDs);
 		}
@@ -72,7 +72,7 @@ namespace SmartLink{
 		{
 			if (st_bytesLeft()>0)
 				return delCurrBlock;
-			STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) m_currStBlock.constData();
+			EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) m_currStBlock.constData();
 			int nUUIDs = pMsg->header.messageLen / sizeof(quint32);
 			this->m_pClientTable->cross_svr_del_uuids(this->termName(),pMsg->payload.uuids,nUUIDs);
 		}
@@ -81,10 +81,10 @@ namespace SmartLink{
 		{
 			if (m_destin_uuid == 0xffffffff)
 			{
-				if (m_currStMegSize >= sizeof(STCROSSSVR_MSG::tag_msgHearder)+ sizeof(SMARTLINK_MSG)-1)
+				if (m_currStMegSize >= sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder)+ sizeof(EXAMPLE_TRANS_MSG)-1)
 				{
-					STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) m_currStBlock.constData();
-					SMARTLINK_MSG * pSmMsg = (SMARTLINK_MSG *) pMsg->payload.data;
+					EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) m_currStBlock.constData();
+					EXAMPLE_TRANS_MSG * pSmMsg = (EXAMPLE_TRANS_MSG *) pMsg->payload.data;
 					m_destin_uuid = pSmMsg->destin_id;
 				}
 			}
@@ -96,9 +96,9 @@ namespace SmartLink{
 			bool res = false;
 			if (m_currStMegSize == m_currStBlock.size())
 			{
-				STCROSSSVR_MSG * pMsg = (STCROSSSVR_MSG *) m_currStBlock.constData();
-				SMARTLINK_MSG * pSmMsg = (SMARTLINK_MSG *) pMsg->payload.data;
-				QByteArray blocks((const char *)pSmMsg,m_currStMegSize -  sizeof(STCROSSSVR_MSG::tag_msgHearder));
+				EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) m_currStBlock.constData();
+				EXAMPLE_TRANS_MSG * pSmMsg = (EXAMPLE_TRANS_MSG *) pMsg->payload.data;
+				QByteArray blocks((const char *)pSmMsg,m_currStMegSize -  sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder));
 				res=m_pClientTable->SendToNode(this->m_destin_uuid , blocks);
 			}
 			else

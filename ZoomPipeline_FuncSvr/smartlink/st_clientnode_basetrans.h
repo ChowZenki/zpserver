@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include "st_message.h"
 #include "../pipeline/zp_pltaskbase.h"
-namespace SmartLink{
+namespace ExampleServer{
 	class st_client_table;
 
 	class st_clientNode_baseTrans : public ZPTaskEngine::zp_plTaskBase
@@ -40,7 +40,6 @@ namespace SmartLink{
 		virtual int deal_current_message_block();
 
 		//judge whether id is valid.
-		bool bIsValidEquipId(quint32 id);
 		bool bIsValidUserId(quint32 id);
 
 	protected:
@@ -53,7 +52,7 @@ namespace SmartLink{
 		//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 		QByteArray m_currentBlock;
 		//current Header
-		SMARTLINK_MSG m_currentHeader;
+		EXAMPLE_TRANS_MSG m_currentHeader;
 		//The raw data queue and its mutex
 		QList<QByteArray> m_list_RawData;
 		QMutex m_mutex_rawData;

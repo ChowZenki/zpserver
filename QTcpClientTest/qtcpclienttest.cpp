@@ -2,7 +2,7 @@
 #include <QSettings>
 #include <QCoreApplication>
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
-using namespace SmartLink;
+using namespace ExampleServer;
 QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
 {
@@ -107,9 +107,9 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 			//send heart-beating
 			foreach(QGHTcpClient * pSock,listObj)
 			{
-				QByteArray array(sizeof(SMARTLINK_HEARTBEATING),0);
+				QByteArray array(sizeof(EXAMPLE_HEARTBEATING),0);
 				char * ptr = array.data();
-				SMARTLINK_HEARTBEATING * pMsg = (SMARTLINK_HEARTBEATING *)ptr;
+				EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
 				pMsg->Mark = 0xBEBE;
 				pMsg->tmStamp = 0;
 				//3/10 possibility to send a data block to server
@@ -124,10 +124,10 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 
 			if (rand()%1000<5)
 			{
-				quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(SMARTLINK_MSG);
-				QByteArray array(sizeof(SMARTLINK_MSG) + nMsgLen - 1,0);
+				quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(EXAMPLE_TRANS_MSG);
+				QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
 				char * ptr = array.data();
-				SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
+				EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
 				pMsg->Mark = 0x55AA;
 				pMsg->source_id = (quint32)((quint64)(sock) & 0xffffffff );
 

@@ -14,6 +14,10 @@
 #include "./st_cross_svr_node.h"
 namespace SmartLink{
 	class st_clientNode_baseTrans;
+	/**
+	 * @brief This class stick the network, pipeline, database, cluster 4 modules together.
+	 * this version of smart-link protol provide basic p2p connections between equipment and smart-phone client.
+	 */
 	class st_client_table : public QObject
 	{
 		Q_OBJECT

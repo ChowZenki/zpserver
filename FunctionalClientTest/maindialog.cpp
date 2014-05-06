@@ -172,22 +172,14 @@ void MainDialog::on_pushButton_regisit_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(0xffffffff) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
 
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1000;
-	pApp->header.MsgFmtVersion = 0x01;
-
 	for (int i=0;i<=nMaxLen;i++)
 		pApp->MsgUnion.msg_HostRegistReq.HostSerialNum[i] =
 				i<nMaxLen?pSrc[i]:0;
@@ -219,21 +211,13 @@ void MainDialog::on_pushButton_Login_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(0xffffffff) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
-
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1001;
-	pApp->header.MsgFmtVersion = 0x01;
 
 	for (int i=0;i<=nMaxLen;i++)
 		pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
@@ -269,21 +253,14 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(0xffffffff) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
 
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x3000;
-	pApp->header.MsgFmtVersion = 0x01;
 
 
 
@@ -323,21 +300,12 @@ void MainDialog::on_pushButton_CrTime_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
-
-
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1002;
-	pApp->header.MsgFmtVersion = 0x01;
 
 	//3/10 possibility to send a data block to server
 	client->SendData(array);
@@ -371,21 +339,14 @@ void MainDialog::on_pushButton_box_upload_uid_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
 
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1003;
-	pApp->header.MsgFmtVersion = 0x01;
 
 	pApp->MsgUnion.msg_UploadUserListReq.UserNum = (quint16)(vecInt.size() & 0x00ffff);
 	for (int i=0;i< vecInt.size();i++)
@@ -417,21 +378,13 @@ void MainDialog::on_pushButton_box_download_uid_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
-
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x1004;
-	pApp->header.MsgFmtVersion = 0x01;
 
 	//3/10 possibility to send a data block to server
 	client->SendData(array);
@@ -458,21 +411,14 @@ void  MainDialog::on_pushButton_client_downHost_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_userid->text().toUInt()) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
 
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x3002;
-	pApp->header.MsgFmtVersion = 0x01;
 	//3/10 possibility to send a data block to server
 	client->SendData(array);
 }
@@ -499,21 +445,14 @@ void  MainDialog::on_pushButton_clientLogout_clicked()
 													  (ptr))+sizeof(SMARTLINK_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
 	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_userid->text().toUInt()) & 0xffffffff );
 
 	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
 	pMsg->data_length = nMsgLen;
-	pMsg->Reserved2 = 0;
 
 
-	pApp->header.AskID = 0x01;
 	pApp->header.MsgType = 0x3001;
-	pApp->header.MsgFmtVersion = 0x01;
 
 
 	pApp->MsgUnion.msg_ClientLogoutReq.UserName[0] = 0;
@@ -808,11 +747,6 @@ void MainDialog::on_pushButton_sendToClient_clicked()
 	SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
 
 	pMsg->Mark = 0x55AA;
-	pMsg->version = 1;
-	pMsg->SerialNum = 0;
-	pMsg->Priority = 1;
-	pMsg->Reserved1 = 0;
-
 	if (m_bBox==true)
 		pMsg->source_id = (quint32)((quint64)(ui->lineEdit_boxid->text().toUInt()) & 0xffffffff );
 	else
@@ -820,7 +754,6 @@ void MainDialog::on_pushButton_sendToClient_clicked()
 	pMsg->destin_id = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
 
 	pMsg->data_length = arrMsg.size();
-	pMsg->Reserved2 = 0;
 
 	array.append(arrMsg);
 

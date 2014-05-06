@@ -250,13 +250,6 @@ namespace SmartLink{
 				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(SMARTLINK_MSG) - 1,
 				   sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 				   );
-		if (m_current_app_header.header.MsgFmtVersion!=0x01)
-		{
-			emit evt_Message(this,tr("Application Layer Version too new."));
-			emit evt_close_client(this->sock());
-			return false;
-		}
-		//do
 		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.header.MsgType)
 		{
@@ -335,12 +328,6 @@ namespace SmartLink{
 				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(SMARTLINK_MSG) - 1,
 				   sizeof (SMARTLINK_MSG_APP::tag_app_layer_header)
 				   );
-		if (m_current_app_header.header.MsgFmtVersion!=0x01)
-		{
-			emit evt_Message(this,tr("Application Layer Version too new."));
-			emit evt_close_client(this->sock());
-			return false;
-		}
 		//do
 		switch (m_current_app_header.header.MsgType)
 		{

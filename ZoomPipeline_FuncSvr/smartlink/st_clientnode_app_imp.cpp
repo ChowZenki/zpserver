@@ -35,22 +35,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x1800;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
-
 		stMsg_HostRegistRsp & reply = pApp->MsgUnion.msg_HostRegistRsp;
 
 		//Check the database, find current equipment info
@@ -159,21 +150,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x1801;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_HostLogonRsp & reply = pApp->MsgUnion.msg_HostLogonRsp;
 
@@ -281,21 +264,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x3800;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_ClientLoginRsp & reply = pApp->MsgUnion.msg_ClientLoginRsp;
 
@@ -380,21 +355,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x1802;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_HostTimeCorrectRsp & reply = pApp->MsgUnion.msg_HostTimeCorrectRsp;
 
@@ -444,21 +411,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x1803;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_UploadUserListRsp & reply = pApp->MsgUnion.msg_UploadUserListRsp;
 
@@ -515,21 +474,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x1804;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_DownloadUserListRsp & reply = pApp->MsgUnion.msg_DownloadUserListRsp;
 
@@ -570,21 +521,14 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
 
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x3801;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_ClientLogoutRsp & reply = pApp->MsgUnion.msg_ClientLogoutRsp;
 
@@ -619,21 +563,13 @@ namespace SmartLink{
 														  (ptr))+sizeof(SMARTLINK_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
 		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
 
 		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
 
 		pMsg->data_length = nMsgLen;
-		pMsg->Reserved2 = 0;
 
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
 		pApp->header.MsgType = 0x3802;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
 
 		stMsg_GetHostListRsp & reply = pApp->MsgUnion.msg_GetHostListRsp;
 

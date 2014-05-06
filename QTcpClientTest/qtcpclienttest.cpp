@@ -129,16 +129,11 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 				char * ptr = array.data();
 				SMARTLINK_MSG * pMsg = (SMARTLINK_MSG *)ptr;
 				pMsg->Mark = 0x55AA;
-				pMsg->version = 1;
-				pMsg->SerialNum = 0;
-				pMsg->Priority = 1;
-				pMsg->Reserved1 = 0;
 				pMsg->source_id = (quint32)((quint64)(sock) & 0xffffffff );
 
 				pMsg->destin_id = (quint32)((quint64)(sockDestin) & 0xffffffff );;
 
 				pMsg->data_length = nMsgLen;
-				pMsg->Reserved2 = 0;
 				for (int i=0;i<nMsgLen;i++)
 					pMsg->data[i] = '0' + i%10;
 				//3/10 possibility to send a data block to server

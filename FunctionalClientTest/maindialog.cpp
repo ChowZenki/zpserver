@@ -31,10 +31,10 @@ MainDialog::MainDialog(QWidget *parent) :
 	QSettings settings("goldenhawking club","FunctionalClientTest",this);
 	ui->lineEdit_ip->setText(settings.value("settings/ip","localhost").toString());
 	ui->lineEdit_Port->setText(settings.value("settings/port","23456").toString());
-	ui->lineEdit_username->setText(settings.value("settings/client2svr_username","client001").toString());
-	ui->lineEdit_password->setText(settings.value("settings/client2svr_password","client001").toString());
+	ui->lineEdit_username->setText(settings.value("settings/client2svr_username","111").toString());
+	ui->lineEdit_password->setText(settings.value("settings/client2svr_password","111").toString());
 	ui->plainTextEdit_box_userids->setPlainText(settings.value("settings/box2svr_uploadid","0,").toString());
-	ui->lineEdit_client_uuid->setText(settings.value("settings/client_uuid","2147483648").toString());
+	ui->lineEdit_client_uuid->setText(settings.value("settings/client_uuid","112").toString());
 }
 
 MainDialog::~MainDialog()
@@ -57,6 +57,7 @@ void MainDialog::on_client_connected()
 	{
 		displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
 		ui->pushButton_connect->setEnabled(false);
+
 	}
 
 }
@@ -162,7 +163,7 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 	int nMaxLenPassword = strStdPassword.length();
 
 	quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_ClientLoginReq)+nMaxLenPassword+1;
+			+sizeof(stMsg_ClientLoginReq)+nMaxLenPassword;
 	QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
 	EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;

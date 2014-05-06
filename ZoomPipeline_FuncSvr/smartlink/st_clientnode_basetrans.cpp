@@ -37,7 +37,7 @@ namespace ExampleServer{
 	//judge whether id is valid.
 	bool st_clientNode_baseTrans::bIsValidUserId(quint32 id)
 	{
-		return id >=(unsigned int)0x00000002 && id <=(unsigned int)0x7FFFFFFF;
+		return id >=(unsigned int)0x00000002 && id <=(unsigned int)0xFFFFFFFE;
 	}
 
 	//The main functional method, will run in thread pool

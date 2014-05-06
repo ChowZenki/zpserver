@@ -56,7 +56,12 @@ void QTcpClientTest::on_client_connected()
 	if (pSock)
 	{
 		displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
-
+		QByteArray array(sizeof(EXAMPLE_HEARTBEATING),0);
+		char * ptr = array.data();
+		EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
+		pMsg->Mark = 0xBEBE;
+		pMsg->tmStamp = 0;
+		(pSock)->SendData(array);
 	}
 
 }
@@ -112,7 +117,6 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 				EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
 				pMsg->Mark = 0xBEBE;
 				pMsg->tmStamp = 0;
-				//3/10 possibility to send a data block to server
 				(pSock)->SendData(array);
 			}
 		}

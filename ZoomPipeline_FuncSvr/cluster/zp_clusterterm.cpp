@@ -6,6 +6,7 @@ namespace ZP_Cluster{
 	zp_ClusterTerm::zp_ClusterTerm(const QString & name,QObject *parent ) :
 		QObject(parent)
 	  ,m_strTermName(name)
+	  ,m_nClientNums(0)
 	{
 		m_pClusterEng = new ZPTaskEngine::zp_pipeline(this);
 		m_pClusterNet = new ZPNetwork::zp_net_Engine(8192,this);
@@ -19,6 +20,15 @@ namespace ZP_Cluster{
 		m_nPortPublish = 0;
 		m_nHeartBeatingTime = 20;
 		m_factory = std::bind(&zp_ClusterTerm::default_factory,this,_1,_2,_3);
+	}
+	void zp_ClusterTerm::setClientNums(quint32 nnum)
+	{
+		m_nClientNums = nnum;
+	}
+
+	quint32 zp_ClusterTerm::clientNums()
+	{
+		return m_nClientNums;
 	}
 
 	/**
@@ -138,6 +148,15 @@ namespace ZP_Cluster{
 			port = m_hash_Name2node[name]->portPublish();
 		m_hash_mutex.unlock();
 		return port;
+	}
+	quint32 zp_ClusterTerm::remoteClientNums(const QString & name)
+	{
+		quint32 res = 0;
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(name))
+			res = m_hash_Name2node[name]->clientNums();
+		m_hash_mutex.unlock();
+		return res;
 	}
 
 	bool zp_ClusterTerm::regisitNewServer(zp_ClusterNode * c)
@@ -399,14 +418,14 @@ namespace ZP_Cluster{
 
 	void zp_ClusterTerm::SendHeartBeatings()
 	{
-		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header);
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) + sizeof(CROSS_SVR_MSG::uni_payload::tag_CSM_heartBeating);
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
 		pMsg->hearder.Mark = 0x1234;
-		pMsg->hearder.data_length = 0;
+		pMsg->hearder.data_length = sizeof(CROSS_SVR_MSG::uni_payload::tag_CSM_heartBeating);
 		pMsg->hearder.messagetype = 0x00;
+		pMsg->payload.heartBeating.nClients = this->m_nClientNums;
 		//m_pClusterNet->BroadcastData(0,array);
-
 		m_hash_mutex.lock();
 		QList<QString> keys =  m_hash_Name2node.keys();
 		//Msgs

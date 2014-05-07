@@ -42,9 +42,11 @@ namespace ZP_Cluster{
 		QHostAddress addrPublish();
 		int portPublish() ;
 		QObject * sock() ;
+
 		//!Messages
 	public:
 		void SendHelloPackage();
+		quint32 clientNums();
 	protected:
 		zp_ClusterTerm * m_pTerm;
 		//Client socket handle of this connection
@@ -70,6 +72,8 @@ namespace ZP_Cluster{
 		CROSS_SVR_MSG::tag_header m_currentHeader;
 
 		QDateTime m_last_Report;
+
+		quint32 m_nRemoteClientNums;
 	signals:
 		void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
 		void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);

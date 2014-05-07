@@ -61,6 +61,7 @@ namespace ZP_Cluster{
 	protected:
 
 		int m_nHeartBeatingTime;
+		quint32 m_nClientNums; //the clients this server now connected.
 		QString m_strTermName;//the Terminal's name
 		QHostAddress m_addrPublish;	//The publish address for other terms to connect to
 		int m_nPortPublish;//The publish port for other terms to connect to
@@ -79,6 +80,11 @@ namespace ZP_Cluster{
 		QStringList SvrNames();
 		QHostAddress SvrAddr(const QString & name);
 		int SvrPort(const QString & name);
+		quint32 remoteClientNums(const QString & name);
+		//Client Num set, for cross-svr balance
+		void setClientNums(quint32 nnum);
+		quint32 clientNums();
+
 	signals:
 
 		void evt_Message(QObject * ,const QString &);

@@ -14,6 +14,10 @@ namespace ZP_Cluster{
 		} hearder;
 		union uni_payload{
 			__UINT8_TYPE__ data[1];
+			struct tag_CSM_heartBeating{
+				__UINT32_TYPE__ nClients;
+			} heartBeating;
+
 			struct tag_CSM_BasicInfo{
 				__UINT8_TYPE__ name [64];
 				__UINT8_TYPE__ Address[64];
@@ -40,6 +44,9 @@ namespace ZP_Cluster{
 		}  hearder;
 		union uni_payload{
 			unsigned __int8 data[1];
+			struct tag_CSM_heartBeating{
+				unsigned __int32 nClients;
+			} heartBeating;
 			struct tag_CSM_BasicInfo{
 				unsigned __int8 name [64];
 				unsigned __int8 Address[64];

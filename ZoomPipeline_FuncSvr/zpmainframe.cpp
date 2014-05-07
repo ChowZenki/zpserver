@@ -142,10 +142,11 @@ void ZPMainFrame::initUI()
 	ui->comboBox_db_type->setModel(pCombo);
 
 
-	m_pModelCluster= new QStandardItemModel(0,3,this);
+	m_pModelCluster= new QStandardItemModel(0,4,this);
 	m_pModelCluster->setHeaderData(0,Qt::Horizontal,tr("Name"));
 	m_pModelCluster->setHeaderData(1,Qt::Horizontal,tr("Address"));
 	m_pModelCluster->setHeaderData(2,Qt::Horizontal,tr("Port"));
+	m_pModelCluster->setHeaderData(3,Qt::Horizontal,tr("Clients"));
 	ui->tableView_activeTerms->setModel(m_pModelCluster);
 }
 
@@ -235,12 +236,18 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		int nClientThreads = m_netEngine->TransThreadNum();
 
 		str_msg += tr("Current Trans Threads: %1\n").arg(nClientThreads);
+		int nTotalCLientsNums = 0;
 		for (int i=0;i<nClientThreads;i++)
 		{
 			str_msg += tr("\t%1:%2").arg(i+1).arg(m_netEngine->totalClients(i));
 			if ((i+1)%5==0)
 				str_msg += "\n";
+			nTotalCLientsNums += m_netEngine->totalClients(i);
 		}
+
+		//Set This message to Cluster Info.
+		m_pClusterTerm->setClientNums(nTotalCLientsNums);
+
 		str_msg += "\n";
 		//recording task status
 		str_msg += tr("Current Task Threads: %1\n").arg(m_taskEngine->threadsCount());
@@ -293,12 +300,19 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		if (m_pModelCluster->rowCount()>0)
 			m_pModelCluster->removeRows(0,m_pModelCluster->rowCount());
 		int nInserted = 0;
+		m_pModelCluster->insertRow(nInserted);
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,0),this->m_pClusterTerm->name());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,1),m_pClusterTerm->publishAddr().toString());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->publishPort());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,3),m_pClusterTerm->clientNums());
+		++nInserted;
 		foreach (QString strNodeName,lstCluster)
 		{
 			m_pModelCluster->insertRow(nInserted);
 			m_pModelCluster->setData(m_pModelCluster->index(nInserted,0),strNodeName);
 			m_pModelCluster->setData(m_pModelCluster->index(nInserted,1),m_pClusterTerm->SvrAddr(strNodeName).toString());
 			m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->SvrPort(strNodeName));
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,3),m_pClusterTerm->remoteClientNums(strNodeName));
 			++nInserted;
 		}
 	}

@@ -11,6 +11,11 @@ namespace ZP_Cluster{
 		m_currentMessageSize = 0;
 		m_nPortPublish = 0;
 		m_last_Report = QDateTime::currentDateTime();
+		m_nRemoteClientNums = 0;
+	}
+	quint32 zp_ClusterNode::clientNums()
+	{
+		return m_nRemoteClientNums;
 	}
 
 	QDateTime zp_ClusterNode::lastActiveTime()
@@ -199,6 +204,10 @@ namespace ZP_Cluster{
 		switch(m_currentHeader.messagetype)
 		{
 		case 0x00://Heart Beating
+			if (bytesLeft==0)
+			{
+				m_nRemoteClientNums = pMsg->payload.heartBeating.nClients;
+			}
 			break;
 		case 0x01://basicInfo, when connection established, this message should be used
 			if (m_currentBlock.length()>=64)

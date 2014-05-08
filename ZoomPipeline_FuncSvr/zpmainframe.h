@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QLabel>
 #include <QSet>
 #include <QMap>
 #include "network/zp_net_threadpool.h"
@@ -47,6 +48,7 @@ protected:
 
 private:
 	Ui::ZPMainFrame *ui;
+	QLabel * m_pStatusLabel;
 	ZPNetwork::zp_net_Engine * m_netEngine;
 	ZPTaskEngine::zp_pipeline * m_taskEngine;
 	ExampleServer::st_client_table * m_clientTable;

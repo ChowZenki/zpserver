@@ -21,6 +21,7 @@ namespace ExampleServer{
 	typedef struct tag_example_heartBeating
 	{
 		__UINT16_TYPE__ Mark;  //Always be 0xBeBe
+		__UINT32_TYPE__ source_id ; //0xffffffff means from server
 		__UINT16_TYPE__ tmStamp;
 	} EXAMPLE_HEARTBEATING;
 #endif
@@ -36,6 +37,7 @@ namespace ExampleServer{
 	typedef struct tag_example_heartBeating
 	{
 		unsigned __int16 Mark;  //Always be 0xBeBe
+		unsigned __int32 source_id ; //0xffffffff means from server
 		unsigned __int16 tmStamp;
 	} EXAMPLE_HEARTBEATING;
 #endif

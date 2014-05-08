@@ -56,6 +56,12 @@ namespace ExampleServer{
 		//Server Name find
 		QString cross_svr_find_uuid(quint32 uuid);
 
+		//Cluster Global Balance
+		bool NeedRedirect(quint8 bufAddresses[/*64*/],quint16 * pnPort);
+
+		void setBalanceMax(int nmax);
+		int balanceMax();
+
 	protected:
 		//This list hold dead nodes that still in task queue,avoiding crash
 		QList<st_clientNode_baseTrans *> m_nodeToBeDel;
@@ -80,6 +86,9 @@ namespace ExampleServer{
 		QString m_strDBName_useraccount;
 		QString m_strDBName_event;
 		QString m_largeFileFolder;
+
+		//Cluster max balance value, when clients exceeds this val, balance will happen.
+		int m_nBalanceMax;
 
 		//cluster Nodes Map
 		std::unordered_map<quint32,QString> m_hash_remoteClient2SvrName;

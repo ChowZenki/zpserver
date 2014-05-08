@@ -136,6 +136,7 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 			EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
 			pMsg->Mark = 0xBEBE;
 			pMsg->tmStamp = time(0)&0x00ffff;
+			pMsg->source_id = 0;
 			//3/10 possibility to send a data block to server
 			client->SendData(array);
 
@@ -178,7 +179,7 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 	pMsg->data_length = nMsgLen;
 
 
-	pApp->header.MsgType = 0x3000;
+	pApp->header.MsgType = 0x0001;
 
 	pApp->MsgUnion.msg_ClientLoginReq.user_id = userID;
 
@@ -300,7 +301,7 @@ void  MainDialog::on_pushButton_clientLogout_clicked()
 	pMsg->data_length = nMsgLen;
 
 
-	pApp->header.MsgType = 0x3001;
+	pApp->header.MsgType = 0x1002;
 
 
 	pApp->MsgUnion.msg_ClientLogoutReq.UserName[0] = 0;
@@ -443,20 +444,28 @@ int MainDialog::deal_current_message_block()
 													  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
 													 );
 
-	if (pApp->header.MsgType==0x3800)
+	if (pApp->header.MsgType==0x7FFE)
 	{
 		if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
 			QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
 		}
+		else if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==1)
+		{
+			m_bLogedIn = true;
+			QMessageBox::information(this,tr("Succeed!"),tr("But you can connect to another idle svr:%1:%2!")
+									 .arg((const char *)pApp->MsgUnion.msg_ClientLoginRsp.Address_Redirect)
+									 .arg(pApp->MsgUnion.msg_ClientLoginRsp.port_Redirect)
+									 );
+		}
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("Log in Failed!"));
+			QMessageBox::information(this,tr("Failed!"),tr("Log in failed!"));
 		displayMessage(tr("Res = %1")
-					   .arg(pApp->MsgUnion.msg_ClientLoginRsp.DoneCode)
-					   );
+				   .arg(pApp->MsgUnion.msg_ClientLoginRsp.DoneCode)
+				   );
 	}
-	else if (pApp->header.MsgType==0x1803)
+	else if (pApp->header.MsgType==0x7FFC)
 	{
 		if (pApp->MsgUnion.msg_UploadUserListRsp.DoneCode==0)
 			QMessageBox::information(this,tr("Succeed!"),tr("upload succeed!"));
@@ -467,7 +476,7 @@ int MainDialog::deal_current_message_block()
 					   );
 
 	}
-	else if (pApp->header.MsgType==0x1804)
+	else if (pApp->header.MsgType==0x7FFB)
 	{
 		if (pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode==0)
 		{
@@ -486,7 +495,7 @@ int MainDialog::deal_current_message_block()
 					   );
 
 	}
-	else if (pApp->header.MsgType==0x3801)
+	else if (pApp->header.MsgType==0x7FFD)
 	{
 		if (pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode==0)
 			QMessageBox::information(this,tr("Succeed!"),tr("log out succeed!"));

@@ -94,11 +94,11 @@ namespace ExampleServer{
 	int st_clientNodeAppLayer::deal_current_message_block()
 	{
 		//then , Start deal to-server messages
-		//Server - deal messages
-		if (m_currentBlock.length()>=64)
-			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-		else
-			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+		//Uncomment these codes to enable debug msg dump.
+//		if (m_currentBlock.length()>=64)
+//			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+//		else
+//			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 		if (m_currentHeader.destin_id==0x00000001)
 		{
 			if (this->m_bLoggedIn==false || this->m_bUUIDRecieved==false)
@@ -188,7 +188,7 @@ namespace ExampleServer{
 		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.header.MsgType)
 		{
-		case 0x3000:
+		case 0x0001:
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
@@ -267,7 +267,7 @@ namespace ExampleServer{
 			else
 				res = this->Box2Svr_DownloadUserTable();
 			break;
-		case 0x3001:
+		case 0x1002:
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;

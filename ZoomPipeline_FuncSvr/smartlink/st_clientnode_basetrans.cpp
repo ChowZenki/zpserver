@@ -137,6 +137,19 @@ namespace ExampleServer{
 					continue;
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
+				//Try to Get UUID Immediately
+				if (m_bUUIDRecieved==false)
+				{
+					EXAMPLE_HEARTBEATING * pHbMsg = (EXAMPLE_HEARTBEATING *)(ptrCurrData);
+					if (bIsValidUserId(pHbMsg->source_id))
+					{
+						m_bUUIDRecieved = true;
+						m_uuid =  pHbMsg->source_id;
+						//regisit client node to hash-table;
+						m_pClientTable->regisitClientUUID(this);
+					}
+				}
+
 				//This Message is Over. Start a new one.
 				m_currentMessageSize = 0;
 				m_currentBlock = QByteArray();
@@ -243,12 +256,21 @@ namespace ExampleServer{
 			if (!( bIsValidUserId(m_currentHeader.source_id)
 				  ||
 				  (m_currentHeader.source_id==0xffffffff)
-				  ))
+				  )
+					)
 			{
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
 			}
+			if (bIsValidUserId(m_currentHeader.source_id)==true &&
+					m_uuid != m_currentHeader.source_id)
+			{
+				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly."));
+				m_currentBlock = QByteArray();
+				emit evt_close_client(this->sock());
+			}
+
 
 		}
 

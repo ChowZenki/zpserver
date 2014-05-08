@@ -41,7 +41,7 @@ namespace ExampleServer{
 
 		pMsg->data_length = nMsgLen;
 
-		pApp->header.MsgType = 0x3800;
+		pApp->header.MsgType = 0x7FFE;
 
 		stMsg_ClientLoginRsp & reply = pApp->MsgUnion.msg_ClientLoginRsp;
 
@@ -80,6 +80,11 @@ namespace ExampleServer{
 							{
 								reply.DoneCode = 3;
 							}
+							//Cluster-Balance.
+							if (m_pClientTable->NeedRedirect(reply.Address_Redirect,&reply.port_Redirect))
+							{
+								reply.DoneCode = 1;
+							}
 						}
 						// else
 						// strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
@@ -111,7 +116,7 @@ namespace ExampleServer{
 
 
 
-		return reply.DoneCode==0?true:false;
+		return reply.DoneCode==3?false:true;
 	}
 	bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
 	{
@@ -146,7 +151,7 @@ namespace ExampleServer{
 
 		pMsg->data_length = nMsgLen;
 
-		pApp->header.MsgType = 0x1803;
+		pApp->header.MsgType = 0x7FFC;
 
 		stMsg_UploadUserListRsp & reply = pApp->MsgUnion.msg_UploadUserListRsp;
 
@@ -209,7 +214,7 @@ namespace ExampleServer{
 
 		pMsg->data_length = nMsgLen;
 
-		pApp->header.MsgType = 0x1804;
+		pApp->header.MsgType = 0x7FFB;
 
 		stMsg_DownloadUserListRsp & reply = pApp->MsgUnion.msg_DownloadUserListRsp;
 
@@ -257,7 +262,7 @@ namespace ExampleServer{
 		pMsg->data_length = nMsgLen;
 
 
-		pApp->header.MsgType = 0x3801;
+		pApp->header.MsgType = 0x7FFD;
 
 		stMsg_ClientLogoutRsp & reply = pApp->MsgUnion.msg_ClientLogoutRsp;
 

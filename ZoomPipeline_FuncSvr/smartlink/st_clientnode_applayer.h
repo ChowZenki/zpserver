@@ -22,15 +22,15 @@ namespace ExampleServer{
 		int deal_current_message_block();
 		//!Message Dealers, imp in st_clientnode_msgdeal.cpp
 		bool Deal_ToServer_Handshakes();
-		//0x3000<->0x3800 msg, stMsg_ClientLoginReq
+		//0x0001<->0x7FFE msg, stMsg_ClientLoginReq
 		bool LoginClient();
 		//!Deal node2Svr Msgs
 		bool Deal_Node2Svr_Msgs();
-		//0x1003 - 0x1803
+		//0x1003 - 0x7FFC
 		bool Box2Svr_UploadUserTable();
-		//0x1004 - 0x1804
+		//0x1004 - 0x7FFB
 		bool Box2Svr_DownloadUserTable();
-		//0x3001 - 0x3801
+		//0x1002 - 0x7FFD
 		bool ClientLogout();
 		//data items
 	protected:

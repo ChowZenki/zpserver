@@ -1,5 +1,6 @@
 #include "st_clientnode_basetrans.h"
 #include "st_client_table.h"
+#include <assert.h>
 namespace ExampleServer{
 	st_clientNode_baseTrans::st_clientNode_baseTrans(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
 		zp_plTaskBase(parent)
@@ -48,6 +49,8 @@ namespace ExampleServer{
 			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
+		if (ref()>1)
+			return -1;
 		int nCurrSz = -1;
 		int nMessage = m_nMessageBlockSize;
 		while (--nMessage>=0 && nCurrSz!=0  )
@@ -63,7 +66,10 @@ namespace ExampleServer{
 				if (m_currentReadOffset >= block.size())
 				{
 					m_mutex_rawData.lock();
-					m_list_RawData.pop_front();
+					if (m_list_RawData.empty()==false)
+						m_list_RawData.pop_front();
+					else
+						assert(false);
 					m_currentReadOffset = 0;
 					m_mutex_rawData.unlock();
 				}

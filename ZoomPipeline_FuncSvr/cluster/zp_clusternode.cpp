@@ -1,5 +1,6 @@
 #include "zp_clusternode.h"
 #include "zp_clusterterm.h"
+#include <assert.h>
 namespace ZP_Cluster{
 	zp_ClusterNode::zp_ClusterNode(zp_ClusterTerm * pTerm, QObject * psock,QObject *parent) :
 		ZPTaskEngine::zp_plTaskBase(parent)
@@ -56,6 +57,8 @@ namespace ZP_Cluster{
 			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
+		if (ref()>1)
+			return -1;
 		int nCurrSz = -1;
 		int nMessage = m_nMessageBlockSize;
 		while (--nMessage>=0 && nCurrSz!=0  )
@@ -71,7 +74,10 @@ namespace ZP_Cluster{
 				if (m_currentReadOffset >= block.size())
 				{
 					m_mutex_rawData.lock();
-					m_list_RawData.pop_front();
+					if (m_list_RawData.empty()==false)
+						m_list_RawData.pop_front();
+					else
+						assert(false);
 					m_currentReadOffset = 0;
 					m_mutex_rawData.unlock();
 				}

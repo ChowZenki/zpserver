@@ -54,17 +54,17 @@ private:
 	ZP_Cluster::zp_ClusterTerm * m_pClusterTerm;
 	int m_nTimerId;
 	void initUI();
-	void LoadSettings(const QString & config_file);
-	void SaveSettings(const QString & config_file);
-	void forkServer(const QString & config_file);
+	void LoadSettings(QString  config_file);
+	void SaveSettings(QString  config_file);
+	void forkServer(QString  config_file);
 protected slots:
 
-	void on_evt_MessageNetwork(QObject * psource,const QString &);
+	void on_evt_MessageNetwork(QObject * psource,QString );
 	//The socket error message
 	void on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
-	void on_evt_Message_Cluster(QObject * psource,const QString &);
-	void on_evt_Message_Database(QObject * psource,const QString &);
-	void on_evt_Message_Smartlink(QObject * psource,const QString &);
+	void on_evt_Message_Cluster(QObject * psource,QString );
+	void on_evt_Message_Database(QObject * psource,QString );
+	void on_evt_Message_Smartlink(QObject * psource,QString );
 	//The socket error message
 	void on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 public slots:

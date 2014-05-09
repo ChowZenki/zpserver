@@ -12,7 +12,7 @@ namespace SmartLink{
 		void setClientTable(st_client_table * table);
 	protected:
 		//!virtual functions, dealing with the user-defined operations.
-		virtual bool deal_user_data(const QByteArray &);
+		virtual bool deal_user_data(QByteArray );
 		bool deal_msg();
 		int st_bytesLeft();
 	protected:
@@ -27,7 +27,7 @@ namespace SmartLink{
 		STCROSSSVR_MSG::tag_msgHearder m_st_Header;
 		quint32 m_destin_uuid;
 	signals:
-		void evt_SendToNode(quint32 uuid, const QByteArray & msg);
+		void evt_SendToNode(quint32 uuid, QByteArray  msg);
 	};
 }
 #endif // ST_CROSS_SVR_NODE_H

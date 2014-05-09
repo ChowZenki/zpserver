@@ -3,7 +3,7 @@
 #include <assert.h>
 namespace ZP_Cluster{
 	using namespace std::placeholders;
-	zp_ClusterTerm::zp_ClusterTerm(const QString & name,QObject *parent ) :
+	zp_ClusterTerm::zp_ClusterTerm(QString  name,QObject *parent ) :
 		QObject(parent)
 	  ,m_strTermName(name)
 	{
@@ -66,7 +66,7 @@ namespace ZP_Cluster{
 	{
 		return m_pClusterEng;
 	}
-	QString zp_ClusterTerm::setName(const QString & s)
+	QString zp_ClusterTerm::setName(QString  s)
 	{
 		return m_strTermName = s;
 	}
@@ -120,7 +120,7 @@ namespace ZP_Cluster{
 		m_hash_mutex.unlock();
 		return lst;
 	}
-	QHostAddress zp_ClusterTerm::SvrAddr(const QString & name)
+	QHostAddress zp_ClusterTerm::SvrAddr(QString  name)
 	{
 		QHostAddress addr;
 		m_hash_mutex.lock();
@@ -130,7 +130,7 @@ namespace ZP_Cluster{
 		return addr;
 	}
 
-	int zp_ClusterTerm::SvrPort(const QString & name)
+	int zp_ClusterTerm::SvrPort(QString  name)
 	{
 		int port = 0;
 		m_hash_mutex.lock();
@@ -159,7 +159,7 @@ namespace ZP_Cluster{
 		return true;
 	}
 
-	zp_ClusterNode * zp_ClusterTerm::SvrNodeFromName(const QString & uuid)
+	zp_ClusterNode * zp_ClusterTerm::SvrNodeFromName(QString  uuid)
 	{
 		m_hash_mutex.lock();
 		if (m_hash_Name2node.contains(uuid))
@@ -305,7 +305,7 @@ namespace ZP_Cluster{
 	}
 
 	//some data arrival
-	void  zp_ClusterTerm::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray & datablock )
+	void  zp_ClusterTerm::on_evt_Data_recieved(QObject *  clientHandle,QByteArray  datablock )
 	{
 		//Push Clients to nodes if it is not exist
 		bool nHashContains = false;
@@ -416,7 +416,7 @@ namespace ZP_Cluster{
 		}
 		m_hash_mutex.unlock();
 	}
-	void zp_ClusterTerm::SendDataToRemoteServer(const QString & svrName,const QByteArray & SourceArray)
+	void zp_ClusterTerm::SendDataToRemoteServer(QString  svrName,QByteArray  SourceArray)
 	{
 		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) +  SourceArray.size();
 		QByteArray array(nMsgLen,0);

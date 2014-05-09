@@ -108,7 +108,7 @@ namespace SmartLink{
 	}
 	//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 	//!return bytes Used.
-	int st_clientNode_baseTrans::filter_message(const QByteArray & block, int offset)
+	int st_clientNode_baseTrans::filter_message(QByteArray  block, int offset)
 	{
 		const int blocklen = block.length();
 		while (blocklen>offset)

@@ -97,7 +97,7 @@ namespace ZP_Cluster{
 
 	//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 	//!return bytes Used.
-	int zp_ClusterNode::filter_message(const QByteArray & block, int offset)
+	int zp_ClusterNode::filter_message(QByteArray  block, int offset)
 	{
 		const int blocklen = block.length();
 		while (blocklen>offset)
@@ -289,7 +289,7 @@ namespace ZP_Cluster{
 		return 0;
 	}
 
-	bool zp_ClusterNode::deal_user_data(const QByteArray & data)
+	bool zp_ClusterNode::deal_user_data(QByteArray  data)
 	{
 		emit evt_RemoteData_recieved(this->termName(),data);
 		return true;

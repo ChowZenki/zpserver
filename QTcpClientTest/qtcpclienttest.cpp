@@ -177,7 +177,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 		}
 	}
 }
-void QTcpClientTest::displayMessage(const QString &str)
+void QTcpClientTest::displayMessage(QString str)
 {
 	model.insertRow(0,new QStandardItem(str));
 	while (model.rowCount()>=256)

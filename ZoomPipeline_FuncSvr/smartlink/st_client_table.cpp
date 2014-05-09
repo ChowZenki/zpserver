@@ -51,7 +51,7 @@ namespace SmartLink{
 	{
 		return m_strDBName_useraccount;
 	}
-	void st_client_table::setDatabase_UserAcct(const QString & s)
+	void st_client_table::setDatabase_UserAcct(QString  s)
 	{
 		m_strDBName_useraccount = s;
 	}
@@ -59,7 +59,7 @@ namespace SmartLink{
 	{
 		return m_strDBName_event;
 	}
-	void st_client_table::setDatabase_Event(const QString & s)
+	void st_client_table::setDatabase_Event(QString  s)
 	{
 		m_strDBName_event = s;
 	}
@@ -67,7 +67,7 @@ namespace SmartLink{
 	{
 		return m_largeFileFolder;
 	}
-	void st_client_table::setLargeFileFolder(const QString & s)
+	void st_client_table::setLargeFileFolder(QString  s)
 	{
 		m_largeFileFolder = s;
 	}
@@ -237,7 +237,7 @@ namespace SmartLink{
 	}
 
 	//some data arrival
-	void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,const QByteArray & datablock )
+	void  st_client_table::on_evt_Data_recieved(QObject *  clientHandle,QByteArray  datablock )
 	{
 		//Push Clients to nodes if it is not exist
 		bool nHashContains = false;
@@ -278,7 +278,7 @@ namespace SmartLink{
 	}
 
 	//this event indicates new svr successfully hand-shaked.
-	void st_client_table::on_evt_NewSvrConnected(const QString & svrHandle)
+	void st_client_table::on_evt_NewSvrConnected(QString  svrHandle)
 	{
 		//Send All Client UUIDs to new Svr
 		m_hash_mutex.lock();
@@ -318,7 +318,7 @@ namespace SmartLink{
 				m_pCluster->SendDataToRemoteServer(svr,array);
 		}
 	}
-	bool st_client_table::SendToNode(quint32 uuid, const QByteArray & msg)
+	bool st_client_table::SendToNode(quint32 uuid, QByteArray  msg)
 	{
 		bool bres = false;
 		m_hash_mutex.lock();
@@ -337,7 +337,7 @@ namespace SmartLink{
 	}
 
 	//this event indicates a client disconnected.
-	void st_client_table::on_evt_NewSvrDisconnected(const QString & svrHandle)
+	void st_client_table::on_evt_NewSvrDisconnected(QString  svrHandle)
 	{
 		//remove all client-maps belongs to this server.
 		this->cross_svr_del_uuids(svrHandle,NULL,0);
@@ -345,7 +345,7 @@ namespace SmartLink{
 	}
 
 	//some data arrival
-	void st_client_table::on_evt_RemoteData_recieved(const QString & svrHandle,const QByteArray & array )
+	void st_client_table::on_evt_RemoteData_recieved(QString  svrHandle,QByteArray  array )
 	{
 		emit evt_Message(this,tr("Recieved %1 bytes Msg from ").arg(array.length()) + svrHandle);
 	}
@@ -366,7 +366,7 @@ namespace SmartLink{
 		return pNode;
 	}
 	//reg new uuids in m_hash_remoteClient2SvrName
-	void st_client_table::cross_svr_add_uuids(const QString & svrname,quint32 * pUUIDs, int nUUIDs)
+	void st_client_table::cross_svr_add_uuids(QString  svrname,quint32 * pUUIDs, int nUUIDs)
 	{
 		m_mutex_cross_svr_map.lock();
 		for (int i=0;i<nUUIDs;i++)
@@ -376,7 +376,7 @@ namespace SmartLink{
 	}
 
 	//del uuids in m_hash_remoteClient2SvrName, pUUIDs =0 means del all uuids belong to svrname
-	void st_client_table::cross_svr_del_uuids(const QString & svrname,quint32 * pUUIDs , int nUUIDs)
+	void st_client_table::cross_svr_del_uuids(QString  svrname,quint32 * pUUIDs , int nUUIDs)
 	{
 		m_mutex_cross_svr_map.lock();
 		if (pUUIDs==NULL)
@@ -402,7 +402,7 @@ namespace SmartLink{
 		m_mutex_cross_svr_map.unlock();
 		emit evt_Message(this,tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
 	}
-	void st_client_table::cross_svr_send_data(const QString & svrname,const QByteArray & arr)
+	void st_client_table::cross_svr_send_data(QString  svrname,QByteArray  arr)
 	{
 		int nMsgLen = sizeof(STCROSSSVR_MSG::tag_msgHearder);
 		QByteArray array(nMsgLen,0);

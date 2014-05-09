@@ -29,11 +29,11 @@ namespace ZP_Cluster{
 		static const int m_nMessageBlockSize = 8;
 		//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 		//!return bytes Used.
-		int filter_message(const QByteArray &, int offset);
+		int filter_message(QByteArray , int offset);
 		//!in Trans-Layer, it does nothing.
 		int deal_current_message_block();
 		//!virtual functions, dealing with the user-defined operations.
-		virtual bool deal_user_data(const QByteArray &);
+		virtual bool deal_user_data(QByteArray );
 
 		QDateTime lastActiveTime();
 
@@ -71,16 +71,16 @@ namespace ZP_Cluster{
 
 		QDateTime m_last_Report;
 	signals:
-		void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
-		void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
+		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		void evt_close_client(QObject * objClient);
 		void evt_connect_to(const QHostAddress & address , quint16 nPort,bool bSSLConn);
-		void evt_Message (QObject * psource,const QString &);
+		void evt_Message (QObject * psource,QString );
 
 		//Notify Messages
-		void evt_NewSvrConnected(const QString & /*svrHandle*/);
+		void evt_NewSvrConnected(QString  /*svrHandle*/);
 		//some data arrival
-		void evt_RemoteData_recieved(const QString &  /*svrHandle*/,const QByteArray & /*svrHandle*/ );
+		void evt_RemoteData_recieved(QString   /*svrHandle*/,QByteArray  /*svrHandle*/ );
 	};
 }
 #endif // ZP_CLUSTERNODE_H

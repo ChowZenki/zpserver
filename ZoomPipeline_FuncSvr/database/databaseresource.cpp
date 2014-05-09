@@ -19,7 +19,7 @@ namespace ZPDatabase{
 	 * @param strDBName the database name
 	 * @return QSqlDatabase return the database object
 	 */
-	QSqlDatabase  DatabaseResource::databse(const QString & strDBName)
+	QSqlDatabase  DatabaseResource::databse(QString  strDBName)
 	{
 		QMutexLocker locker(&m_mutex_reg);
 		if (false==QSqlDatabase::contains(strDBName))
@@ -43,7 +43,7 @@ namespace ZPDatabase{
 	}
 
 	//!Remove Database
-	void DatabaseResource::remove_connection(const QString & strDBName)
+	void DatabaseResource::remove_connection(QString  strDBName)
 	{
 		QMutexLocker locker(&m_mutex_reg);
 		if (true==QSqlDatabase::contains(strDBName))
@@ -81,15 +81,15 @@ namespace ZPDatabase{
 	 * @return bool succeed : true
 	 */
 	bool DatabaseResource::addConnection(
-			const QString & connName,
-			const QString & type,
-			const QString & HostAddr,
+			QString  connName,
+			QString  type,
+			QString  HostAddr,
 			int port,
-			const QString & dbName,
-			const QString & User,
-			const QString & Pass,
-			const QString & ExtraOptions,
-			const QString & testSQL
+			QString  dbName,
+			QString  User,
+			QString  Pass,
+			QString  ExtraOptions,
+			QString  testSQL
 			)
 	{
 		QMutexLocker locker(&m_mutex_reg);
@@ -144,7 +144,7 @@ namespace ZPDatabase{
 	 * @param connName the connection name which to be tested.
 	 * @return bool the check result.
 	 */
-	bool DatabaseResource::confirmConnection (const QString & connName)
+	bool DatabaseResource::confirmConnection (QString  connName)
 	{
 		QMutexLocker locker(&m_mutex_reg);
 		if (false==m_dbNames.contains(connName))

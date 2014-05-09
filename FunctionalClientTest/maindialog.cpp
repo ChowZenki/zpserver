@@ -104,7 +104,7 @@ void MainDialog::new_data_recieved()
 		}
 	}
 }
-void MainDialog::displayMessage(const QString &str)
+void MainDialog::displayMessage(QString str)
 {
 	model.insertRow(0,new QStandardItem(str));
 	while (model.rowCount()>=256)
@@ -313,7 +313,7 @@ void  MainDialog::on_pushButton_clientLogout_clicked()
 
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
-int MainDialog::filter_message(const QByteArray & block, int offset)
+int MainDialog::filter_message(QByteArray  block, int offset)
 {
 	const int blocklen = block.length();
 	while (blocklen>offset)

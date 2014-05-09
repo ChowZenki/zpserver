@@ -35,7 +35,7 @@ private:
 protected:
 	//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 	//!return bytes Used.
-	int filter_message(const QByteArray &, int offset);
+	int filter_message(QByteArray , int offset);
 	int deal_current_message_block();
 
 	//data items
@@ -60,7 +60,7 @@ public slots:
 	void on_client_connected();
 	void on_client_disconnected();
 	void displayError(QAbstractSocket::SocketError);
-	void displayMessage(const QString &str);
+	void displayMessage(QString str);
 
 	void on_pushButton_connect_clicked();
 	void on_pushButton_clientLogin_clicked();

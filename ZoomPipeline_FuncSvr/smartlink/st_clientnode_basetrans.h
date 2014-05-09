@@ -35,7 +35,7 @@ namespace ExampleServer{
 	protected:
 		//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 		//!return bytes Used.
-		int filter_message(const QByteArray &, int offset);
+		int filter_message(QByteArray , int offset);
 		//!in Trans-Layer, it does nothing.
 		virtual int deal_current_message_block();
 
@@ -67,10 +67,10 @@ namespace ExampleServer{
 
 	signals:
 
-		void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
-		void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
+		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		void evt_close_client(QObject * objClient);
-		void evt_Message (QObject * psource,const QString &);
+		void evt_Message (QObject * psource,QString );
 
 	};
 }

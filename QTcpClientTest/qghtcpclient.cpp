@@ -20,7 +20,7 @@ quint32 QGHSslClient::uuid()
 {
 	return m_uuid;
 }
-void QGHSslClient::geneGlobalUUID(const QString & globalUuidFile)
+void QGHSslClient::geneGlobalUUID(QString  globalUuidFile)
 {
 	QFile file(globalUuidFile);
 	int ctp = 0;
@@ -100,7 +100,7 @@ quint32 QGHTcpClient::uuid()
 {
 	return m_uuid;
 }
-void QGHTcpClient::geneGlobalUUID(const QString & globalUuidFile)
+void QGHTcpClient::geneGlobalUUID(QString  globalUuidFile)
 {
 	QFile file(globalUuidFile);
 	int ctp = 0;

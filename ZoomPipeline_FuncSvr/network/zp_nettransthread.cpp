@@ -324,7 +324,7 @@ namespace ZPNetwork{
 		}
 	}
 
-	void zp_netTransThread::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
+	void zp_netTransThread::SendDataToClient(QObject * objClient,QByteArray   dtarray)
 	{
 		m_mutex_protect.lock();
 		if (m_clientList.find(objClient)==m_clientList.end())
@@ -355,7 +355,7 @@ namespace ZPNetwork{
 			}
 		}
 	}
-	void zp_netTransThread::BroadcastData(QObject * objClient,const QByteArray &  dtarray)
+	void zp_netTransThread::BroadcastData(QObject * objClient,QByteArray   dtarray)
 	{
 		m_mutex_protect.lock();
 		QList<QObject *> clientList = m_clientList.keys();

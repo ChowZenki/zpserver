@@ -11,7 +11,7 @@ public:
 	QGHSslClient(QObject *parent,int nPayLoad = 4096);
 	~QGHSslClient();
 	quint32 uuid();
-	void geneGlobalUUID(const QString & globalUuidFile);
+	void geneGlobalUUID(QString  globalUuidFile);
 private:
 
 	quint32 m_uuid;
@@ -32,7 +32,7 @@ public:
 	QGHTcpClient(QObject *parent,int nPayLoad = 4096);
 	~QGHTcpClient();
 	quint32 uuid();
-	void geneGlobalUUID(const QString & globalUuidFile);
+	void geneGlobalUUID(QString  globalUuidFile);
 private:
 
 	quint32 m_uuid;	int m_nPayLoad;

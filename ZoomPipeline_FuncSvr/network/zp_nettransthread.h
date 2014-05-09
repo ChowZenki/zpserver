@@ -49,9 +49,9 @@ namespace ZPNetwork{
 		//This slot dealing with possive connecting-to method.
 		void startConnection(QObject * threadid,const QHostAddress & addr, quint16 port);
 		//sending dtarray to objClient. dtarray will be pushed into m_buffer_sending
-		void SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
+		void SendDataToClient(QObject * objClient,QByteArray   dtarray);
 		//Broadcast dtarray to every client except objFromClient itself
-		void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+		void BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		//Set terminate mark, the thread will quit after last client quit.
 		void Deactivate();
 		//terminate this thread immediately
@@ -72,12 +72,12 @@ namespace ZPNetwork{
 		//SSL Encrypted started
 		void on_encrypted();
 	signals:
-		void evt_Message(QObject * psource,const QString &);
+		void evt_Message(QObject * psource,QString );
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		void evt_NewClientConnected(QObject * client);
 		void evt_ClientEncrypted(QObject * client);
 		void evt_ClientDisconnected(QObject * client);
-		void evt_Data_recieved(QObject * ,const QByteArray &  );
+		void evt_Data_recieved(QObject * ,QByteArray   );
 		void evt_Data_transferred(QObject * client,qint64);
 	};
 }

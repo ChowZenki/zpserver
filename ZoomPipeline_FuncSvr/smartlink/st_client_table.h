@@ -37,22 +37,22 @@ namespace ExampleServer{
 
 		//Database and disk resources
 		QString Database_UserAcct();
-		void setDatabase_UserAcct(const QString & s);
+		void setDatabase_UserAcct(QString  s);
 		QString Database_Event();
-		void setDatabase_Event(const QString & s);
+		void setDatabase_Event(QString  s);
 		QString largeFileFolder();
-		void setLargeFileFolder(const QString & s);
+		void setLargeFileFolder(QString  s);
 
 		ZPDatabase::DatabaseResource * dbRes();
 
 		//reg new uuids in m_hash_remoteClient2SvrName
-		void cross_svr_add_uuids(const QString & svrname,quint32 * pUUIDs, int nUUIDs);
+		void cross_svr_add_uuids(QString  svrname,quint32 * pUUIDs, int nUUIDs);
 		//del uuids in m_hash_remoteClient2SvrName, pUUIDs =0 means del all uuids belong to svrname
-		void cross_svr_del_uuids(const QString & svrname,quint32 * pUUIDs , int nUUIDs);
+		void cross_svr_del_uuids(QString  svrname,quint32 * pUUIDs , int nUUIDs);
 		//Tell remote servers of uuid-change
 		void broadcast_client_uuid(quint32 uuid, bool bActive);
 		//Trans user Data
-		void cross_svr_send_data(const QString & svrname,const QByteArray & arr);
+		void cross_svr_send_data(QString  svrname,QByteArray  arr);
 		//Server Name find
 		QString cross_svr_find_uuid(quint32 uuid);
 
@@ -101,7 +101,7 @@ namespace ExampleServer{
 
 
 	signals:
-		void evt_Message (QObject * psource,const QString &);
+		void evt_Message (QObject * psource,QString );
 
 	protected slots:
 		//this event indicates new client connected.
@@ -111,21 +111,21 @@ namespace ExampleServer{
 		//this event indicates a client disconnected.
 		void on_evt_ClientDisconnected(QObject * /*clientHandle*/);
 		//some data arrival
-		void on_evt_Data_recieved(QObject *  /*clientHandle*/,const QByteArray & /*datablock*/ );
+		void on_evt_Data_recieved(QObject *  /*clientHandle*/,QByteArray  /*datablock*/ );
 		//a block of data has been successfuly sent
 		void on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/);
 
 		//this event indicates new svr successfully hand-shaked.
-		void on_evt_NewSvrConnected(const QString &/*svrHandle*/);
+		void on_evt_NewSvrConnected(QString /*svrHandle*/);
 		//this event indicates a client disconnected.
-		void on_evt_NewSvrDisconnected(const QString &/*svrHandle*/);
+		void on_evt_NewSvrDisconnected(QString /*svrHandle*/);
 		//some data arrival
-		void on_evt_RemoteData_recieved(const QString &/*svrHandle*/,const QByteArray & /*svrHandle*/ );
+		void on_evt_RemoteData_recieved(QString /*svrHandle*/,QByteArray  /*array*/ );
 		//a block of data has been successfuly sent
 		void on_evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/);
 	public slots:
 		//send msg to uuid
-		bool SendToNode(quint32 uuid, const QByteArray & msg);
+		bool SendToNode(quint32 uuid, QByteArray  msg);
 
 	};
 }

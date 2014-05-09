@@ -161,7 +161,7 @@ void ZPMainFrame::initUI()
 	this->statusBar()->addWidget(m_pStatusLabel);
 }
 
-void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,const QString & strMsg)
+void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,QString  strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
@@ -172,7 +172,7 @@ void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,const QString & strMs
 		m_pMsgModelNetwork->removeRow(m_pMsgModelNetwork->rowCount()-1);
 }
 
-void  ZPMainFrame::on_evt_Message_Database(QObject * psource,const QString &strMsg)
+void  ZPMainFrame::on_evt_Message_Database(QObject * psource,QString strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
@@ -183,7 +183,7 @@ void  ZPMainFrame::on_evt_Message_Database(QObject * psource,const QString &strM
 		m_pMsgModelDatabase->removeRow(m_pMsgModelDatabase->rowCount()-1);
 }
 
-void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,const QString &strMsg)
+void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,QString strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
@@ -209,7 +209,7 @@ void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::Soc
 
 }
 
-void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,const QString & strMsg)
+void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,QString  strMsg)
 {
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
@@ -384,7 +384,7 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 
 
 }
-void ZPMainFrame::forkServer(const QString & config_file)
+void ZPMainFrame::forkServer(QString  config_file)
 {
 	QSettings settings(config_file,QSettings::IniFormat);
 	int nListeners = settings.value("settings/listeners",0).toInt();
@@ -516,7 +516,7 @@ void ZPMainFrame::on_action_About_triggered()
 
 	QApplication::aboutQt();
 }
-void ZPMainFrame::LoadSettings(const QString & config_file)
+void ZPMainFrame::LoadSettings(QString  config_file)
 {
 	QSettings settings(config_file,QSettings::IniFormat);
 	int nListeners = settings.value("settings/listeners",0).toInt();
@@ -640,7 +640,7 @@ void ZPMainFrame::LoadSettings(const QString & config_file)
 }
 
 
-void ZPMainFrame::SaveSettings(const QString & config_file)
+void ZPMainFrame::SaveSettings(QString  config_file)
 {
 	QSettings settings(config_file,QSettings::IniFormat);
 	int nListeners = m_pListenerModel->rowCount();

@@ -18,7 +18,7 @@ namespace ZP_Cluster{
 	{
 		Q_OBJECT
 	public:
-		explicit zp_ClusterTerm(const QString & name,QObject *parent = 0);
+		explicit zp_ClusterTerm(QString  name,QObject *parent = 0);
 
 
 		/**
@@ -39,15 +39,15 @@ namespace ZP_Cluster{
 
 		//Server Group Mapping
 	public:
-		zp_ClusterNode * SvrNodeFromName(const QString &);
+		zp_ClusterNode * SvrNodeFromName(QString );
 		zp_ClusterNode * SvrNodeFromSocket(QObject *);
 		QStringList SvrNames();
-		quint32 remoteClientNums(const QString & name);
+		quint32 remoteClientNums(QString  name);
 
-		QHostAddress SvrLANAddr(const QString & name);
-		int SvrLANPort(const QString & name);
-		QHostAddress SvrPubAddr(const QString & name);
-		int SvrPubPort(const QString & name);
+		QHostAddress SvrLANAddr(QString  name);
+		int SvrLANPort(QString  name);
+		QHostAddress SvrPubAddr(QString  name);
+		int SvrPubPort(QString  name);
 
 
 		//Client Num set, for cross-svr balance
@@ -56,7 +56,7 @@ namespace ZP_Cluster{
 		//Propties
 	public:
 		//properties.
-		QString setName(const QString & s);
+		QString setName(QString  s);
 		QString name();
 
 		//LAN Address, for other servers
@@ -107,15 +107,15 @@ namespace ZP_Cluster{
 		QMap<QObject *,zp_ClusterNode *> m_hash_sock2node;
 	signals:
 
-		void evt_Message(QObject * ,const QString &);
+		void evt_Message(QObject * ,QString );
 		//The socket error message
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		//this event indicates new svr successfully hand-shaked.
-		void evt_NewSvrConnected(const QString &/*svrHandle*/);
+		void evt_NewSvrConnected(QString /*svrHandle*/);
 		//this event indicates a client disconnected.
-		void evt_NewSvrDisconnected(const QString &/*svrHandle*/);
+		void evt_NewSvrDisconnected(QString /*svrHandle*/);
 		//some data arrival
-		void evt_RemoteData_recieved(const QString &/*svrHandle*/,const QByteArray & /*svrHandle*/ );
+		void evt_RemoteData_recieved(QString /*svrHandle*/,QByteArray  /*svrHandle*/ );
 		//a block of data has been successfuly sent
 		void evt_RemoteData_transferred(QObject *  /*svrHandle*/,qint64 /*bytes sent*/);
 
@@ -127,7 +127,7 @@ namespace ZP_Cluster{
 		//this event indicates a client disconnected.
 		void on_evt_ClientDisconnected(QObject * /*clientHandle*/);
 		//some data arrival
-		void on_evt_Data_recieved(QObject *  /*clientHandle*/,const QByteArray & /*datablock*/ );
+		void on_evt_Data_recieved(QObject *  /*clientHandle*/,QByteArray  /*datablock*/ );
 		//a block of data has been successfuly sent
 		void on_evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/);
 
@@ -141,7 +141,7 @@ namespace ZP_Cluster{
 		void  KickDeadClients();
 
 		//Send Data to Server
-		void SendDataToRemoteServer(const QString & svrName,const QByteArray &);
+		void SendDataToRemoteServer(QString  svrName,QByteArray );
 
 	};
 }

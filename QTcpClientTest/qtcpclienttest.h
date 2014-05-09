@@ -33,7 +33,7 @@ public slots:
 	void on_client_connected();
 	void on_client_disconnected();
 	void displayError(QAbstractSocket::SocketError);
-	void displayMessage(const QString &str);
+	void displayMessage(QString str);
 };
 
 #endif // QTCPCLIENTTEST_H

@@ -15,7 +15,7 @@ namespace ExampleServer{
 		return m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) - m_currStMegSize ;
 	}
 
-	bool st_cross_svr_node::deal_user_data(const QByteArray &array)
+	bool st_cross_svr_node::deal_user_data(QByteArray array)
 	{
 		const char * pData = array.constData();
 		int nBlockSize = array.size();

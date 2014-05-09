@@ -9,7 +9,8 @@ QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
 {
 	ui.setupUi(this);
 	//Paramenters
-	QSettings settings("goldenhawking club","QTcpClientTest",this);
+	QString iniFile = QCoreApplication::applicationFilePath()+".ini";
+	QSettings settings(iniFile,QSettings::IniFormat);
 	ui.lineEdit_ip->setText(settings.value("ip","localhost").toString());
 	ui.lineEdit_Port->setText(settings.value("port","23457").toString());
 	ui.dial->setValue(settings.value("clientNum","32").toInt());
@@ -34,7 +35,8 @@ void QTcpClientTest::on_horizontalSlider_valueChanged(int value)
 void QTcpClientTest::on_action_Connect_triggered(bool bConn)
 {
 	//connect to the server
-	QSettings settings("goldenhawking club","QTcpClientTest",this);
+	QString iniFile = QCoreApplication::applicationFilePath()+".ini";
+	QSettings settings(iniFile,QSettings::IniFormat);
 	settings.setValue("ip",ui.lineEdit_ip->text());
 	settings.setValue("port",ui.lineEdit_Port->text());
 	settings.setValue("clientNum",ui.dial->value());
@@ -286,7 +288,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 		}
 	}
 }
-void QTcpClientTest::displayMessage(const QString &str)
+void QTcpClientTest::displayMessage(QString str)
 {
 	model.insertRow(0,new QStandardItem(str));
 	while (model.rowCount()>=256)
@@ -295,7 +297,7 @@ void QTcpClientTest::displayMessage(const QString &str)
 quint32 QTcpClientTest::getRadomUUIDDestin()
 {
 	int nTotalClients = ui.dial->value();
-	int nMinID = m_maxUUID - m_minUUID < nTotalClients ? m_minUUID:m_maxUUID - nTotalClients;
+	int nMinID = ((m_maxUUID - m_minUUID) < nTotalClients) ? m_minUUID:(m_maxUUID - nTotalClients);
 	int nSpan = (m_maxUUID - nMinID + 1);
 	int nChoose = rand() % nSpan;
 

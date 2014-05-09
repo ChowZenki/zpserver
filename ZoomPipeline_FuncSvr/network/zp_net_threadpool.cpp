@@ -90,7 +90,7 @@ namespace ZPNetwork{
 	 * @param nPort Listening Port. in Linux, this value should larger than 1024.
 	 * @param bSSLConn True means this address using OpenSSL . False means plain TCP
 	 */
-	void zp_net_Engine::AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn /*= true*/)
+	void zp_net_Engine::AddListeningAddress(QString  id,const QHostAddress & address , quint16 nPort,bool bSSLConn /*= true*/)
 	{
 		if (m_map_netListenThreads.find(id)==m_map_netListenThreads.end())
 		{
@@ -123,7 +123,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_Engine::RemoveListeningAddress
 	 * @param id Listening-Address name specified by AddListeningAddress()
 	 */
-	void zp_net_Engine::RemoveListeningAddress(const QString & id)
+	void zp_net_Engine::RemoveListeningAddress(QString  id)
 	{
 		//m_mutex_listen.lock();
 		if (m_map_netListenThreads.find(id)!=m_map_netListenThreads.end())
@@ -198,7 +198,7 @@ namespace ZPNetwork{
 	 * @fn zp_net_Engine::on_ListenClosed
 	 * @param id the terminated thread id.
 	 */
-	void zp_net_Engine::on_ListenClosed(const QString & id)
+	void zp_net_Engine::on_ListenClosed(QString  id)
 	{
 		//m_mutex_listen.lock();
 		if (m_map_netListenThreads.find(id)!=m_map_netListenThreads.end())
@@ -374,7 +374,7 @@ namespace ZPNetwork{
 	 * @param objClient The destin client
 	 * @param dtarray data to be sent
 	 */
-	void zp_net_Engine::SendDataToClient(QObject * objClient,const QByteArray &  dtarray)
+	void zp_net_Engine::SendDataToClient(QObject * objClient,QByteArray   dtarray)
 	{
 		emit evt_SendDataToClient(objClient,dtarray);
 	}
@@ -396,7 +396,7 @@ namespace ZPNetwork{
 	 * @param objFromClient the source object.
 	 * @param dtarray data to be sent.
 	 */
-	void zp_net_Engine::BroadcastData(QObject * objFromClient,const QByteArray &  dtarray)
+	void zp_net_Engine::BroadcastData(QObject * objFromClient,QByteArray   dtarray)
 	{
 		emit evt_BroadcastData(objFromClient,dtarray);
 	}

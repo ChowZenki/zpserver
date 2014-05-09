@@ -49,6 +49,8 @@ namespace ExampleServer{
 			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
+		//This is important! sometimes without this check, m_list_RawData will crash.
+		//For a single zp_ClusterNode instance, at anytime, there should be only ONE thread in which run() is running.
 		if (ref()>1)
 			return -1;
 		int nCurrSz = -1;
@@ -108,7 +110,7 @@ namespace ExampleServer{
 	}
 	//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 	//!return bytes Used.
-	int st_clientNode_baseTrans::filter_message(const QByteArray & block, int offset)
+	int st_clientNode_baseTrans::filter_message(QByteArray  block, int offset)
 	{
 		const int blocklen = block.length();
 		while (blocklen>offset)

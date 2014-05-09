@@ -24,16 +24,16 @@ namespace ZPNetwork{
 		quint16 m_port;
 		bool m_bSSLConn;
 	public:
-		explicit zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL = true,QObject *parent = 0);
+		explicit zp_netListenThread(QString  id, QHostAddress address ,quint16 port,bool bSSL = true,QObject *parent = 0);
 		bool bSSLConn();
 	signals:
-		void evt_Message(QObject *,const QString &);
-		void evt_ListenClosed(const QString &);
+		void evt_Message(QObject *,QString );
+		void evt_ListenClosed(QString );
 		//This message will tell thread pool, a new incoming connection has arrived.
 		void evt_NewClientArrived(qintptr socketDescriptor);
 	public slots:
-		void startListen(const QString & id);
-		void stopListen(const QString & id);
+		void startListen(QString  id);
+		void stopListen(QString  id);
 	};
 }
 #endif // ZP_NETLISTENTHREAD_H

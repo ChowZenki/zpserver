@@ -1,6 +1,6 @@
 #include "zp_netlistenthread.h"
 namespace ZPNetwork{
-	zp_netListenThread::zp_netListenThread(const QString & id, QHostAddress address ,quint16 port,bool bSSL,QObject *parent)
+	zp_netListenThread::zp_netListenThread(QString  id, QHostAddress address ,quint16 port,bool bSSL,QObject *parent)
 		:QObject(parent)
 		,m_tcpServer(0)
 		,m_id(id)
@@ -26,7 +26,7 @@ namespace ZPNetwork{
 	 * @param id the Listening ID that zp_net_Engine really
 	 * want to operate.
 	 */
-	void zp_netListenThread::startListen(const QString & id)
+	void zp_netListenThread::startListen(QString  id)
 	{
 		if (id==m_id)
 		{
@@ -48,11 +48,11 @@ namespace ZPNetwork{
 	}
 
 	/**
-	 * @brief this method is very similar to zp_netListenThread::startListen(const QString & id)
+	 * @brief this method is very similar to zp_netListenThread::startListen(QString  id)
 	 *
 	 * @param id the Listening ID that zp_net_Engine really want to operate.
 	 */
-	void zp_netListenThread::stopListen(const QString & id)
+	void zp_netListenThread::stopListen(QString  id)
 	{
 		if (id==m_id)
 		{

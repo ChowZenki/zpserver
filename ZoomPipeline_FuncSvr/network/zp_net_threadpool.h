@@ -30,9 +30,9 @@ namespace ZPNetwork{
 
 		//Listening Ctrl
 		//Begin a listening socket at special address and port. The socket will be activated as soon as possible
-		void AddListeningAddress(const QString & id,const QHostAddress & address , quint16 nPort,bool bSSLConn = true);
+		void AddListeningAddress(QString  id,const QHostAddress & address , quint16 nPort,bool bSSLConn = true);
 		//Remove a listening socket at special address and port.The socket will be deactivated as soon as possible
-		void RemoveListeningAddress(const QString & id);
+		void RemoveListeningAddress(QString  id);
 		//Remove all listening sockets
 		void RemoveAllAddresses();
 
@@ -73,7 +73,7 @@ namespace ZPNetwork{
 		bool TransThreadDel(zp_netTransThread * pThreadObj);
 	signals:
 
-		void evt_Message(QObject * pSource,const QString &);
+		void evt_Message(QObject * pSource,QString );
 		//The socket error message
 		void evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError);
 		//this event indicates new client connected.
@@ -83,31 +83,31 @@ namespace ZPNetwork{
 		//this event indicates a client disconnected.
 		void evt_ClientDisconnected(QObject * /*clientHandle*/);
 		//some data arrival
-		void evt_Data_recieved(QObject *  /*clientHandle*/,const QByteArray & /*datablock*/ );
+		void evt_Data_recieved(QObject *  /*clientHandle*/,QByteArray  /*datablock*/ );
 		//a block of data has been successfuly sent
 		void evt_Data_transferred(QObject *   /*clientHandle*/,qint64 /*bytes sent*/);
 
 		//Internal Message for ctrl.------------------------------------
 		//Listen Control
-		void startListen(const QString & id);
-		void stopListen(const QString & id);
+		void startListen(QString  id);
+		void stopListen(QString  id);
 		void evt_EstablishConnection(QObject * threadid,qintptr socketDescriptor);
 		void evt_FireConnection(QObject * threadid,const QHostAddress & hostAddr, quint16 port);
 		//Trans Control,for intenal thread usage
-		void evt_SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
-		void evt_BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
+		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		void evt_KickClient(QObject *);
 		void evt_DeactivteImmediately(zp_netTransThread *);
 		void evt_KickAll(zp_netTransThread *);
 
 	protected slots:
 		void on_New_Arrived_Client(qintptr socketDescriptor);
-		void on_ListenClosed(const QString & id);
+		void on_ListenClosed(QString  id);
 	public slots:
 		//Call this function to send data to client
-		void SendDataToClient(QObject * objClient,const QByteArray &  dtarray);
+		void SendDataToClient(QObject * objClient,QByteArray   dtarray);
 		//Call this function to send data to client
-		void BroadcastData(QObject * objFromClient,const QByteArray &  dtarray);
+		void BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 
 		//Close client Immediatele
 		void KickClients(QObject * object);

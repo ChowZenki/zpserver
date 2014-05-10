@@ -39,21 +39,26 @@ namespace ZP_Cluster{
 
 	public:
 		QString termName();
-		QHostAddress addrPublish();
-		int portPublish() ;
+		QHostAddress addrLAN();
+		int portLAN() ;
+		QHostAddress addrPub();
+		int portPub() ;
 		QObject * sock() ;
+
 		//!Messages
 	public:
 		void SendHelloPackage();
+		quint32 clientNums();
 	protected:
 		zp_ClusterTerm * m_pTerm;
 		//Client socket handle of this connection
 		QObject * m_pSock;
 		//the data members.
 		QString m_strTermName;		//the Terminal's name
-		QHostAddress m_addrPublish;	//The publish address for other terms to connect to
-		int m_nPortPublish;			//The publish port for other terms to connect to
-
+		QHostAddress m_addrLAN;	//The LAN address for other terms to connect to
+		int m_nPortLAN;			//The LAN port for other terms to connect to
+		QHostAddress m_addrPub;	//The Publish address for clients to connect to
+		int m_nPortPub;			//The Publish port for clients to connect to
 		//Data Process
 		//The raw data queue and its mutex
 		QList<QByteArray> m_list_RawData;
@@ -70,6 +75,8 @@ namespace ZP_Cluster{
 		CROSS_SVR_MSG::tag_header m_currentHeader;
 
 		QDateTime m_last_Report;
+
+		quint32 m_nRemoteClientNums;
 	signals:
 		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
 		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);

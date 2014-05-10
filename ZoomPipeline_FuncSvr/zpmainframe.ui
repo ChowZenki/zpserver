@@ -526,6 +526,16 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Publish Name</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_cluster_pub_name"/>
+              </item>
+              <item>
                <widget class="QLabel" name="label_20">
                 <property name="text">
                  <string>Terminal Listen Address</string>
@@ -544,6 +554,19 @@
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_cluster_term_port"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
               <item>
                <spacer name="horizontalSpacer_6">
@@ -637,52 +660,25 @@
               <item>
                <widget class="QLabel" name="label_21">
                 <property name="text">
-                 <string>Publish Address</string>
+                 <string>LAN Address</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_cluster_pub_Addr"/>
+               <widget class="QLineEdit" name="lineEdit_cluster_LAN_Addr"/>
               </item>
               <item>
                <widget class="QLabel" name="label_22">
                 <property name="text">
-                 <string>Publish Port</string>
+                 <string>LAN Port</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_cluster_pub_Port"/>
+               <widget class="QLineEdit" name="lineEdit_cluster_LAN_Port"/>
               </item>
               <item>
                <spacer name="horizontalSpacer_7">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_17">
-              <item>
-               <widget class="QLabel" name="label_23">
-                <property name="text">
-                 <string>Publish Name</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_cluster_pub_name"/>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_9">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
@@ -700,6 +696,43 @@
                  <string>&amp;Save</string>
                 </property>
                </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Publish Address</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_cluster_pub_Addr"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_26">
+                <property name="text">
+                 <string>Publish Port</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_cluster_pub_Port"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_join">
@@ -800,19 +833,32 @@
               <item>
                <widget class="QLabel" name="label_18">
                 <property name="text">
-                 <string>Large data root folder</string>
+                 <string>Cluster balance max payload</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_SL_LargetFolder"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="toolButton_SL_BR_LargeFolder">
-                <property name="text">
-                 <string>...</string>
+               <widget class="QSpinBox" name="spinBox_cluster_max_payload">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>16384</number>
                 </property>
                </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
@@ -949,7 +995,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Control">

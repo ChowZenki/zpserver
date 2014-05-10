@@ -14,9 +14,16 @@
 using namespace ZPNetwork;
 using namespace ZPTaskEngine;
 using namespace ZP_Cluster;
-ZPMainFrame::ZPMainFrame(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::ZPMainFrame)
+
+extern quint64 g_bytesRecieved;
+extern quint64 g_bytesSent;
+extern quint64 g_secRecieved;
+extern quint64 g_secSent;
+
+
+ZPMainFrame::ZPMainFrame(QWidget *parent)
+	:QMainWindow(parent)
+	,ui(new Ui::ZPMainFrame)
 {
 	m_currentConffile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
@@ -142,11 +149,16 @@ void ZPMainFrame::initUI()
 	ui->comboBox_db_type->setModel(pCombo);
 
 
-	m_pModelCluster= new QStandardItemModel(0,3,this);
+	m_pModelCluster= new QStandardItemModel(0,6,this);
 	m_pModelCluster->setHeaderData(0,Qt::Horizontal,tr("Name"));
-	m_pModelCluster->setHeaderData(1,Qt::Horizontal,tr("Address"));
-	m_pModelCluster->setHeaderData(2,Qt::Horizontal,tr("Port"));
+	m_pModelCluster->setHeaderData(1,Qt::Horizontal,tr("LAN_Address"));
+	m_pModelCluster->setHeaderData(2,Qt::Horizontal,tr("LAN_Port"));
+	m_pModelCluster->setHeaderData(3,Qt::Horizontal,tr("Clients"));
+	m_pModelCluster->setHeaderData(4,Qt::Horizontal,tr("Pub_Address"));
+	m_pModelCluster->setHeaderData(5,Qt::Horizontal,tr("Pub_Port"));
 	ui->tableView_activeTerms->setModel(m_pModelCluster);
+	m_pStatusLabel = new QLabel(this);
+	this->statusBar()->addWidget(m_pStatusLabel);
 }
 
 void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,QString  strMsg)
@@ -235,12 +247,18 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		int nClientThreads = m_netEngine->TransThreadNum();
 
 		str_msg += tr("Current Trans Threads: %1\n").arg(nClientThreads);
+		int nTotalCLientsNums = 0;
 		for (int i=0;i<nClientThreads;i++)
 		{
 			str_msg += tr("\t%1:%2").arg(i+1).arg(m_netEngine->totalClients(i));
 			if ((i+1)%5==0)
 				str_msg += "\n";
+			nTotalCLientsNums += m_netEngine->totalClients(i);
 		}
+
+		//Set This message to Cluster Info.
+		m_pClusterTerm->setClientNums(nTotalCLientsNums);
+
 		str_msg += "\n";
 		//recording task status
 		str_msg += tr("Current Task Threads: %1\n").arg(m_taskEngine->threadsCount());
@@ -260,12 +278,17 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		}
 		//Cluster----------------------------
 
-		str_msg += tr("Cluster Group Paras:\n");
-		str_msg += tr("\tTerminal %1 : %2, published Address: %3:%4\n")
+		str_msg += tr("Cluster Paras:\n");
+		str_msg += tr("\tTerminal %1 : %2\n\t\tLAN Address: %3:%4\n\t\t Publish: %5:%6\n\t\tbalance max clients=%7\n")
 				.arg(m_pClusterTerm->name())
 				.arg(!m_pClusterTerm->netEng()->ListenerNames().empty())
-				.arg(m_pClusterTerm->publishAddr().toString())
-				.arg(m_pClusterTerm->publishPort());
+				.arg(m_pClusterTerm->LANAddr().toString())
+				.arg(m_pClusterTerm->LANPort())
+				.arg(m_pClusterTerm->PublishAddr().toString())
+				.arg(m_pClusterTerm->PublishPort())
+				.arg(m_clientTable->balanceMax())
+				;
+
 		nClientThreads = m_pClusterTerm->netEng()->TransThreadNum();
 		str_msg += "\t"+tr("Trans Threads: %1\n").arg(nClientThreads);
 		for (int i=0;i<nClientThreads;i++)
@@ -293,14 +316,35 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		if (m_pModelCluster->rowCount()>0)
 			m_pModelCluster->removeRows(0,m_pModelCluster->rowCount());
 		int nInserted = 0;
+		m_pModelCluster->insertRow(nInserted);
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,0),this->m_pClusterTerm->name());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,1),m_pClusterTerm->LANAddr().toString());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->LANPort());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,3),m_pClusterTerm->clientNums());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,4),m_pClusterTerm->PublishAddr().toString());
+		m_pModelCluster->setData(m_pModelCluster->index(nInserted,5),m_pClusterTerm->PublishPort());
+
+		++nInserted;
 		foreach (QString strNodeName,lstCluster)
 		{
 			m_pModelCluster->insertRow(nInserted);
 			m_pModelCluster->setData(m_pModelCluster->index(nInserted,0),strNodeName);
-			m_pModelCluster->setData(m_pModelCluster->index(nInserted,1),m_pClusterTerm->SvrAddr(strNodeName).toString());
-			m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->SvrPort(strNodeName));
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,1),m_pClusterTerm->SvrLANAddr(strNodeName).toString());
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,2),m_pClusterTerm->SvrLANPort(strNodeName));
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,3),m_pClusterTerm->remoteClientNums(strNodeName));
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,4),m_pClusterTerm->SvrPubAddr(strNodeName).toString());
+			m_pModelCluster->setData(m_pModelCluster->index(nInserted,5),m_pClusterTerm->SvrPubPort(strNodeName));
 			++nInserted;
 		}
+		QString str = QDateTime::currentDateTime().toString();
+		str += tr(" Rec %1B(%3 kbps)  Sent %2B(%4 kbps)")
+				.arg(g_bytesRecieved)
+				.arg(g_bytesSent)
+				.arg(g_secRecieved*8/1024/2)
+				.arg(g_secSent*8/1024/2)
+				;
+		g_secRecieved = g_secSent = 0;
+		m_pStatusLabel->setText(str);
 	}
 	else if (e->timerId()==m_nTimerCheck)
 	{
@@ -311,7 +355,6 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		m_pClusterTerm->KickDeadClients();
 		m_nTimerCheck = startTimer(5000);
 	}
-
 }
 void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 {
@@ -437,11 +480,14 @@ void ZPMainFrame::forkServer(QString  config_file)
 
 	QString strSL_LargetFolder = settings.value("Smartlink/SL_LargetFolder","NUL").toString();
 	m_clientTable->setLargeFileFolder(strSL_LargetFolder);
-
+	int nmaxBalance = settings.value("Smartlink/nmaxBalance","1024").toInt();
+	m_clientTable->setBalanceMax(nmaxBalance);
 	//clusters
 	QString strClusterTermAddr = settings.value("Cluster/strClusterTermAddr","0.0.0.0").toString();
 	QString strClusterTermPort = settings.value("Cluster/strClusterTermPort","25600").toString();
 	QString strClusterPubName = settings.value("Cluster/strClusterPubName","Term 001").toString();
+	QString strClusterLANAddr = settings.value("Cluster/strClusterLANAddr","127.0.0.1").toString();
+	QString strClusterLANPort = settings.value("Cluster/strClusterLANPort","25600").toString();
 	QString strClusterPubAddr = settings.value("Cluster/strClusterPubAddr","192.168.1.111").toString();
 	QString strClusterPubPort = settings.value("Cluster/strClusterPubPort","25600").toString();
 	int nClusterTransThreads = settings.value("Cluster/nClusterTransThreads","4").toInt();
@@ -457,6 +503,8 @@ void ZPMainFrame::forkServer(QString  config_file)
 	this->m_pClusterTerm->netEng()->AddClientTransThreads(nClusterTransThreads,false);
 	this->m_pClusterTerm->taskEng()->addThreads(nClusterWorkingThreads);
 	this->m_pClusterTerm->setName(strClusterPubName);
+	this->m_pClusterTerm->setLANAddr(QHostAddress(strClusterLANAddr));
+	this->m_pClusterTerm->setLANPort(strClusterLANPort.toInt());
 	this->m_pClusterTerm->setPublishAddr(QHostAddress(strClusterPubAddr));
 	this->m_pClusterTerm->setPublishPort(strClusterPubPort.toInt());
 	this->m_pClusterTerm->StartListen(QHostAddress(strClusterTermAddr),strClusterTermPort.toInt());
@@ -563,8 +611,8 @@ void ZPMainFrame::LoadSettings(QString  config_file)
 	QString strSLDB_mainEvent = settings.value("Smartlink/SLDB_mainEvt","EMPTY").toString();
 	ui->lineEdit_SL_DB_ME->setText(strSLDB_mainEvent);
 
-	QString strSL_LargetFolder = settings.value("Smartlink/SL_LargetFolder","NUL").toString();
-	ui->lineEdit_SL_LargetFolder->setText(strSL_LargetFolder);
+	int nmaxBalance = settings.value("Smartlink/nmaxBalance","1024").toInt();
+	ui->spinBox_cluster_max_payload->setValue(nmaxBalance);
 
 	//Cluster
 	QString strClusterTermAddr = settings.value("Cluster/strClusterTermAddr","0.0.0.0").toString();
@@ -573,10 +621,17 @@ void ZPMainFrame::LoadSettings(QString  config_file)
 	ui->lineEdit_cluster_term_port->setText(strClusterTermPort);
 	QString strClusterPubName = settings.value("Cluster/strClusterPubName","Term 001").toString();
 	ui->lineEdit_cluster_pub_name->setText(strClusterPubName);
+	QString strClusterLANAddr = settings.value("Cluster/strClusterLANAddr","127.0.0.1").toString();
+	ui->lineEdit_cluster_LAN_Addr->setText(strClusterLANAddr);
+	QString strClusterLANPort = settings.value("Cluster/strClusterLANPort","25600").toString();
+	ui->lineEdit_cluster_LAN_Port->setText(strClusterLANPort);
+
 	QString strClusterPubAddr = settings.value("Cluster/strClusterPubAddr","192.168.1.111").toString();
 	ui->lineEdit_cluster_pub_Addr->setText(strClusterPubAddr);
 	QString strClusterPubPort = settings.value("Cluster/strClusterPubPort","25600").toString();
 	ui->lineEdit_cluster_pub_Port->setText(strClusterPubPort);
+
+
 	int nClusterTransThreads = settings.value("Cluster/nClusterTransThreads","4").toInt();
 	ui->horizontalSlider_cluster_transThreads->setValue(nClusterTransThreads);
 	int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
@@ -651,13 +706,16 @@ void ZPMainFrame::SaveSettings(QString  config_file)
 	settings.setValue("Smartlink/SLDB_useracc",strSLDB_useracc);
 	QString strSLDB_mainEvent = ui->lineEdit_SL_DB_ME->text();
 	settings.setValue("Smartlink/SLDB_mainEvt",strSLDB_mainEvent);
-	QString strSL_LargetFolder = ui->lineEdit_SL_LargetFolder->text();
-	settings.setValue("Smartlink/SL_LargetFolder",strSL_LargetFolder);
+	int nmaxBalance = ui->spinBox_cluster_max_payload->value();
+	settings.setValue("Smartlink/nmaxBalance",nmaxBalance);
+
 
 	//Cluster
 	settings.setValue("Cluster/strClusterTermAddr",ui->lineEdit_cluster_term_addr->text());
 	settings.setValue("Cluster/strClusterTermPort",ui->lineEdit_cluster_term_port->text());
 	settings.setValue("Cluster/strClusterPubName", ui->lineEdit_cluster_pub_name->text());
+	settings.setValue("Cluster/strClusterLANAddr",ui->lineEdit_cluster_LAN_Addr->text());
+	settings.setValue("Cluster/strClusterLANPort",ui->lineEdit_cluster_LAN_Port->text());
 	settings.setValue("Cluster/strClusterPubAddr",ui->lineEdit_cluster_pub_Addr->text());
 	settings.setValue("Cluster/strClusterPubPort",ui->lineEdit_cluster_pub_Port->text());
 	settings.setValue("Cluster/nClusterTransThreads",ui->horizontalSlider_cluster_transThreads->value());

@@ -37,13 +37,43 @@ namespace ZP_Cluster{
 		ZPTaskEngine::zp_pipeline * taskEng();
 		bool canExit();
 
+		//Server Group Mapping
+	public:
+		zp_ClusterNode * SvrNodeFromName(QString );
+		zp_ClusterNode * SvrNodeFromSocket(QObject *);
+		QStringList SvrNames();
+		quint32 remoteClientNums(QString  name);
+
+		QHostAddress SvrLANAddr(QString  name);
+		int SvrLANPort(QString  name);
+		QHostAddress SvrPubAddr(QString  name);
+		int SvrPubPort(QString  name);
+
+
+		//Client Num set, for cross-svr balance
+		void setClientNums(quint32 nnum);
+		quint32 clientNums();
+		//Propties
+	public:
 		//properties.
 		QString setName(QString  s);
 		QString name();
-		QHostAddress publishAddr();
-		int publishPort();
+
+		//LAN Address, for other servers
+		QHostAddress LANAddr();
+		int LANPort();
+		QHostAddress setLANAddr(QHostAddress addr);
+		int setLANPort(int port);
+
+		//Publish Address, for clients.
+		QHostAddress PublishAddr();
+		int PublishPort();
 		QHostAddress setPublishAddr(QHostAddress addr);
 		int setPublishPort(int port);
+
+		//Re-Direct Test.
+		QString minPayloadServer(quint8 bufAddresses[/*64*/],quint16 * pnPort);
+
 		int heartBeatingThrdHold() ;
 		void setHeartBeatingThrd(const int n);
 		bool regisitNewServer(zp_ClusterNode *);
@@ -61,9 +91,12 @@ namespace ZP_Cluster{
 	protected:
 
 		int m_nHeartBeatingTime;
+		quint32 m_nClientNums; //the clients this server now connected.
 		QString m_strTermName;//the Terminal's name
-		QHostAddress m_addrPublish;	//The publish address for other terms to connect to
-		int m_nPortPublish;//The publish port for other terms to connect to
+		QHostAddress m_addrLAN;	//The LAN address for other server-terms to connect to
+		int m_nPortLAN;//The LAN port for other server-terms to connect to
+		QHostAddress m_addrPub;	//The Publish address for clients to connect to
+		int m_nPortPub;//The Publish port for clients to connect to
 		ZPNetwork::zp_net_Engine * m_pClusterNet;
 		ZPTaskEngine::zp_pipeline * m_pClusterEng;
 		//This list hold dead nodes that still in task queue,avoiding crash
@@ -72,13 +105,6 @@ namespace ZP_Cluster{
 		QMutex m_hash_mutex;
 		QMap<QString , zp_ClusterNode *> m_hash_Name2node;
 		QMap<QObject *,zp_ClusterNode *> m_hash_sock2node;
-		//Server Group Mapping
-	public:
-		zp_ClusterNode * SvrNodeFromName(QString );
-		zp_ClusterNode * SvrNodeFromSocket(QObject *);
-		QStringList SvrNames();
-		QHostAddress SvrAddr(QString  name);
-		int SvrPort(QString  name);
 	signals:
 
 		void evt_Message(QObject * ,QString );

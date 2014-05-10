@@ -6,6 +6,14 @@
 #include <QCoreApplication>
 #include <QHostAddress>
 #include "zp_net_threadpool.h"
+#include <QMutex>
+//Trans st
+QMutex g_mutex_sta;
+quint64 g_bytesRecieved = 0;
+quint64 g_bytesSent = 0;
+quint64 g_secRecieved = 0;
+quint64 g_secSent = 0;
+
 namespace ZPNetwork{
 	zp_netTransThread::zp_netTransThread(zp_net_Engine *pThreadPool,int nPayLoad,QObject *parent) :
 		QObject(parent)
@@ -237,7 +245,15 @@ namespace ZPNetwork{
 	{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		if (pSock)
-			emit evt_Data_recieved(pSock,pSock->readAll());
+		{
+			QByteArray array = pSock->readAll();
+			int sz = array.size();
+			g_mutex_sta.lock();
+			g_bytesRecieved +=sz;
+			g_secRecieved += sz;
+			g_mutex_sta.unlock();
+			emit evt_Data_recieved(pSock,array);
+		}
 	}
 	/**
 	 * @brief this slot will be called when internal socket successfully
@@ -248,6 +264,10 @@ namespace ZPNetwork{
 	 */
 	void zp_netTransThread::some_data_sended(qint64 wsended)
 	{
+		g_mutex_sta.lock();
+		g_bytesSent +=wsended;
+		g_secSent += wsended;
+		g_mutex_sta.unlock();
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		if (pSock)
 		{

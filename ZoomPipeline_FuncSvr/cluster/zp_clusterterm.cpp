@@ -6,6 +6,7 @@ namespace ZP_Cluster{
 	zp_ClusterTerm::zp_ClusterTerm(QString  name,QObject *parent ) :
 		QObject(parent)
 	  ,m_strTermName(name)
+	  ,m_nClientNums(0)
 	{
 		m_pClusterEng = new ZPTaskEngine::zp_pipeline(this);
 		m_pClusterNet = new ZPNetwork::zp_net_Engine(8192,this);
@@ -16,9 +17,18 @@ namespace ZP_Cluster{
 		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientDisconnected, this,&zp_ClusterTerm::on_evt_ClientDisconnected,Qt::QueuedConnection);
 		connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_NewClientConnected, this,&zp_ClusterTerm::on_evt_NewClientConnected,Qt::QueuedConnection);
 		//connect(m_pClusterNet,&ZPNetwork::zp_net_Engine::evt_ClientEncrypted, this,&zp_ClusterTerm::on_evt_ClientEncrypted);
-		m_nPortPublish = 0;
+		m_nPortLAN = m_nPortPub = 0;
 		m_nHeartBeatingTime = 20;
 		m_factory = std::bind(&zp_ClusterTerm::default_factory,this,_1,_2,_3);
+	}
+	void zp_ClusterTerm::setClientNums(quint32 nnum)
+	{
+		m_nClientNums = nnum;
+	}
+
+	quint32 zp_ClusterTerm::clientNums()
+	{
+		return m_nClientNums;
 	}
 
 	/**
@@ -54,9 +64,38 @@ namespace ZP_Cluster{
 		m_factory = fac;
 	}
 
-	int zp_ClusterTerm::publishPort(){
+	int zp_ClusterTerm::LANPort(){
 
-		return m_nPortPublish;
+		return m_nPortLAN;
+	}
+	QHostAddress zp_ClusterTerm::LANAddr()
+	{
+		return m_addrLAN;
+	}
+	QHostAddress zp_ClusterTerm::setLANAddr(QHostAddress addr)
+	{
+		return m_addrLAN = addr;
+	}
+	int zp_ClusterTerm::setLANPort(int port)
+	{
+		return m_nPortLAN = port;
+	}
+
+	int zp_ClusterTerm::PublishPort(){
+
+		return m_nPortPub;
+	}
+	QHostAddress zp_ClusterTerm::PublishAddr()
+	{
+		return m_addrPub;
+	}
+	QHostAddress zp_ClusterTerm::setPublishAddr(QHostAddress addr)
+	{
+		return m_addrPub = addr;
+	}
+	int zp_ClusterTerm::setPublishPort(int port)
+	{
+		return m_nPortPub = port;
 	}
 	ZPNetwork::zp_net_Engine * zp_ClusterTerm::netEng()
 	{
@@ -73,18 +112,6 @@ namespace ZP_Cluster{
 	QString zp_ClusterTerm::name()
 	{
 		return m_strTermName;
-	}
-	QHostAddress zp_ClusterTerm::publishAddr()
-	{
-		return m_addrPublish;
-	}
-	QHostAddress zp_ClusterTerm::setPublishAddr(QHostAddress addr)
-	{
-		return m_addrPublish = addr;
-	}
-	int zp_ClusterTerm::setPublishPort(int port)
-	{
-		return m_nPortPublish = port;
 	}
 	int zp_ClusterTerm::heartBeatingThrdHold()
 	{
@@ -120,24 +147,54 @@ namespace ZP_Cluster{
 		m_hash_mutex.unlock();
 		return lst;
 	}
-	QHostAddress zp_ClusterTerm::SvrAddr(QString  name)
+	QHostAddress zp_ClusterTerm::SvrLANAddr(QString  name)
 	{
 		QHostAddress addr;
 		m_hash_mutex.lock();
 		if (m_hash_Name2node.contains(name))
-			addr = m_hash_Name2node[name]->addrPublish();
+			addr = m_hash_Name2node[name]->addrLAN();
 		m_hash_mutex.unlock();
 		return addr;
 	}
 
-	int zp_ClusterTerm::SvrPort(QString  name)
+	int zp_ClusterTerm::SvrLANPort(QString  name)
 	{
 		int port = 0;
 		m_hash_mutex.lock();
 		if (m_hash_Name2node.contains(name))
-			port = m_hash_Name2node[name]->portPublish();
+			port = m_hash_Name2node[name]->portLAN();
 		m_hash_mutex.unlock();
 		return port;
+	}
+	QHostAddress zp_ClusterTerm::SvrPubAddr(QString  name)
+	{
+		QHostAddress addr;
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(name))
+			addr = m_hash_Name2node[name]->addrPub();
+		m_hash_mutex.unlock();
+		return addr;
+	}
+
+	int zp_ClusterTerm::SvrPubPort(QString  name)
+	{
+		int port = 0;
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(name))
+			port = m_hash_Name2node[name]->portPub();
+		m_hash_mutex.unlock();
+		return port;
+	}
+
+
+	quint32 zp_ClusterTerm::remoteClientNums(QString  name)
+	{
+		quint32 res = 0;
+		m_hash_mutex.lock();
+		if (m_hash_Name2node.contains(name))
+			res = m_hash_Name2node[name]->clientNums();
+		m_hash_mutex.unlock();
+		return res;
 	}
 
 	bool zp_ClusterTerm::regisitNewServer(zp_ClusterNode * c)
@@ -373,20 +430,29 @@ namespace ZP_Cluster{
 			strncpy((char *)pMsg->payload.broadcastMsg[ct].name,
 					pNode->termName().toStdString().c_str(),
 					sizeof(pMsg->payload.broadcastMsg[ct].name)-1);
-			strncpy((char *)pMsg->payload.broadcastMsg[ct].Address,
-					pNode->addrPublish().toString().toStdString().c_str(),
-					sizeof(pMsg->payload.broadcastMsg[ct].Address)-1);
-			pMsg->payload.broadcastMsg[ct].port = pNode->portPublish();
+			strncpy((char *)pMsg->payload.broadcastMsg[ct].Address_LAN,
+					pNode->addrLAN().toString().toStdString().c_str(),
+					sizeof(pMsg->payload.broadcastMsg[ct].Address_LAN)-1);
+			pMsg->payload.broadcastMsg[ct].port_LAN = pNode->portLAN();
+			strncpy((char *)pMsg->payload.broadcastMsg[ct].Address_Pub,
+					pNode->addrPub().toString().toStdString().c_str(),
+					sizeof(pMsg->payload.broadcastMsg[ct].Address_Pub)-1);
+			pMsg->payload.broadcastMsg[ct].port_Pub = pNode->portPub();
+
 			++ct;
 		}
 		m_hash_mutex.unlock();
 		strncpy((char *)pMsg->payload.broadcastMsg[ct].name,
 				this->name().toStdString().c_str(),
 				sizeof(pMsg->payload.broadcastMsg[ct].name)-1);
-		strncpy((char *)pMsg->payload.broadcastMsg[ct].Address,
-				this->publishAddr().toString().toStdString().c_str(),
-				sizeof(pMsg->payload.broadcastMsg[ct].Address)-1);
-		pMsg->payload.broadcastMsg[ct].port = this->publishPort();
+		strncpy((char *)pMsg->payload.broadcastMsg[ct].Address_LAN,
+				this->LANAddr().toString().toStdString().c_str(),
+				sizeof(pMsg->payload.broadcastMsg[ct].Address_LAN)-1);
+		pMsg->payload.broadcastMsg[ct].port_LAN = this->LANPort();
+		strncpy((char *)pMsg->payload.broadcastMsg[ct].Address_Pub,
+				this->PublishAddr().toString().toStdString().c_str(),
+				sizeof(pMsg->payload.broadcastMsg[ct].Address_Pub)-1);
+		pMsg->payload.broadcastMsg[ct].port_Pub = this->PublishPort();
 		m_hash_mutex.lock();
 		QList<QString> sockkeys =  m_hash_Name2node.keys();
 		//Msgs
@@ -399,14 +465,14 @@ namespace ZP_Cluster{
 
 	void zp_ClusterTerm::SendHeartBeatings()
 	{
-		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header);
+		int nMsgLen = sizeof(CROSS_SVR_MSG::tag_header) + sizeof(CROSS_SVR_MSG::uni_payload::tag_CSM_heartBeating);
 		QByteArray array(nMsgLen,0);
 		CROSS_SVR_MSG * pMsg =(CROSS_SVR_MSG *) array.data();
 		pMsg->hearder.Mark = 0x1234;
-		pMsg->hearder.data_length = 0;
+		pMsg->hearder.data_length = sizeof(CROSS_SVR_MSG::uni_payload::tag_CSM_heartBeating);
 		pMsg->hearder.messagetype = 0x00;
+		pMsg->payload.heartBeating.nClients = this->m_nClientNums;
 		//m_pClusterNet->BroadcastData(0,array);
-
 		m_hash_mutex.lock();
 		QList<QString> keys =  m_hash_Name2node.keys();
 		//Msgs
@@ -430,4 +496,46 @@ namespace ZP_Cluster{
 			netEng()->SendDataToClient(m_hash_Name2node[svrName]->sock(),array);
 		m_hash_mutex.unlock();
 	}
+
+	QString zp_ClusterTerm::minPayloadServer(quint8 bufAddresses[/*64*/],quint16 * pnPort)
+	{
+		QString serverName = this->name();
+		strncpy((char *)bufAddresses
+				,this->PublishAddr().toString().toStdString().c_str()
+				,64);
+		*pnPort = this->PublishPort();
+		m_hash_mutex.lock();
+		QList<QString> keys =  m_hash_Name2node.keys();
+		int nsz = keys.size();
+		if (nsz==0)
+		{
+			m_hash_mutex.unlock();
+			return serverName;
+		}
+		//Msgs
+		int nMinVal = this->m_nClientNums;
+		zp_ClusterNode * pMinNode = 0;
+		int ct = 0;
+		foreach (QString key,keys)
+		{
+			zp_ClusterNode * pNode = m_hash_Name2node[key];
+			if (pNode->clientNums() < nMinVal )
+			{
+				nMinVal = pNode->clientNums();
+				pMinNode = pNode;
+			}
+			++ct;
+		}
+		if (pMinNode)
+		{
+			strncpy((char *)bufAddresses
+					,pMinNode->addrPub().toString().toStdString().c_str()
+					,64);
+			*pnPort = pMinNode->portPub();
+			serverName = pMinNode->termName();
+		}
+		m_hash_mutex.unlock();
+		return serverName;
+	}
+
 }

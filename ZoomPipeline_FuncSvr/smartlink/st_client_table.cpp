@@ -18,6 +18,7 @@ namespace SmartLink{
 	  ,m_pTaskEngine(taskeng)
 	  ,m_pDatabaseRes(pDb)
 	  ,m_pCluster(pCluster)
+	  ,m_nBalanceMax(1024)
 	{
 		m_nHeartBeatingDeadThrd = 180;
 		connect (m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_NewClientConnected,this,&st_client_table::on_evt_NewClientConnected,Qt::QueuedConnection);
@@ -36,7 +37,15 @@ namespace SmartLink{
 							  _1,_2,_3)
 					);
 	}
+	void st_client_table::setBalanceMax(int nmax)
+	{
+		m_nBalanceMax = nmax;
+	}
 
+	int st_client_table::balanceMax()
+	{
+		return m_nBalanceMax;
+	}
 	int st_client_table::heartBeatingThrd()
 	{
 		return m_nHeartBeatingDeadThrd;
@@ -423,6 +432,15 @@ namespace SmartLink{
 			svr = m_hash_remoteClient2SvrName[uuid];
 		m_mutex_cross_svr_map.unlock();
 		return svr;
+	}
+	bool st_client_table::NeedRedirect(quint8 bufAddresses[/*64*/],quint16 * pnPort)
+	{
+		if (m_pCluster->clientNums()<m_nBalanceMax)
+			return false;
+		QString strServerName = m_pCluster->minPayloadServer(bufAddresses,pnPort);
+		if (strServerName==m_pCluster->name())
+			return false;
+		return true;
 	}
 }
 

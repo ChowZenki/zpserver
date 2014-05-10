@@ -1,5 +1,6 @@
 #include "zp_clusternode.h"
 #include "zp_clusterterm.h"
+#include <assert.h>
 namespace ZP_Cluster{
 	zp_ClusterNode::zp_ClusterNode(zp_ClusterTerm * pTerm, QObject * psock,QObject *parent) :
 		ZPTaskEngine::zp_plTaskBase(parent)
@@ -9,8 +10,13 @@ namespace ZP_Cluster{
 	{
 		m_currentReadOffset = 0;
 		m_currentMessageSize = 0;
-		m_nPortPublish = 0;
+		m_nPortLAN = m_nPortPub = 0;
 		m_last_Report = QDateTime::currentDateTime();
+		m_nRemoteClientNums = 0;
+	}
+	quint32 zp_ClusterNode::clientNums()
+	{
+		return m_nRemoteClientNums;
 	}
 
 	QDateTime zp_ClusterNode::lastActiveTime()
@@ -21,14 +27,24 @@ namespace ZP_Cluster{
 	{
 		return m_strTermName;
 	}
-	QHostAddress zp_ClusterNode::addrPublish()
+	QHostAddress zp_ClusterNode::addrLAN()
 	{
-		return m_addrPublish;
+		return m_addrLAN;
 	}
-	int zp_ClusterNode::portPublish()
+	int zp_ClusterNode::portLAN()
 	{
-		return m_nPortPublish;
+		return m_nPortLAN;
 	}
+
+	QHostAddress zp_ClusterNode::addrPub()
+	{
+		return m_addrPub;
+	}
+	int zp_ClusterNode::portPub()
+	{
+		return m_nPortPub;
+	}
+
 	QObject * zp_ClusterNode::sock()
 	{
 		return m_pSock;
@@ -41,6 +57,8 @@ namespace ZP_Cluster{
 			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
+		//This is important! sometimes without this check, m_list_RawData will crash.
+		//For a single zp_ClusterNode instance, at anytime, there should be only ONE thread in which run() is running.
 		if (ref()>1)
 			return -1;
 		int nCurrSz = -1;
@@ -58,7 +76,10 @@ namespace ZP_Cluster{
 				if (m_currentReadOffset >= block.size())
 				{
 					m_mutex_rawData.lock();
-					m_list_RawData.pop_front();
+					if (m_list_RawData.empty()==false)
+						m_list_RawData.pop_front();
+					else
+						assert(false);
 					m_currentReadOffset = 0;
 					m_mutex_rawData.unlock();
 				}
@@ -201,12 +222,17 @@ namespace ZP_Cluster{
 		switch(m_currentHeader.messagetype)
 		{
 		case 0x00://Heart Beating
+			if (bytesLeft==0)
+			{
+				m_nRemoteClientNums = pMsg->payload.heartBeating.nClients;
+			}
 			break;
 		case 0x01://basicInfo, when connection established, this message should be used
-			if (m_currentBlock.length()>=64)
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-			else
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+//			UnComment code below, will generate debug output.
+//			if (m_currentBlock.length()>=64)
+//				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+//			else
+//				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 
 			if (bytesLeft==0)
 			{
@@ -214,8 +240,10 @@ namespace ZP_Cluster{
 				if (strName != m_pTerm->name())
 				{
 					this->m_strTermName = strName;
-					m_nPortPublish = pMsg->payload.basicInfo.port;
-					m_addrPublish = QHostAddress((const char *)pMsg->payload.basicInfo.Address);
+					m_nPortLAN = pMsg->payload.basicInfo.port_LAN;
+					m_addrLAN = QHostAddress((const char *)pMsg->payload.basicInfo.Address_LAN);
+					m_nPortPub = pMsg->payload.basicInfo.port_Pub;
+					m_addrPub = QHostAddress((const char *)pMsg->payload.basicInfo.Address_Pub);
 					if (false==m_pTerm->regisitNewServer(this))
 					{
 						this->m_strTermName.clear();
@@ -236,10 +264,11 @@ namespace ZP_Cluster{
 			}
 			break;
 		case 0x02: //Server - broadcast messages
-			if (m_currentBlock.length()>=64)
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-			else
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+//			UnComment code below, will generate debug output.
+//			if (m_currentBlock.length()>=64)
+//				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+//			else
+//				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 
 			if (bytesLeft==0)
 			{
@@ -249,8 +278,8 @@ namespace ZP_Cluster{
 					QString strName ((const char *)pMsg->payload.broadcastMsg[i].name);
 					if (strName != m_pTerm->name() && m_pTerm->SvrNodeFromName(strName)==NULL)
 					{
-						QHostAddress addrToConnectTo((const char *)pMsg->payload.broadcastMsg[i].Address);
-						quint16 PortToConnectTo = pMsg->payload.broadcastMsg[i].port;
+						QHostAddress addrToConnectTo((const char *)pMsg->payload.broadcastMsg[i].Address_LAN);
+						quint16 PortToConnectTo = pMsg->payload.broadcastMsg[i].port_LAN;
 						//because cross-connection is not good, we just want the low Addr:port connect to max Addr:Port.
 						//Connect to New Servers
 						if (strName > m_pTerm->name())
@@ -262,10 +291,11 @@ namespace ZP_Cluster{
 			}
 			break;
 		case 0x03:
-			if (m_currentBlock.length()>=64)
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-			else
-				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
+			//			UnComment code below, will generate debug output.
+//			if (m_currentBlock.length()>=64)
+//				emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
+//			else
+//				emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 
 			if (m_currentMessageSize==m_currentBlock.size())
 			{
@@ -317,11 +347,17 @@ namespace ZP_Cluster{
 		strncpy((char *)(pMsg->payload.basicInfo.name),
 				m_pTerm->name().toStdString().c_str(),
 				sizeof(pMsg->payload.basicInfo.name)-1);
-		strncpy((char *)(pMsg->payload.basicInfo.Address),
-				m_pTerm->publishAddr().toString().toStdString().c_str(),
-				sizeof(pMsg->payload.basicInfo.Address)-1);
+		strncpy((char *)(pMsg->payload.basicInfo.Address_LAN),
+				m_pTerm->LANAddr().toString().toStdString().c_str(),
+				sizeof(pMsg->payload.basicInfo.Address_LAN)-1);
 
-		pMsg->payload.basicInfo.port = m_pTerm->publishPort();
+		pMsg->payload.basicInfo.port_LAN = m_pTerm->LANPort();
+
+		strncpy((char *)(pMsg->payload.basicInfo.Address_Pub),
+				m_pTerm->PublishAddr().toString().toStdString().c_str(),
+				sizeof(pMsg->payload.basicInfo.Address_Pub)-1);
+
+		pMsg->payload.basicInfo.port_Pub = m_pTerm->PublishPort();
 
 
 		emit evt_SendDataToClient(sock(),array);

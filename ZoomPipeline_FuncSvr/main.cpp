@@ -4,8 +4,6 @@
 #include <QLibraryInfo>
 int main(int argc, char *argv[])
 {
-
-
 	QApplication app(argc, argv);
 
 	QTranslator qtTranslator;
@@ -21,8 +19,16 @@ int main(int argc, char *argv[])
 	appTranslator.load(strTransLocalFile );
 	app.installTranslator(&appTranslator);
 
-
 	ZPMainFrame w;
+	//Command Line Args
+	if (argc>1)
+	{
+
+	}
+	else
+	{
+
+	}
 	w.show();
 	int pp = app.exec();
 	return pp;

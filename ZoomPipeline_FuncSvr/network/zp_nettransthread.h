@@ -5,10 +5,11 @@
 #define ZP_NETTRANSTHREAD_H
 
 #include <QObject>
-#include <QMap>
 #include <QList>
 #include <QAbstractSocket>
 #include <QMutex>
+#include <unordered_map>
+#include <QSet>
 namespace ZPNetwork{
 	class zp_net_Engine;
 	/**
@@ -35,11 +36,11 @@ namespace ZPNetwork{
 		bool m_bActivated;
 		bool m_bSSLConnection;
 		//sending buffer, hold byteArraies.
-		QMap<QObject *,QList<QByteArray> > m_buffer_sending;
+		std::unordered_map<QObject *,QList<QByteArray> > m_buffer_sending;
 
-		QMap<QObject *,QList<qint64> > m_buffer_sending_offset;
+		std::unordered_map<QObject *,QList<qint64> > m_buffer_sending_offset;
 		//The socket and the connection-direction, 0 is passive, 1 is postive.
-		QMap<QObject*,int> m_clientList;
+		QSet<QObject*> m_clientList;
 		int m_nPayLoad;
 		QMutex m_mutex_protect;
 		zp_net_Engine * m_pThreadPool;
@@ -50,8 +51,6 @@ namespace ZPNetwork{
 		void startConnection(QObject * threadid,const QHostAddress & addr, quint16 port);
 		//sending dtarray to objClient. dtarray will be pushed into m_buffer_sending
 		void SendDataToClient(QObject * objClient,QByteArray   dtarray);
-		//Broadcast dtarray to every client except objFromClient itself
-		void BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		//Set terminate mark, the thread will quit after last client quit.
 		void Deactivate();
 		//terminate this thread immediately

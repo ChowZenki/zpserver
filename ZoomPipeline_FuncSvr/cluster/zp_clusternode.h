@@ -79,7 +79,6 @@ namespace ZP_Cluster{
 		quint32 m_nRemoteClientNums;
 	signals:
 		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
-		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		void evt_close_client(QObject * objClient);
 		void evt_connect_to(const QHostAddress & address , quint16 nPort,bool bSSLConn);
 		void evt_Message (QObject * psource,QString );

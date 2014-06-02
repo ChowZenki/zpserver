@@ -50,7 +50,7 @@ namespace ZPNetwork{
 	{
 		QList <QObject *> lsts ;
 		m_mutex_protect.lock();
-		lsts = m_clientList.keys();
+		lsts = m_clientList.values();
 		m_mutex_protect.unlock();
 		return lsts;
 	}
@@ -123,7 +123,7 @@ namespace ZPNetwork{
 				connect(sock_client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)),Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended,Qt::QueuedConnection);
 				m_mutex_protect.lock();
-				m_clientList[sock_client] = 0;
+				m_clientList.insert(sock_client);
 				m_mutex_protect.unlock();
 				if (m_bSSLConnection)
 				{
@@ -178,7 +178,7 @@ namespace ZPNetwork{
 				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_connected,Qt::QueuedConnection);
 				connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
 				m_mutex_protect.lock();
-				m_clientList[sock_client] = 1;
+				m_clientList.insert(sock_client);
 				m_mutex_protect.unlock();
 
 				psslsock->connectToHostEncrypted(addr.toString(),port);
@@ -191,7 +191,7 @@ namespace ZPNetwork{
 				connect(sock_client, &QTcpSocket::bytesWritten, this,&zp_netTransThread::some_data_sended,Qt::QueuedConnection);
 				connect(sock_client, &QTcpSocket::connected,this, &zp_netTransThread::on_connected,Qt::QueuedConnection);
 				m_mutex_protect.lock();
-				m_clientList[sock_client] = 1;
+				m_clientList.insert(sock_client);
 				m_mutex_protect.unlock();
 				sock_client->connectToHost(addr,port);
 
@@ -231,8 +231,8 @@ namespace ZPNetwork{
 			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
 			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
 
-			m_buffer_sending.remove(pSock);
-			m_buffer_sending_offset.remove(pSock);
+			m_buffer_sending.erase(pSock);
+			m_buffer_sending_offset.erase(pSock);
 			m_mutex_protect.lock();
 			m_clientList.remove(pSock);
 			m_mutex_protect.unlock();
@@ -311,8 +311,8 @@ namespace ZPNetwork{
 			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
 			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
 
-			m_buffer_sending.remove(pSock);
-			m_buffer_sending_offset.remove(pSock);
+			m_buffer_sending.erase(pSock);
+			m_buffer_sending_offset.erase(pSock);
 			m_mutex_protect.lock();
 			m_clientList.remove(pSock);
 			m_mutex_protect.unlock();
@@ -327,8 +327,7 @@ namespace ZPNetwork{
 	void zp_netTransThread::SendDataToClient(QObject * objClient,QByteArray   dtarray)
 	{
 		m_mutex_protect.lock();
-		if (m_clientList.find(objClient)==m_clientList.end())
-//		if (objClient->parent()!=this)//this approach is very effective, but can cause memory problems
+		if (m_clientList.contains(objClient)==false)
 		{
 			m_mutex_protect.unlock();
 			return;
@@ -355,49 +354,27 @@ namespace ZPNetwork{
 			}
 		}
 	}
-	void zp_netTransThread::BroadcastData(QObject * objClient,QByteArray   dtarray)
-	{
-		m_mutex_protect.lock();
-		QList<QObject *> clientList = m_clientList.keys();
-		m_mutex_protect.unlock();
-		foreach(QObject * obj,clientList)
-		{
-			QTcpSocket * pSock = qobject_cast<QTcpSocket*>(obj);
-			if (pSock&&dtarray.size()&&pSock!=objClient)
-			{
-				QList<QByteArray> & list_sock_data = m_buffer_sending[pSock];
-				QList<qint64> & list_offset = m_buffer_sending_offset[pSock];
-				if (list_sock_data.empty()==true)
-				{
-					qint64 bytesWritten = pSock->write(dtarray.constData(),qMin(dtarray.size(),m_nPayLoad));
-					if (bytesWritten < dtarray.size())
-					{
-						list_sock_data.push_back(dtarray);
-						list_offset.push_back(bytesWritten);
-					}
-					else
-					{
-						list_sock_data.push_back(dtarray);
-						list_offset.push_back(0);
-					}
-				}
-			}
-		}
-	}
+
 	void zp_netTransThread::KickAllClients(zp_netTransThread * ptr)
 	{
 		if (ptr!=this)
 			return;
 		m_mutex_protect.lock();
-		QList<QObject *> clientList = m_clientList.keys();
+		QList<QObject *> clientList = m_clientList.values();
 
 		foreach(QObject * obj,clientList)
 		{
 			QTcpSocket * pSock = qobject_cast<QTcpSocket*>(obj);
-			if (m_clientList[pSock]==0)
-				pSock->abort();
-			else
-				pSock->disconnectFromHost();
+			if (pSock)
+			{
+				QSslSocket * pSSl = qobject_cast<QSslSocket*>(pSock);
+				if (pSSl==NULL)
+					pSock->abort();
+				else
+					pSock->disconnectFromHost();
+
+			}
+
 		}
 		m_mutex_protect.unlock();
 	}
@@ -405,17 +382,18 @@ namespace ZPNetwork{
 	void zp_netTransThread::KickClient(QObject * objClient)
 	{
 		m_mutex_protect.lock();
-		if (m_clientList.find(objClient)==m_clientList.end())
-//		if (objClient->parent()!=this)//this approach is very effective, but will cause memory crush .
+		if (m_clientList.contains(objClient)==false)
 		{
 			m_mutex_protect.unlock();
 			return;
 		}
 		m_mutex_protect.unlock();
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(objClient);
+
 		if (pSock)
 		{
-			if (m_clientList[objClient]==0)
+			QSslSocket * pSSl = qobject_cast<QSslSocket*>(pSock);
+			if (pSSl==NULL)
 				pSock->abort();
 			else
 				pSock->disconnectFromHost();

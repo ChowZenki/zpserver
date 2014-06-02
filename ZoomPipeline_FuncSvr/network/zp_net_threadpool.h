@@ -95,7 +95,6 @@ namespace ZPNetwork{
 		void evt_FireConnection(QObject * threadid,const QHostAddress & hostAddr, quint16 port);
 		//Trans Control,for intenal thread usage
 		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
-		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		void evt_KickClient(QObject *);
 		void evt_DeactivteImmediately(zp_netTransThread *);
 		void evt_KickAll(zp_netTransThread *);
@@ -106,9 +105,6 @@ namespace ZPNetwork{
 	public slots:
 		//Call this function to send data to client
 		void SendDataToClient(QObject * objClient,QByteArray   dtarray);
-		//Call this function to send data to client
-		void BroadcastData(QObject * objFromClient,QByteArray   dtarray);
-
 		//Close client Immediatele
 		void KickClients(QObject * object);
 

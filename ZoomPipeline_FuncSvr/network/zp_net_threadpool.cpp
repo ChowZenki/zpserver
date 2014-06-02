@@ -254,7 +254,6 @@ namespace ZPNetwork{
 				connect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_Engine::evt_Message,Qt::QueuedConnection);
 				connect (this,&zp_net_Engine::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection,Qt::QueuedConnection);
 				connect (this,&zp_net_Engine::evt_FireConnection,clientTH,&zp_netTransThread::startConnection,Qt::QueuedConnection);
-				connect (this,&zp_net_Engine::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData,Qt::QueuedConnection);
 				connect (this,&zp_net_Engine::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient,Qt::QueuedConnection);
 				connect (this,&zp_net_Engine::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients,Qt::QueuedConnection);
 				connect (this,&zp_net_Engine::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately,Qt::QueuedConnection);
@@ -294,7 +293,6 @@ namespace ZPNetwork{
 			disconnect (clientTH,&zp_netTransThread::evt_Message,this,&zp_net_Engine::evt_Message);
 			disconnect (this,&zp_net_Engine::evt_EstablishConnection,clientTH,&zp_netTransThread::incomingConnection);
 			disconnect (this,&zp_net_Engine::evt_FireConnection,clientTH,&zp_netTransThread::startConnection);
-			disconnect (this,&zp_net_Engine::evt_BroadcastData,clientTH,&zp_netTransThread::BroadcastData);
 			disconnect (this,&zp_net_Engine::evt_SendDataToClient,clientTH,&zp_netTransThread::SendDataToClient);
 			disconnect (this,&zp_net_Engine::evt_KickAll,clientTH,&zp_netTransThread::KickAllClients);
 			disconnect (this,&zp_net_Engine::evt_DeactivteImmediately,clientTH,&zp_netTransThread::DeactivateImmediately);
@@ -387,18 +385,6 @@ namespace ZPNetwork{
 	void zp_net_Engine::KickClients(QObject * object)
 	{
 		emit evt_KickClient(object);
-	}
-
-	/**
-	 * @brief Broadcast data to every client, except for the source object
-	 *
-	 * @fn zp_net_Engine::BroadcastData
-	 * @param objFromClient the source object.
-	 * @param dtarray data to be sent.
-	 */
-	void zp_net_Engine::BroadcastData(QObject * objFromClient,QByteArray   dtarray)
-	{
-		emit evt_BroadcastData(objFromClient,dtarray);
 	}
 
 

@@ -291,7 +291,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 void QTcpClientTest::displayMessage(QString str)
 {
 	model.insertRow(0,new QStandardItem(str));
-	while (model.rowCount()>=256)
+	while (model.rowCount()>=128)
 		model.removeRow(model.rowCount()-1);
 }
 quint32 QTcpClientTest::getRadomUUIDDestin()

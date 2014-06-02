@@ -95,10 +95,10 @@ namespace ExampleServer{
 	void  st_client_table::KickDeadClients()
 	{
 		m_hash_mutex.lock();
-		for (QMap<QObject *,st_clientNode_baseTrans *>::iterator p =m_hash_sock2node.begin();
+		for (std::unordered_map<QObject *,st_clientNode_baseTrans *>::iterator p =m_hash_sock2node.begin();
 			 p!=m_hash_sock2node.end();p++)
 		{
-			p.value()->CheckHeartBeating();
+			(*p).second->CheckHeartBeating();
 		}
 		m_hash_mutex.unlock();
 	}
@@ -116,7 +116,7 @@ namespace ExampleServer{
 	st_clientNode_baseTrans *  st_client_table::clientNodeFromUUID(quint32 uuid)
 	{
 		m_hash_mutex.lock();
-		if (m_hash_uuid2node.contains(uuid))
+		if (m_hash_uuid2node.find(uuid)!=m_hash_uuid2node.end())
 		{
 			m_hash_mutex.unlock();
 			return m_hash_uuid2node[uuid];
@@ -129,7 +129,7 @@ namespace ExampleServer{
 	st_clientNode_baseTrans *  st_client_table::clientNodeFromSocket(QObject * sock)
 	{
 		m_hash_mutex.lock();
-		if (m_hash_sock2node.contains(sock))
+		if (m_hash_sock2node.find(sock)!=m_hash_sock2node.end())
 		{
 			m_hash_mutex.unlock();
 			return m_hash_sock2node[sock];
@@ -144,13 +144,12 @@ namespace ExampleServer{
 		bool nHashContains = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
-		nHashContains = m_hash_sock2node.contains(clientHandle);
+		nHashContains = (m_hash_sock2node.find(clientHandle)!=m_hash_sock2node.end())?true:false;
 		if (false==nHashContains)
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
 			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
@@ -171,13 +170,12 @@ namespace ExampleServer{
 		bool nHashContains = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
-		nHashContains = m_hash_sock2node.contains(clientHandle);
+		nHashContains = (m_hash_sock2node.find(clientHandle)!=m_hash_sock2node.end())?true:false;
 		if (false==nHashContains)
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
 			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
@@ -198,26 +196,25 @@ namespace ExampleServer{
 		bool nHashContains  = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
-		nHashContains = m_hash_sock2node.contains(clientHandle);
+		nHashContains = (m_hash_sock2node.find(clientHandle)!=m_hash_sock2node.end())?true:false;
 		if (nHashContains)
 			pClientNode =  m_hash_sock2node[clientHandle];
 		if (pClientNode)
 		{
-			m_hash_sock2node.remove(clientHandle);
+			m_hash_sock2node.erase(clientHandle);
 			if (pClientNode->uuidValid())
 			{
 				//This is important. some time m_hash_sock2node and m_hash_uuid2node, same uuid has different socket.
-				if (m_hash_uuid2node.contains(pClientNode->uuid()))
+				if (m_hash_uuid2node.find(pClientNode->uuid())!=m_hash_uuid2node.end())
 					if (m_hash_uuid2node[pClientNode->uuid()]==pClientNode)
 					{
-						m_hash_uuid2node.remove(pClientNode->uuid());
+						m_hash_uuid2node.erase(pClientNode->uuid());
 						broadcast_client_uuid(pClientNode->uuid(),false);
 					}
 			}
 
 			pClientNode->bTermSet = true;
 			disconnect (pClientNode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient);
-			disconnect (pClientNode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData);
 			disconnect (pClientNode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients);
 			disconnect (pClientNode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message);
 
@@ -255,13 +252,12 @@ namespace ExampleServer{
 		bool nHashContains = false;
 		st_clientNode_baseTrans * pClientNode = 0;
 		m_hash_mutex.lock();
-		nHashContains = m_hash_sock2node.contains(clientHandle);
+		nHashContains = (m_hash_sock2node.find(clientHandle)!=m_hash_sock2node.end())?true:false;
 		if (false==nHashContains)
 		{
 			st_clientNode_baseTrans * pnode = new st_clientNodeAppLayer(this,clientHandle,0);
 			//using queued connection of send and revieve;
 			connect (pnode,&st_clientNode_baseTrans::evt_SendDataToClient,m_pThreadEngine,&ZPNetwork::zp_net_Engine::SendDataToClient,Qt::QueuedConnection);
-			connect (pnode,&st_clientNode_baseTrans::evt_BroadcastData,m_pThreadEngine,&ZPNetwork::zp_net_Engine::evt_BroadcastData,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_close_client,m_pThreadEngine,&ZPNetwork::zp_net_Engine::KickClients,Qt::QueuedConnection);
 			connect (pnode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message,Qt::QueuedConnection);
 			m_hash_sock2node[clientHandle] = pnode;
@@ -294,7 +290,10 @@ namespace ExampleServer{
 	{
 		//Send All Client UUIDs to new Svr
 		m_hash_mutex.lock();
-		QList<quint32> uuids = m_hash_uuid2node.keys();
+		QList<quint32> uuids;
+		for(std::unordered_map<quint32,st_clientNode_baseTrans *>::iterator p =  m_hash_uuid2node.begin();
+			p!=m_hash_uuid2node.end();p++)
+			uuids.push_back((*p).first);
 		int nNodeSz = uuids.size();
 		if (nNodeSz>0)
 		{
@@ -334,7 +333,7 @@ namespace ExampleServer{
 	{
 		bool bres = false;
 		m_hash_mutex.lock();
-		if (m_hash_uuid2node.contains(uuid))
+		if (m_hash_uuid2node.find(uuid)!=m_hash_uuid2node.end())
 		{
 			st_clientNode_baseTrans * pAppLayer = qobject_cast<st_clientNode_baseTrans *>(m_hash_uuid2node[uuid]);
 			if (pAppLayer)

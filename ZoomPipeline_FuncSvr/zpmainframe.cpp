@@ -163,6 +163,7 @@ void ZPMainFrame::initUI()
 
 void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,QString  strMsg)
 {
+	//return ;
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
 	msg += tr(",Source=%1").arg((quint64)psource);
@@ -174,6 +175,7 @@ void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,QString  strMsg)
 
 void  ZPMainFrame::on_evt_Message_Database(QObject * psource,QString strMsg)
 {
+	//return ;
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
 	msg += tr(",Source=%1").arg((quint64)psource);
@@ -185,6 +187,7 @@ void  ZPMainFrame::on_evt_Message_Database(QObject * psource,QString strMsg)
 
 void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,QString strMsg)
 {
+	//return ;
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
 	msg += tr(",Source=%1").arg((quint64)psource);
@@ -199,6 +202,7 @@ void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,QString strMsg)
 //The socket error message
 void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::SocketError socketError)
 {
+	//return ;
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + QString("SockError %1 with code %2")
 			.arg((quint64)senderSock).arg((quint32)socketError);
@@ -211,6 +215,7 @@ void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::Soc
 
 void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,QString  strMsg)
 {
+	//return ;
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + strMsg;
 	msg += tr(",Source=%1").arg((quint64)psource);
@@ -223,6 +228,7 @@ void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,QString  strMsg)
 //The socket error message
 void  ZPMainFrame::on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSocket::SocketError socketError)
 {
+	//return ;
 	QDateTime dtm = QDateTime::currentDateTime();
 	QString msg = dtm.toString("yyyy-MM-dd HH:mm:ss.zzz") + " " + QString("SockError %1 with code %2")
 			.arg((quint64)senderSock).arg((quint32)socketError);

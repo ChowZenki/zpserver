@@ -68,7 +68,6 @@ namespace ExampleServer{
 	signals:
 
 		void evt_SendDataToClient(QObject * objClient,QByteArray   dtarray);
-		void evt_BroadcastData(QObject * objFromClient,QByteArray   dtarray);
 		void evt_close_client(QObject * objClient);
 		void evt_Message (QObject * psource,QString );
 

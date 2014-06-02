@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QMutex>
-#include <QMap>
+#include <unordered_map>
 #include <unordered_map>
 #include "../network/zp_net_threadpool.h"
 #include "../pipeline/zp_pipeline.h"
@@ -68,8 +68,8 @@ namespace ExampleServer{
 
 		//Very important hashes. will be improved for cross-server transfer
 		QMutex m_hash_mutex;
-		QMap<quint32,st_clientNode_baseTrans *> m_hash_uuid2node;
-		QMap<QObject *,st_clientNode_baseTrans *> m_hash_sock2node;
+		std::unordered_map<quint32,st_clientNode_baseTrans *> m_hash_uuid2node;
+		std::unordered_map<QObject *,st_clientNode_baseTrans *> m_hash_sock2node;
 
 		//Concurrent Network frame work
 		ZPNetwork::zp_net_Engine * m_pThreadEngine;

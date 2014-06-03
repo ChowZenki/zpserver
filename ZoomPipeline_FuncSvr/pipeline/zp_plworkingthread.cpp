@@ -54,11 +54,21 @@ namespace ZPTaskEngine{
 			if (bValid==true && ptr!=NULL)
 			{
 				m_bBusy = true;
-				int res = ptr->run();
-				ptr->delRef();
-				m_bBusy = false;
-				if (res!=0 )
+				if (ptr->LockRun()==true)
+				{
+					int res = ptr->run();
+					ptr->delRef();
+					if (res!=0 )
+						this->m_pipeline->pushTask(ptr,false);
+					ptr->UnlockRun();
+				}
+				else
+				{
+					ptr->delRef();
 					this->m_pipeline->pushTask(ptr,false);
+				}
+				m_bBusy = false;
+
 			}
 
 			emit taskFinished(this);

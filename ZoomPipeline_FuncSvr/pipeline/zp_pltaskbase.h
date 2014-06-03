@@ -26,10 +26,13 @@ namespace ZPTaskEngine{
 		int delRef();
 
 		int ref();
+		bool LockRun();
+		void UnlockRun();
 
 	private:
 		int refCount;
 		QMutex m_mutex_ref;
+		QMutex m_mutex_run;
 	signals:
 
 	public slots:

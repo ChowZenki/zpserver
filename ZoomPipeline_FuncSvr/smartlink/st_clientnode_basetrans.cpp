@@ -49,10 +49,6 @@ namespace ExampleServer{
 			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
-		//This is important! sometimes without this check, m_list_RawData will crash.
-		//For a single zp_ClusterNode instance, at anytime, there should be only ONE thread in which run() is running.
-		if (ref()>1)
-			return -1;
 		int nCurrSz = -1;
 		int nMessage = m_nMessageBlockSize;
 		while (--nMessage>=0 && nCurrSz!=0  )

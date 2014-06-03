@@ -25,4 +25,14 @@ namespace ZPTaskEngine{
 		QMutexLocker locker(&m_mutex_ref);
 		return refCount;
 	}
+
+	bool zp_plTaskBase::LockRun()
+	{
+		return m_mutex_run.tryLock();
+	}
+
+	void zp_plTaskBase::UnlockRun()
+	{
+		return m_mutex_run.unlock();
+	}
 }

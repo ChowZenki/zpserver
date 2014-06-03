@@ -57,10 +57,6 @@ namespace ZP_Cluster{
 			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
-		//This is important! sometimes without this check, m_list_RawData will crash.
-		//For a single zp_ClusterNode instance, at anytime, there should be only ONE thread in which run() is running.
-		if (ref()>1)
-			return -1;
 		int nCurrSz = -1;
 		int nMessage = m_nMessageBlockSize;
 		while (--nMessage>=0 && nCurrSz!=0  )
@@ -144,10 +140,18 @@ namespace ZP_Cluster{
 			if (m_currentHeader.Mark == 0x1234)
 				//Valid Message
 			{
-				while (m_currentMessageSize< sizeof(CROSS_SVR_MSG::tag_header) && blocklen>offset)
+				//while (m_currentMessageSize< sizeof(CROSS_SVR_MSG::tag_header) && blocklen>offset)
+				if (m_currentMessageSize< sizeof(CROSS_SVR_MSG::tag_header) && blocklen>offset)
 				{
-					m_currentBlock.push_back(dataptr[offset++]);
-					m_currentMessageSize++;
+					int nCpy = sizeof(CROSS_SVR_MSG::tag_header) - m_currentMessageSize;
+					if (nCpy > blocklen - offset)
+						nCpy = blocklen - offset;
+					QByteArray arrCpy(dataptr+offset,nCpy);
+					m_currentBlock.push_back(arrCpy);
+					//m_currentBlock.push_back(dataptr[offset++]);
+					//m_currentMessageSize++;
+					offset += nCpy;
+					m_currentMessageSize += nCpy;
 				}
 				if (m_currentMessageSize < sizeof(CROSS_SVR_MSG::tag_header)) //Header not completed.
 					continue;
@@ -161,11 +165,20 @@ namespace ZP_Cluster{
 					{
 						qint32 bitLeft = m_currentHeader.data_length + sizeof(CROSS_SVR_MSG::tag_header)
 								-m_currentMessageSize ;
-						while (bitLeft>0 && blocklen>offset)
+						//while (bitLeft>0 && blocklen>offset)
+						if (bitLeft>0 && blocklen>offset)
 						{
-							m_currentBlock.push_back(dataptr[offset++]);
-							m_currentMessageSize++;
-							bitLeft--;
+							int nCpy = bitLeft;
+							if (nCpy > blocklen - offset)
+								nCpy = blocklen - offset;
+							QByteArray arrCpy(dataptr+offset,nCpy);
+							m_currentBlock.push_back(arrCpy);
+							offset += nCpy;
+							m_currentMessageSize += nCpy;
+							bitLeft -= nCpy;
+							//m_currentBlock.push_back(dataptr[offset++]);
+							//m_currentMessageSize++;
+							//bitLeft--;
 						}
 						//deal block, may be send data as soon as possible;
 						deal_current_message_block();
@@ -183,11 +196,21 @@ namespace ZP_Cluster{
 					{
 						qint32 bitLeft = m_currentHeader.data_length + sizeof(CROSS_SVR_MSG::tag_header)
 								-m_currentMessageSize ;
-						while (bitLeft>0 && blocklen>offset)
+						//while (bitLeft>0 && blocklen>offset)
+						if (bitLeft>0 && blocklen>offset)
 						{
-							m_currentBlock.push_back(dataptr[offset++]);
-							m_currentMessageSize++;
-							bitLeft--;
+							int nCpy = bitLeft;
+							if (nCpy > blocklen - offset)
+								nCpy = blocklen - offset;
+							QByteArray arrCpy(dataptr+offset,nCpy);
+							m_currentBlock.push_back(arrCpy);
+							offset += nCpy;
+							m_currentMessageSize += nCpy;
+							bitLeft -= nCpy;
+
+							//m_currentBlock.push_back(dataptr[offset++]);
+							//m_currentMessageSize++;
+							//bitLeft--;
 						}
 						//deal block, may be processed as soon as possible;
 						deal_current_message_block();

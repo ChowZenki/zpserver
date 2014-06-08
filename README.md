@@ -8,7 +8,7 @@ Zoom-Pipeline Server , a Qt based tcp-ip c/s solution. This solution provides:
   * Provides a database resource class, enable mutithread db Access.
   * Provides a Server-to-Server Cluster system, enable cross server communication.
   * In this example, cross - Server balance suggestion msgs will be delieved in "log-in response". Following this suggestion msg, a client can disconnect from this server, and connect to another svr which has less clients currently.
-  * main-branch is now in 7*24 full-payload test.
+  * 7*24 Test is completed.
 ----------------------------------------
                    GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007

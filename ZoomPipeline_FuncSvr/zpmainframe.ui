@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ZPMainFrame</string>
+   <string>ParkingLotsStatusSvr</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/icons/Resources/Backup drive.png</normaloff>:/icons/Resources/Backup drive.png</iconset>
   </property>
   <property name="toolTipDuration">
    <number>-1</number>
@@ -751,7 +755,7 @@
              <normaloff>:/icons/Resources/Alienware (27).png</normaloff>:/icons/Resources/Alienware (27).png</iconset>
            </attribute>
            <attribute name="title">
-            <string>Example Server</string>
+            <string>Parkinglots Status Svr</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
@@ -995,7 +999,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>19</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Control">

@@ -51,7 +51,7 @@ private:
 	QLabel * m_pStatusLabel;
 	ZPNetwork::zp_net_Engine * m_netEngine;
 	ZPTaskEngine::zp_pipeline * m_taskEngine;
-	ExampleServer::st_client_table * m_clientTable;
+	ParkinglotsSvr::st_client_table * m_clientTable;
 	ZPDatabase::DatabaseResource * m_pDatabases;
 	ZP_Cluster::zp_ClusterTerm * m_pClusterTerm;
 	int m_nTimerId;

@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include "st_message.h"
 #include "../pipeline/zp_pltaskbase.h"
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	class st_client_table;
 
 	class st_clientNode_baseTrans : public ZPTaskEngine::zp_plTaskBase

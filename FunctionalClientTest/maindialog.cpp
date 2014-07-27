@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <string.h>
 #include <QVector>
-using namespace ExampleServer;
+using namespace ParkinglotsSvr;
 MainDialog::MainDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::MainDialog)

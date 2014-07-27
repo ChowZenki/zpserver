@@ -3,7 +3,7 @@
 #include <QCoreApplication>
 #include <QFileDialog>
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
-using namespace ExampleServer;
+using namespace ParkinglotsSvr;
 QTcpClientTest::QTcpClientTest(QWidget *parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
 {

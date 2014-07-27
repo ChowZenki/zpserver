@@ -8,7 +8,7 @@
 #include "qghtcpclient.h"
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
 #include "../ZoomPipeline_FuncSvr/smartlink/st_msg_applayer.h"
-using namespace ExampleServer;
+using namespace ParkinglotsSvr;
 namespace Ui {
 	class MainDialog;
 }

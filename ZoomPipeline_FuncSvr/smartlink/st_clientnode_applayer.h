@@ -6,7 +6,7 @@
 #include <QSet>
 #include "st_clientnode_basetrans.h"
 #include "st_msg_applayer.h"
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	class st_client_table;
 	class st_clientNodeAppLayer : public st_clientNode_baseTrans
 	{

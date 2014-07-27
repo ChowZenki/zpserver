@@ -1,7 +1,7 @@
 #include "st_clientnode_basetrans.h"
 #include "st_client_table.h"
 #include <assert.h>
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	st_clientNode_baseTrans::st_clientNode_baseTrans(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
 		zp_plTaskBase(parent)
 	{

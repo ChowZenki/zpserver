@@ -8,7 +8,7 @@
 #include <QSettings>
 #include <QSqlError>
 #include <QSet>
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 
 	bool st_clientNodeAppLayer::LoginClient()
 	{

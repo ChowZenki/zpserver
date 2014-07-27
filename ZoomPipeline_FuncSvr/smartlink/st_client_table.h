@@ -12,7 +12,7 @@
 #include "../database/databaseresource.h"
 #include "../cluster/zp_clusterterm.h"
 #include "./st_cross_svr_node.h"
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	class st_clientNode_baseTrans;
 	class st_client_table : public QObject
 	{

@@ -3,7 +3,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	st_clientNodeAppLayer::st_clientNodeAppLayer(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
 		st_clientNode_baseTrans(pClientTable,pClientSock,parent)
 	{

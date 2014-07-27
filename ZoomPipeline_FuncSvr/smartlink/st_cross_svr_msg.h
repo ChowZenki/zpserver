@@ -1,7 +1,7 @@
 #ifndef ST_CROSS_SVR_MSG_H
 #define ST_CROSS_SVR_MSG_H
 
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 
 #pragma  pack (push,1)
 

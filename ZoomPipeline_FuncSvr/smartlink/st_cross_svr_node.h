@@ -2,7 +2,7 @@
 #define ST_CROSS_SVR_NODE_H
 #include "../cluster/zp_clusternode.h"
 #include "st_cross_svr_msg.h"
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	class st_client_table;
 	class st_cross_svr_node : public ZP_Cluster::zp_ClusterNode
 	{

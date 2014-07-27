@@ -1,7 +1,7 @@
 #ifndef ST_MESSAGE_H
 #define ST_MESSAGE_H
 #include <qglobal.h>
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 
 #pragma  pack (push,1)
 

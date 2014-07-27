@@ -2,7 +2,7 @@
 #include "../cluster/zp_clusterterm.h"
 #include "st_client_table.h"
 #include "st_message.h"
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 
 	st_cross_svr_node::st_cross_svr_node(ZP_Cluster::zp_ClusterTerm * pTerm, QObject * psock,QObject *parent)
 		:ZP_Cluster::zp_ClusterNode(pTerm,psock,parent)

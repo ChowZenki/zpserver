@@ -5,7 +5,7 @@
 #include "st_cross_svr_msg.h"
 #include <functional>
 #include <QList>
-namespace ExampleServer{
+namespace ParkinglotsSvr{
 	using namespace std::placeholders;
 	st_client_table::st_client_table(
 			ZPNetwork::zp_net_Engine * NetEngine,

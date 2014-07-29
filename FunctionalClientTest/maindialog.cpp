@@ -131,9 +131,9 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 		if (nCount % 200 == 0 && client->isOpen()==true)
 		{
 			//send heart-beating
-			QByteArray array(sizeof(EXAMPLE_HEARTBEATING),0);
+			QByteArray array(sizeof(PKLTS_HEARTBEATING),0);
 			char * ptr = array.data();
-			EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
+			PKLTS_HEARTBEATING * pMsg = (PKLTS_HEARTBEATING *)ptr;
 			pMsg->Mark = 0xBEBE;
 			pMsg->tmStamp = time(0)&0x00ffff;
 			pMsg->source_id = 0;
@@ -163,28 +163,28 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 	const char * pSrcPassword = strStdPassword.c_str();
 	int nMaxLenPassword = strStdPassword.length();
 
-	quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
-			+sizeof(stMsg_ClientLoginReq)+nMaxLenPassword;
-	QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+			+sizeof(stMsg_HostLogonReq)+nMaxLenPassword;
+	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
-	EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-	EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-													  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->source_id = (quint32)((quint64)(0xffffffff) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );
 
-	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
-	pMsg->data_length = nMsgLen;
+	pMsg->DataLen = nMsgLen;
 
 
 	pApp->header.MsgType = 0x0001;
 
-	pApp->MsgUnion.msg_ClientLoginReq.user_id = userID;
+	pApp->MsgUnion.msg_HostLogonReq.ID = userID;
 
 	for (int i=0;i<=nMaxLenPassword;i++)
-		pApp->MsgUnion.msg_ClientLoginReq.Passwd[i] =
+		pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
 				i<nMaxLenPassword?pSrcPassword[i]:0;
 
 
@@ -212,20 +212,20 @@ void MainDialog::on_pushButton_box_upload_uid_clicked()
 		vecInt.push_back(item.toUInt());
 	}
 
-	quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
+	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 			+sizeof(stMsg_UploadUserListReq)+ sizeof(quint32)*vecInt.size() - sizeof(quint32);
-	QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
-	EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-	EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-													  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
 
-	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
-	pMsg->data_length = nMsgLen;
+	pMsg->DataLen = nMsgLen;
 
 
 	pApp->header.MsgType = 0x1003;
@@ -251,20 +251,20 @@ void MainDialog::on_pushButton_box_download_uid_clicked()
 		return;
 	}
 	saveIni();
-	quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
+	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 			/*+sizeof(stMsg_DownloadUserListReq)*/;
-	QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
-	EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-	EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-													  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
 
-	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
-	pMsg->data_length = nMsgLen;
+	pMsg->DataLen = nMsgLen;
 
 	pApp->header.MsgType = 0x1004;
 
@@ -285,20 +285,20 @@ void  MainDialog::on_pushButton_clientLogout_clicked()
 		return;
 	}
 	saveIni();
-	quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
+	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 			+sizeof(stMsg_ClientLogoutReq);
-	QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 	char * ptr = array.data();
-	EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-	EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-													  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
 
-	pMsg->destin_id = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
-	pMsg->data_length = nMsgLen;
+	pMsg->DataLen = nMsgLen;
 
 
 	pApp->header.MsgType = 0x1002;
@@ -339,14 +339,14 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		//Heart Beating
 		if (m_currentHeader.Mark == 0xBEBE)
 		{
-			while (m_currentMessageSize< sizeof(EXAMPLE_HEARTBEATING) && blocklen>offset )
+			while (m_currentMessageSize< sizeof(PKLTS_HEARTBEATING) && blocklen>offset )
 			{
 				m_currentBlock.push_back(dataptr[offset++]);
 				m_currentMessageSize++;
 			}
-			if (m_currentMessageSize < sizeof(EXAMPLE_HEARTBEATING)) //Header not completed.
+			if (m_currentMessageSize < sizeof(PKLTS_HEARTBEATING)) //Header not completed.
 				continue;
-			const EXAMPLE_HEARTBEATING * ptr = (const EXAMPLE_HEARTBEATING *)m_currentBlock.constData();
+			const PKLTS_HEARTBEATING * ptr = (const PKLTS_HEARTBEATING *)m_currentBlock.constData();
 			displayMessage(tr("Recieved Heart-beating msg sended %1 sec(s) ago.").
 						   arg((time(0)&0x00ffff)-(ptr->tmStamp)));
 			//This Message is Over. Start a new one.
@@ -358,22 +358,22 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		else if (m_currentHeader.Mark == 0x55AA)
 			//Trans Message
 		{
-			while (m_currentMessageSize< sizeof(EXAMPLE_TRANS_MSG)-1 && blocklen>offset)
+			while (m_currentMessageSize< sizeof(PKLTS_TRANS_MSG)-1 && blocklen>offset)
 			{
 				m_currentBlock.push_back(dataptr[offset++]);
 				m_currentMessageSize++;
 			}
-			if (m_currentMessageSize < sizeof(EXAMPLE_TRANS_MSG)-1) //Header not completed.
+			if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG)-1) //Header not completed.
 				continue;
-			else if (m_currentMessageSize == sizeof(EXAMPLE_TRANS_MSG)-1)//Header just  completed.
+			else if (m_currentMessageSize == sizeof(PKLTS_TRANS_MSG)-1)//Header just  completed.
 			{
 				const char * headerptr = m_currentBlock.constData();
-				memcpy((void *)&m_currentHeader,headerptr,sizeof(EXAMPLE_TRANS_MSG)-1);
+				memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_MSG)-1);
 
 				//continue reading if there is data left behind
 				if (block.length()>offset)
 				{
-					qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
+					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
 							-m_currentMessageSize ;
 					while (bitLeft>0 && blocklen>offset)
 					{
@@ -395,7 +395,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 			{
 				if (block.length()>offset)
 				{
-					qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
+					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
 							-m_currentMessageSize ;
 					while (bitLeft>0 && blocklen>offset)
 					{
@@ -432,7 +432,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 int MainDialog::deal_current_message_block()
 {
 	//The bytes left to recieve.
-	qint32 bytesLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
+	qint32 bytesLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
 			-m_currentMessageSize ;
 	if (bytesLeft)
 		return 0;
@@ -440,29 +440,29 @@ int MainDialog::deal_current_message_block()
 
 	const char * ptr = m_currentBlock.constData();
 
-	EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-													  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 
 	if (pApp->header.MsgType==0x7FFE)
 	{
-		if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==0)
+		if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
 			QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
 		}
-		else if (pApp->MsgUnion.msg_ClientLoginRsp.DoneCode==1)
+		else if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==1)
 		{
 			m_bLogedIn = true;
-			QMessageBox::information(this,tr("Succeed!"),tr("But you can connect to another idle svr:%1:%2!")
-									 .arg((const char *)pApp->MsgUnion.msg_ClientLoginRsp.Address_Redirect)
-									 .arg(pApp->MsgUnion.msg_ClientLoginRsp.port_Redirect)
-									 );
+//			QMessageBox::information(this,tr("Succeed!"),tr("But you can connect to another idle svr:%1:%2!")
+//									 .arg((const char *)pApp->MsgUnion.msg_HostLogonRsp.Address_Redirect)
+//									 .arg(pApp->MsgUnion.msg_HostLogonRsp.port_Redirect)
+//									 );
 		}
 		else
 			QMessageBox::information(this,tr("Failed!"),tr("Log in failed!"));
 		displayMessage(tr("Res = %1")
-				   .arg(pApp->MsgUnion.msg_ClientLoginRsp.DoneCode)
+				   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
 				   );
 	}
 	else if (pApp->header.MsgType==0x7FFC)
@@ -509,10 +509,10 @@ int MainDialog::deal_current_message_block()
 	else
 	{
 		QString str;
-		int nLen =  m_currentHeader.data_length;
+		int nLen =  m_currentHeader.DataLen;
 		for (int i=0;i<nLen;i++)
 		{
-			str += ptr[i+ sizeof(EXAMPLE_TRANS_MSG) - 1];
+			str += ptr[i+ sizeof(PKLTS_TRANS_MSG) - 1];
 		}
 		ui->plainTextEdit_msg_recieved->setPlainText(str);
 
@@ -538,15 +538,15 @@ void MainDialog::on_pushButton_sendToClient_clicked()
 	saveIni();
 	QString strMsg = ui->plainTextEdit_msg_to_client->toPlainText();
 	QByteArray arrMsg(strMsg.toStdString().c_str());
-	QByteArray array(sizeof(EXAMPLE_TRANS_MSG) - 1,0);
+	QByteArray array(sizeof(PKLTS_TRANS_MSG) - 1,0);
 	char * ptr = array.data();
-	EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
+	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
 
 	pMsg->Mark = 0x55AA;
-	pMsg->source_id = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
-	pMsg->destin_id = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->DstID = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
 
-	pMsg->data_length = arrMsg.size();
+	pMsg->DataLen = arrMsg.size();
 
 	array.append(arrMsg);
 

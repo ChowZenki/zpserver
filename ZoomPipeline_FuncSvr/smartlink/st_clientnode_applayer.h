@@ -35,7 +35,7 @@ namespace ParkinglotsSvr{
 		//data items
 	protected:
 		QMutex m_mutex_equipID;
-		EXAMPLE_MSG_APP m_current_app_header;
+		PKLTS_APP_LAYER m_current_app_header;
 		//log in
 		bool m_bLoggedIn;
 

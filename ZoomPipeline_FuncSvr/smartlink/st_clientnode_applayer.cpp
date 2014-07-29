@@ -9,7 +9,7 @@ namespace ParkinglotsSvr{
 	{
 
 		m_bLoggedIn= false;
-		memset(&m_current_app_header,0,sizeof(EXAMPLE_MSG_APP));
+		memset(&m_current_app_header,0,sizeof(PKLTS_APP_LAYER));
 	}
 
 	bool st_clientNodeAppLayer::loadRelations()
@@ -99,7 +99,7 @@ namespace ParkinglotsSvr{
 //			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
 //		else
 //			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
-		if (m_currentHeader.destin_id==0x00000001)
+		if (m_currentHeader.DstID==0x00000001)
 		{
 			if (this->m_bLoggedIn==false || this->m_bUUIDRecieved==false)
 			{
@@ -113,7 +113,7 @@ namespace ParkinglotsSvr{
 			}
 			else
 			{
-				if (bIsValidUserId(m_currentHeader.source_id) )
+				if (bIsValidUserId(m_currentHeader.SrcID) )
 				{
 					//Deal Client->Svr Msgs
 					if (false==Deal_Node2Svr_Msgs())
@@ -123,7 +123,7 @@ namespace ParkinglotsSvr{
 						emit evt_close_client(this->sock());
 					}
 				}
-				else if (m_currentHeader.source_id==0xFFFFFFFF)
+				else if (m_currentHeader.SrcID==0xFFFFFFFF)
 				{
 					m_currentBlock = QByteArray();
 					emit evt_Message(this,tr("warning, UUID 0xFFFFFFFF.ignore"));
@@ -132,7 +132,7 @@ namespace ParkinglotsSvr{
 				else
 				{
 					m_currentBlock = QByteArray();
-					emit evt_Message(this,tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.source_id));
+					emit evt_Message(this,tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.SrcID));
 					emit evt_close_client(this->sock());
 				}
 			}
@@ -141,13 +141,13 @@ namespace ParkinglotsSvr{
 		else
 		{
 			//find Destin Client using Hash.
-			st_clientNode_baseTrans * destin_node = m_pClientTable->clientNodeFromUUID(m_currentHeader.destin_id);
+			st_clientNode_baseTrans * destin_node = m_pClientTable->clientNodeFromUUID(m_currentHeader.DstID);
 			if (destin_node==NULL)
 			{
 				//need server-to-server channels to re-post this message.
-				QString svr = m_pClientTable->cross_svr_find_uuid(m_currentHeader.destin_id);
+				QString svr = m_pClientTable->cross_svr_find_uuid(m_currentHeader.DstID);
 				if (svr.length()<=0)
-					emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.destin_id) + tr(" is not currently logged in."));
+					emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.DstID) + tr(" is not currently logged in."));
 				else
 					m_pClientTable->cross_svr_send_data(svr,m_currentBlock);
 
@@ -172,9 +172,9 @@ namespace ParkinglotsSvr{
 		bool res = true;
 		//qDebug()<<m_currentHeader.data_length<<"\n";
 		//qDebug()<<this->m_currentBlock.toHex()<<"\n";
-		if (m_currentHeader.data_length < sizeof (EXAMPLE_MSG_APP::tag_app_layer_header))
+		if (m_currentHeader.DataLen < sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
 			return false;
-		if (m_currentMessageSize < sizeof(EXAMPLE_TRANS_MSG) - 1 + sizeof (EXAMPLE_MSG_APP::tag_app_layer_header))
+		if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG) - 1 + sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
 		{
 			// header is not complete, return
 			return true;
@@ -182,8 +182,8 @@ namespace ParkinglotsSvr{
 		//Catch the header
 		if (m_current_app_header.header.MsgType==0x00)
 			memcpy((void *)&this->m_current_app_header,
-				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(EXAMPLE_TRANS_MSG) - 1,
-				   sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
+				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_MSG) - 1,
+				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 				   );
 		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.header.MsgType)
@@ -193,9 +193,9 @@ namespace ParkinglotsSvr{
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize>
-					sizeof(EXAMPLE_TRANS_MSG) - 1
-					+ sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
-					+ sizeof (stMsg_ClientLoginReq)+66)
+					sizeof(PKLTS_TRANS_MSG) - 1
+					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+					+ sizeof (stMsg_HostLogonReq)+66)
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_ClientLoginReq, size not correct."));
 				res = false;
@@ -220,9 +220,9 @@ namespace ParkinglotsSvr{
 	{
 		bool res = true;
 
-		if (m_currentHeader.data_length < sizeof (EXAMPLE_MSG_APP::tag_app_layer_header))
+		if (m_currentHeader.DataLen < sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
 			return false;
-		if (m_currentMessageSize < sizeof(EXAMPLE_TRANS_MSG) - 1 + sizeof (EXAMPLE_MSG_APP::tag_app_layer_header))
+		if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG) - 1 + sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
 		{
 			// header is not complete, return
 			return true;
@@ -230,8 +230,8 @@ namespace ParkinglotsSvr{
 		//Catch the header
 		if (m_current_app_header.header.MsgType==0x00)
 			memcpy((void *)&this->m_current_app_header,
-				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(EXAMPLE_TRANS_MSG) - 1,
-				   sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
+				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_MSG) - 1,
+				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 				   );
 		//do
 		switch (m_current_app_header.header.MsgType)
@@ -242,8 +242,8 @@ namespace ParkinglotsSvr{
 				return true;
 
 			if (m_currentMessageSize<
-					sizeof(EXAMPLE_TRANS_MSG) - 1
-					+ sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
+					sizeof(PKLTS_TRANS_MSG) - 1
+					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 					+ sizeof (stMsg_UploadUserListReq) - sizeof(quint32))
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_UploadUserListReq, size not correct."));
@@ -257,8 +257,8 @@ namespace ParkinglotsSvr{
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize!=
-					sizeof(EXAMPLE_TRANS_MSG) - 1
-					+ sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
+					sizeof(PKLTS_TRANS_MSG) - 1
+					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 					/*+ sizeof (stMsg_DownloadUserListReq)*/)
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_DownloadUserListReq, size not correct."));
@@ -272,8 +272,8 @@ namespace ParkinglotsSvr{
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize!=
-					sizeof(EXAMPLE_TRANS_MSG) - 1
-					+ sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
+					sizeof(PKLTS_TRANS_MSG) - 1
+					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 					+ sizeof (stMsg_ClientLogoutReq))
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_ClientLogoutReq, size not correct."));

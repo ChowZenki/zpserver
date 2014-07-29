@@ -49,8 +49,8 @@ protected:
 	//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 	QByteArray m_currentBlock;
 	//current Header
-	EXAMPLE_TRANS_MSG m_currentHeader;
-	EXAMPLE_MSG_APP m_current_app_header;
+	PKLTS_TRANS_MSG m_currentHeader;
+	PKLTS_APP_LAYER m_current_app_header;
 
 
 

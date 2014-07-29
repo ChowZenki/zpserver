@@ -5,21 +5,32 @@ namespace ParkinglotsSvr{
 
 #pragma  pack (push,1)
 
+	//stMsg_HostRegistReq , 0x1000
+	typedef struct tag_stMsg_HostRegistReq{
+		quint8 HostSerialNum[1];  /*max 64 bytes*/
+	}stMsg_HostRegistReq;
+
+	//stMsg_HostRegistRsp 0x1800
+	typedef struct tag_stMsg_HostRegistRsp{
+		quint8 DoneCode;
+		quint32 ID;
+	}stMsg_HostRegistRsp;
+
 	//User Login request
-	//SMARTLINK_MSG_APP::MsgType =  0x0001
-	typedef struct tag_stMsg_ClientLoginReq{
-		quint32 user_id;
-		char Passwd[1];
-	}stMsg_ClientLoginReq;
+	//SMARTLINK_MSG_APP::MsgType =  0x1001
+	typedef struct tag_stMsg_HostLogonReq{
+		quint32 ID;
+		char HostSerialNum[1];
+	}stMsg_HostLogonReq;
 
 	//User Log response
-	//SMARTLINK_MSG_APP::MsgType =  0x7FFE
-	typedef struct tag_stMsg_ClientLoginRsp{
+	//SMARTLINK_MSG_APP::MsgType =  0x1801
+	typedef struct tag_stMsg_HostLogonRsp{
 		quint8 DoneCode;            //0- successful, 1-redirect, 3-failed.
-		quint32 UserID;
-		quint8 Address_Redirect[64];// for server-cluster balance, may be this login should be re-direct to another address
-		quint16 port_Redirect;      // and a port num.
-	} stMsg_ClientLoginRsp;
+		//quint32 UserID;
+		//quint16 port_Redirect;      // and a port num.
+		//quint8 Address_Redirect[64];// for server-cluster balance, may be this login should be re-direct to another address
+	} stMsg_HostLogonRsp;
 
 	//0x1002
 	typedef struct tag_stMsg_ClientLogoutReq{
@@ -59,7 +70,7 @@ namespace ParkinglotsSvr{
 
 
 
-	typedef struct tag_example_app_layer{
+	typedef struct tag_pklts_app_layer{
 		struct tag_app_layer_header{
 			quint16 MsgFmtVersion;
 			quint8 AskID;
@@ -67,8 +78,10 @@ namespace ParkinglotsSvr{
 		} header;
 		union  union_MsgUnion
 		{
-			stMsg_ClientLoginReq msg_ClientLoginReq;
-			stMsg_ClientLoginRsp msg_ClientLoginRsp;
+			stMsg_HostRegistReq msg_HostRegistReq;
+			stMsg_HostRegistRsp msg_HostRegistRsp;
+			stMsg_HostLogonReq msg_HostLogonReq;
+			stMsg_HostLogonRsp msg_HostLogonRsp;
 			stMsg_UploadUserListReq  msg_UploadUserListReq;
 			stMsg_UploadUserListRsp  msg_UploadUserListRsp;
 			stMsg_DownloadUserListReq msg_DownloadUserListReq;
@@ -78,7 +91,7 @@ namespace ParkinglotsSvr{
 
 		}MsgUnion;
 
-	} EXAMPLE_MSG_APP;
+	} PKLTS_APP_LAYER;
 
 
 

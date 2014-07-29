@@ -12,38 +12,38 @@ namespace ParkinglotsSvr{
 
 	bool st_clientNodeAppLayer::LoginClient()
 	{
-		const EXAMPLE_MSG_APP * pAppLayer =
-				(const EXAMPLE_MSG_APP *)(
+		const PKLTS_APP_LAYER * pAppLayer =
+				(const PKLTS_APP_LAYER *)(
 					((const char *)(m_currentBlock.constData()))
-					+sizeof(EXAMPLE_TRANS_MSG)-1);
-		int nAppLen = m_currentBlock.length()- (sizeof(EXAMPLE_TRANS_MSG)-1)- sizeof(tag_example_app_layer::tag_app_layer_header) - sizeof (quint32);
+					+sizeof(PKLTS_TRANS_MSG)-1);
+		int nAppLen = m_currentBlock.length()- (sizeof(PKLTS_TRANS_MSG)-1)- sizeof(tag_pklts_app_layer::tag_app_layer_header) - sizeof (quint32);
 		QString strPasswd ;
-		quint32 UserID = pAppLayer->MsgUnion.msg_ClientLoginReq.user_id;
+		quint32 UserID = pAppLayer->MsgUnion.msg_HostLogonReq.ID;
 
 		int nSwim = 0;
-		while (  nSwim < 65 && nSwim <nAppLen && pAppLayer->MsgUnion.msg_ClientLoginReq.Passwd[nSwim]!=0 )
-			strPasswd+= pAppLayer->MsgUnion.msg_ClientLoginReq.Passwd[nSwim++];
+		while (  nSwim < 65 && nSwim <nAppLen && pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim]!=0 )
+			strPasswd+= pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim++];
 
 
 		//form Msgs
-		quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
-				+sizeof(stMsg_ClientLoginRsp);
-		QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+				+sizeof(stMsg_HostLogonRsp);
+		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 		char * ptr = array.data();
-		EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-		EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-														  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
+		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 
-		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
+		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 
-		pMsg->data_length = nMsgLen;
+		pMsg->DataLen = nMsgLen;
 
 		pApp->header.MsgType = 0x7FFE;
 
-		stMsg_ClientLoginRsp & reply = pApp->MsgUnion.msg_ClientLoginRsp;
+		stMsg_HostLogonRsp & reply = pApp->MsgUnion.msg_HostLogonRsp;
 
 		//Check the database, find current equipment info
 		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
@@ -71,7 +71,7 @@ namespace ParkinglotsSvr{
 						{
 
 							reply.DoneCode = 0;
-							reply.UserID = ncurrid;
+							//reply.UserID = ncurrid;
 							m_bLoggedIn = true;
 							m_bUUIDRecieved = true;
 							m_uuid = ncurrid;
@@ -81,10 +81,10 @@ namespace ParkinglotsSvr{
 								reply.DoneCode = 3;
 							}
 							//Cluster-Balance.
-							if (m_pClientTable->NeedRedirect(reply.Address_Redirect,&reply.port_Redirect))
-							{
-								reply.DoneCode = 1;
-							}
+							//if (m_pClientTable->NeedRedirect(reply.Address_Redirect,&reply.port_Redirect))
+							//{
+							//	reply.DoneCode = 1;
+							//}
 						}
 						// else
 						// strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
@@ -120,13 +120,13 @@ namespace ParkinglotsSvr{
 	}
 	bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
 	{
-		const EXAMPLE_MSG_APP * pAppLayer =
-				(const EXAMPLE_MSG_APP *)(
+		const PKLTS_APP_LAYER * pAppLayer =
+				(const PKLTS_APP_LAYER *)(
 					((const char *)(m_currentBlock.constData()))
-					+sizeof(EXAMPLE_TRANS_MSG)-1);
+					+sizeof(PKLTS_TRANS_MSG)-1);
 
-		if (m_currentMessageSize!=sizeof(EXAMPLE_TRANS_MSG) - 1
-				+ sizeof (EXAMPLE_MSG_APP::tag_app_layer_header)
+		if (m_currentMessageSize!=sizeof(PKLTS_TRANS_MSG) - 1
+				+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 				+ sizeof (stMsg_UploadUserListReq) - sizeof(quint32)
 				+ sizeof (quint32) * (pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum)
 				)
@@ -136,20 +136,20 @@ namespace ParkinglotsSvr{
 		}
 
 		//form Msgs
-		quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
+		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 				+sizeof(stMsg_UploadUserListRsp);
-		QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 		char * ptr = array.data();
-		EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-		EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-														  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
+		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 
-		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
+		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 
-		pMsg->data_length = nMsgLen;
+		pMsg->DataLen = nMsgLen;
 
 		pApp->header.MsgType = 0x7FFC;
 
@@ -189,7 +189,7 @@ namespace ParkinglotsSvr{
 	{
 		bool res = true;
 		//form Msgs
-		quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
+		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 				+sizeof(stMsg_DownloadUserListRsp) - sizeof(quint32);
 		int nSz = 0;
 		if (loadRelations()==true )
@@ -201,18 +201,18 @@ namespace ParkinglotsSvr{
 			res = false;
 
 		//form Msgs
-		QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 		char * ptr = array.data();
-		EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-		EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-														  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
+		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 
-		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
+		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 
-		pMsg->data_length = nMsgLen;
+		pMsg->DataLen = nMsgLen;
 
 		pApp->header.MsgType = 0x7FFB;
 
@@ -244,22 +244,22 @@ namespace ParkinglotsSvr{
 	{
 		bool res = true;
 		//form Msgs
-		quint16 nMsgLen = sizeof(EXAMPLE_MSG_APP::tag_app_layer_header)
+		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 				+sizeof(stMsg_ClientLogoutRsp);
 		//int nSz = 0;
 		//form Msgs
-		QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 		char * ptr = array.data();
-		EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
-		EXAMPLE_MSG_APP * pApp = (EXAMPLE_MSG_APP *)(((unsigned char *)
-														  (ptr))+sizeof(EXAMPLE_TRANS_MSG)-1
+		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 														 );
 		pMsg->Mark = 0x55AA;
-		pMsg->source_id = (quint32)((quint64)(m_currentHeader.destin_id) & 0xffffffff );
+		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 
-		pMsg->destin_id = (quint32)((quint64)(m_currentHeader.source_id) & 0xffffffff );;
+		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 
-		pMsg->data_length = nMsgLen;
+		pMsg->DataLen = nMsgLen;
 
 
 		pApp->header.MsgType = 0x7FFD;

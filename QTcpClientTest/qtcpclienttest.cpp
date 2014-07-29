@@ -60,7 +60,7 @@ void QTcpClientTest::on_action_Connect_triggered(bool bConn)
 }
 void QTcpClientTest::on_client_trasferred(qint64 dtw)
 {
-	if (dtw <= sizeof(EXAMPLE_HEARTBEATING))
+	if (dtw <= sizeof(PKLTS_HEARTBEATING))
 		return;
 	QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 	if (pSock)
@@ -88,9 +88,9 @@ void QTcpClientTest::on_client_connected()
 			m_minUUID = pSockSsl->uuid();
 
 		displayMessage(QString("client %1 connected.").arg(pSockSsl->uuid()));
-		QByteArray array(sizeof(EXAMPLE_HEARTBEATING),0);
+		QByteArray array(sizeof(PKLTS_HEARTBEATING),0);
 		char * ptr = array.data();
-		EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
+		PKLTS_HEARTBEATING * pMsg = (PKLTS_HEARTBEATING *)ptr;
 		pMsg->Mark = 0xBEBE;
 		pMsg->source_id = pSockSsl->uuid();
 		pMsg->tmStamp = 0;
@@ -105,9 +105,9 @@ void QTcpClientTest::on_client_connected()
 			m_minUUID = pSockTcp->uuid();
 
 		displayMessage(QString("client %1 connected.").arg(pSockTcp->uuid()));
-		QByteArray array(sizeof(EXAMPLE_HEARTBEATING),0);
+		QByteArray array(sizeof(PKLTS_HEARTBEATING),0);
 		char * ptr = array.data();
-		EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
+		PKLTS_HEARTBEATING * pMsg = (PKLTS_HEARTBEATING *)ptr;
 		pMsg->Mark = 0xBEBE;
 		pMsg->source_id = pSockTcp->uuid();
 		pMsg->tmStamp = 0;
@@ -163,7 +163,7 @@ void QTcpClientTest::new_data_recieved()
 	if (pSock)
 	{
 		QByteArray array =pSock->readAll();
-		if (array.size() <= sizeof(EXAMPLE_HEARTBEATING))
+		if (array.size() <= sizeof(PKLTS_HEARTBEATING))
 			return;
 		//in this example, we just do nothing but to display the byte size.
 		QGHSslClient * pSockSsl = qobject_cast<QGHSslClient*>(pSock);
@@ -200,9 +200,9 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 				else
 					continue;
 
-				QByteArray array(sizeof(EXAMPLE_HEARTBEATING),0);
+				QByteArray array(sizeof(PKLTS_HEARTBEATING),0);
 				char * ptr = array.data();
-				EXAMPLE_HEARTBEATING * pMsg = (EXAMPLE_HEARTBEATING *)ptr;
+				PKLTS_HEARTBEATING * pMsg = (PKLTS_HEARTBEATING *)ptr;
 				pMsg->Mark = 0xBEBE;
 				pMsg->source_id = uuid;
 				pMsg->tmStamp = 0;
@@ -225,16 +225,16 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 					uuid = pSockTcp->uuid();
 				else
 					continue;
-				quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(EXAMPLE_TRANS_MSG);
-				QByteArray array(sizeof(EXAMPLE_TRANS_MSG) + nMsgLen - 1,0);
+				quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(PKLTS_TRANS_MSG);
+				QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
 				char * ptr = array.data();
-				EXAMPLE_TRANS_MSG * pMsg = (EXAMPLE_TRANS_MSG *)ptr;
+				PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
 				pMsg->Mark = 0x55AA;
-				pMsg->source_id = uuid;
+				pMsg->SrcID = uuid;
 
-				pMsg->destin_id = getRadomUUIDDestin();
+				pMsg->DstID = getRadomUUIDDestin();
 
-				pMsg->data_length = nMsgLen;
+				pMsg->DataLen = nMsgLen;
 				for (int i=0;i<nMsgLen;i++)
 					pMsg->data[i] = '0' + i%10;
 

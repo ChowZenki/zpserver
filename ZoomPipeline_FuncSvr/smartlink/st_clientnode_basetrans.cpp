@@ -32,7 +32,7 @@ namespace ParkinglotsSvr{
 	}
 	qint32 st_clientNode_baseTrans::bytesLeft()
 	{
-		return m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
+		return m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
 				-m_currentMessageSize ;
 	}
 	//judge whether id is valid.
@@ -132,19 +132,19 @@ namespace ParkinglotsSvr{
 			//Heart Beating
 			if (m_currentHeader.Mark == 0xBEBE)
 			{
-				while (m_currentMessageSize< sizeof(EXAMPLE_HEARTBEATING) && blocklen>offset )
+				while (m_currentMessageSize< sizeof(PKLTS_HEARTBEATING) && blocklen>offset )
 				{
 					m_currentBlock.push_back(dataptr[offset++]);
 					m_currentMessageSize++;
 				}
-				if (m_currentMessageSize < sizeof(EXAMPLE_HEARTBEATING)) //Header not completed.
+				if (m_currentMessageSize < sizeof(PKLTS_HEARTBEATING)) //Header not completed.
 					continue;
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
 				//Try to Get UUID Immediately
 				if (m_bUUIDRecieved==false)
 				{
-					EXAMPLE_HEARTBEATING * pHbMsg = (EXAMPLE_HEARTBEATING *)(ptrCurrData);
+					PKLTS_HEARTBEATING * pHbMsg = (PKLTS_HEARTBEATING *)(ptrCurrData);
 					if (bIsValidUserId(pHbMsg->source_id))
 					{
 						m_bUUIDRecieved = true;
@@ -162,22 +162,22 @@ namespace ParkinglotsSvr{
 			else if (m_currentHeader.Mark == 0x55AA)
 				//Trans Message
 			{
-				while (m_currentMessageSize< sizeof(EXAMPLE_TRANS_MSG)-1 && blocklen>offset)
+				while (m_currentMessageSize< sizeof(PKLTS_TRANS_MSG)-1 && blocklen>offset)
 				{
 					m_currentBlock.push_back(dataptr[offset++]);
 					m_currentMessageSize++;
 				}
-				if (m_currentMessageSize < sizeof(EXAMPLE_TRANS_MSG)-1) //Header not completed.
+				if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG)-1) //Header not completed.
 					continue;
-				else if (m_currentMessageSize == sizeof(EXAMPLE_TRANS_MSG)-1)//Header just  completed.
+				else if (m_currentMessageSize == sizeof(PKLTS_TRANS_MSG)-1)//Header just  completed.
 				{
 					const char * headerptr = m_currentBlock.constData();
-					memcpy((void *)&m_currentHeader,headerptr,sizeof(EXAMPLE_TRANS_MSG)-1);
+					memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_MSG)-1);
 
 					//continue reading if there is data left behind
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
+						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
 								-m_currentMessageSize ;
 						while (bitLeft>0 && blocklen>offset)
 						{
@@ -199,7 +199,7 @@ namespace ParkinglotsSvr{
 				{
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
+						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
 								-m_currentMessageSize ;
 						while (bitLeft>0 && blocklen>offset)
 						{
@@ -237,14 +237,14 @@ namespace ParkinglotsSvr{
 		//First, get uuid as soon as possible
 		if (m_bUUIDRecieved==false)
 		{
-			if (bIsValidUserId( m_currentHeader.source_id) )
+			if (bIsValidUserId( m_currentHeader.SrcID) )
 			{
 				m_bUUIDRecieved = true;
-				m_uuid =  m_currentHeader.source_id;
+				m_uuid =  m_currentHeader.SrcID;
 				//regisit client node to hash-table;
 				m_pClientTable->regisitClientUUID(this);
 			}
-			else if (m_currentHeader.source_id==0xffffffff)
+			else if (m_currentHeader.SrcID==0xffffffff)
 			{
 				//New clients
 			}
@@ -257,9 +257,9 @@ namespace ParkinglotsSvr{
 		}
 		else
 		{
-			if (!( bIsValidUserId(m_currentHeader.source_id)
+			if (!( bIsValidUserId(m_currentHeader.SrcID)
 				  ||
-				  (m_currentHeader.source_id==0xffffffff)
+				  (m_currentHeader.SrcID==0xffffffff)
 				  )
 					)
 			{
@@ -267,8 +267,8 @@ namespace ParkinglotsSvr{
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
 			}
-			if (bIsValidUserId(m_currentHeader.source_id)==true &&
-					m_uuid != m_currentHeader.source_id)
+			if (bIsValidUserId(m_currentHeader.SrcID)==true &&
+					m_uuid != m_currentHeader.SrcID)
 			{
 				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly."));
 				m_currentBlock = QByteArray();

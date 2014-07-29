@@ -132,10 +132,14 @@ namespace ExampleServer{
 			//Heart Beating
 			if (m_currentHeader.Mark == 0xBEBE)
 			{
-				while (m_currentMessageSize< sizeof(EXAMPLE_HEARTBEATING) && blocklen>offset )
+				if (m_currentMessageSize< sizeof(EXAMPLE_HEARTBEATING) && blocklen>offset )
 				{
-					m_currentBlock.push_back(dataptr[offset++]);
-					m_currentMessageSize++;
+					int nCpy = offset - blocklen;
+					if (nCpy > sizeof(EXAMPLE_HEARTBEATING) - m_currentMessageSize)
+						nCpy =  sizeof(EXAMPLE_HEARTBEATING) - m_currentMessageSize;
+					m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
+					offset += nCpy;
+					m_currentMessageSize+=nCpy;
 				}
 				if (m_currentMessageSize < sizeof(EXAMPLE_HEARTBEATING)) //Header not completed.
 					continue;
@@ -162,10 +166,14 @@ namespace ExampleServer{
 			else if (m_currentHeader.Mark == 0x55AA)
 				//Trans Message
 			{
-				while (m_currentMessageSize< sizeof(EXAMPLE_TRANS_MSG)-1 && blocklen>offset)
+				if (m_currentMessageSize< sizeof(EXAMPLE_TRANS_MSG)-1 && blocklen>offset)
 				{
-					m_currentBlock.push_back(dataptr[offset++]);
-					m_currentMessageSize++;
+					int nCpy =  blocklen - offset;
+					if (nCpy > sizeof(EXAMPLE_TRANS_MSG)-1 - m_currentMessageSize)
+						nCpy =  sizeof(EXAMPLE_TRANS_MSG)-1 - m_currentMessageSize;
+					m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
+					offset += nCpy;
+					m_currentMessageSize+=nCpy;
 				}
 				if (m_currentMessageSize < sizeof(EXAMPLE_TRANS_MSG)-1) //Header not completed.
 					continue;
@@ -179,11 +187,15 @@ namespace ExampleServer{
 					{
 						qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
 								-m_currentMessageSize ;
-						while (bitLeft>0 && blocklen>offset)
+						if (bitLeft>0 && blocklen>offset)
 						{
-							m_currentBlock.push_back(dataptr[offset++]);
-							m_currentMessageSize++;
-							bitLeft--;
+							int nCpy =  blocklen - offset;
+							if (nCpy > bitLeft)
+								nCpy =  bitLeft;
+							m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
+							offset += nCpy;
+							m_currentMessageSize+=nCpy;
+							bitLeft -= nCpy;
 						}
 						//deal block, may be send data as soon as possible;
 						deal_current_message_block();
@@ -201,11 +213,15 @@ namespace ExampleServer{
 					{
 						qint32 bitLeft = m_currentHeader.data_length + sizeof(EXAMPLE_TRANS_MSG) - 1
 								-m_currentMessageSize ;
-						while (bitLeft>0 && blocklen>offset)
+						if (bitLeft>0 && blocklen>offset)
 						{
-							m_currentBlock.push_back(dataptr[offset++]);
-							m_currentMessageSize++;
-							bitLeft--;
+							int nCpy =  blocklen - offset;
+							if (nCpy > bitLeft)
+								nCpy =  bitLeft;
+							m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
+							offset += nCpy;
+							m_currentMessageSize+=nCpy;
+							bitLeft -= nCpy;
 						}
 						//deal block, may be processed as soon as possible;
 						deal_current_message_block();

@@ -22,11 +22,21 @@ namespace ExampleServer{
 		int nOffset = 0;
 		while (nOffset < nBlockSize )
 		{
-			while (m_currStMegSize < sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) && nOffset< nBlockSize)
+			//while (m_currStMegSize < sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) && nOffset< nBlockSize)
+			//{
+			//	m_currStBlock.push_back(pData[nOffset++]);
+			//	++m_currStMegSize;
+			//}
+			if(m_currStMegSize < sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) && nOffset< nBlockSize)
 			{
-				m_currStBlock.push_back(pData[nOffset++]);
-				++m_currStMegSize;
+				int nHeaderReadLen = nBlockSize - nOffset;
+				if (nHeaderReadLen > sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) - m_currStMegSize )
+					nHeaderReadLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) - m_currStMegSize ;
+				m_currStBlock.push_back(QByteArray(pData + nOffset,nHeaderReadLen));
+				nOffset += nHeaderReadLen;
+				m_currStMegSize += nHeaderReadLen;
 			}
+
 			if (m_currStMegSize < sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder))
 				return true;
 			if (m_currStMegSize == sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder))
@@ -39,10 +49,19 @@ namespace ExampleServer{
 					return true;
 				}
 			}
-			while (nOffset<nBlockSize && m_currStMegSize < m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) )
+			//while (nOffset<nBlockSize && m_currStMegSize < m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) )
+			//{
+			//	m_currStBlock.push_back(pData[nOffset++]);
+			//	++m_currStMegSize;
+			//}
+			if (nOffset<nBlockSize && m_currStMegSize < m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) )
 			{
-				m_currStBlock.push_back(pData[nOffset++]);
-				++m_currStMegSize;
+				int nHeaderReadLen = nBlockSize - nOffset;
+				if (nHeaderReadLen >  m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) - m_currStMegSize )
+					nHeaderReadLen =  m_st_Header.messageLen + sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) - m_currStMegSize ;
+				m_currStBlock.push_back(QByteArray(pData + nOffset,nHeaderReadLen));
+				nOffset += nHeaderReadLen;
+				m_currStMegSize += nHeaderReadLen;
 			}
 			bool needDel = deal_msg();
 			if (st_bytesLeft()==0 || needDel==true)

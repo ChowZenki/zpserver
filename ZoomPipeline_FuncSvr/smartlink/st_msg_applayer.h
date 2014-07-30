@@ -17,14 +17,14 @@ namespace ParkinglotsSvr{
 	}stMsg_HostRegistRsp;
 
 	//User Login request
-	//SMARTLINK_MSG_APP::MsgType =  0x1001
+	//PKLTS_APP_LAYER::MsgType =  0x1001
 	typedef struct tag_stMsg_HostLogonReq{
 		quint32 ID;
 		char HostSerialNum[1];
 	}stMsg_HostLogonReq;
 
 	//User Log response
-	//SMARTLINK_MSG_APP::MsgType =  0x1801
+	//PKLTS_APP_LAYER::MsgType =  0x1801
 	typedef struct tag_stMsg_HostLogonRsp{
 		quint8 DoneCode;            //0- successful, 1-redirect, 3-failed.
 		//quint32 UserID;
@@ -49,19 +49,37 @@ namespace ParkinglotsSvr{
 	}stMsg_UploadUserListReq;
 
 	//User Log response
-	//SMARTLINK_MSG_APP::MsgType =  0x7FFC
+	//PKLTS_APP_LAYER::MsgType =  0x7FFC
 	typedef struct tag_stMsg_UploadUserListRsp{
 		quint8 DoneCode;
 		//char TextInfo[64];
 	} stMsg_UploadUserListRsp;
 
+	//User Log response
+	//SMARTLINK_MSG_APP::MsgType =  0x1002
+	typedef struct tag_stMsg_HostTimeCorrectReq{
 
-	//SMARTLINK_MSG_APP::MsgType =  0x1004
+	} stMsg_HostTimeCorrectReq;
+
+	//Time Correct
+	typedef struct tag_stMsg_HostTimeCorrectRsp{
+		quint8 DoneCode;
+		//char TextInfo[64];
+		struct tag_stDateTime{
+			quint16 Year;
+			quint8 Month;
+			quint8 Day;
+			quint8 Hour;
+			quint8 Minute;
+			quint8 Second;
+		} DateTime;
+	}stMsg_HostTimeCorrectRsp;
+	//PKLTS_APP_LAYER::MsgType =  0x1004
 	typedef struct tag_stMsg_DownloadUserListReq{
 
 	} stMsg_DownloadUserListReq;
 
-	//SMARTLINK_MSG_APP::MsgType =  0x7FFB
+	//PKLTS_APP_LAYER::MsgType =  0x7FFB
 	typedef struct tag_stMsg_DownloadUserListRsp{
 		quint8 DoneCode;
 		quint16 UserNum;
@@ -88,6 +106,8 @@ namespace ParkinglotsSvr{
 			stMsg_DownloadUserListRsp msg_DownloadUserListRsp;
 			stMsg_ClientLogoutReq msg_ClientLogoutReq;
 			stMsg_ClientLogoutRsp msg_ClientLogoutRsp;
+			stMsg_HostTimeCorrectReq msg_HostTimeCorrectReq;
+			stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
 
 		}MsgUnion;
 

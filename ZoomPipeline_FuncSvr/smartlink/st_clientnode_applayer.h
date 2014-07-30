@@ -22,6 +22,7 @@ namespace ParkinglotsSvr{
 		int deal_current_message_block();
 		//!Message Dealers, imp in st_clientnode_msgdeal.cpp
 		bool Deal_ToServer_Handshakes();
+		bool RegisitNewBoxNode();
 		//0x0001<->0x7FFE msg, stMsg_ClientLoginReq
 		bool LoginClient();
 		//!Deal node2Svr Msgs
@@ -32,6 +33,7 @@ namespace ParkinglotsSvr{
 		bool Box2Svr_DownloadUserTable();
 		//0x1002 - 0x7FFD
 		bool ClientLogout();
+		bool Box2Svr_CorrectTime();
 		//data items
 	protected:
 		QMutex m_mutex_equipID;
@@ -41,6 +43,8 @@ namespace ParkinglotsSvr{
 
 		//Matching Nodes
 		QSet<quint32> m_matched_nodes;
+
+		char m_serialNum[65];
 
 
 	};

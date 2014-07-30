@@ -10,6 +10,7 @@ namespace ParkinglotsSvr{
 
 		m_bLoggedIn= false;
 		memset(&m_current_app_header,0,sizeof(PKLTS_APP_LAYER));
+		memset(m_serialNum,0,sizeof(char)*65);
 	}
 
 	bool st_clientNodeAppLayer::loadRelations()
@@ -188,6 +189,21 @@ namespace ParkinglotsSvr{
 		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.header.MsgType)
 		{
+		case 0x1000:
+			if (bytesLeft()>0)
+				// message is not complete, return
+				return true;
+			if (m_currentMessageSize>
+					sizeof(PKLTS_TRANS_MSG) - 1
+					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+					+ sizeof (stMsg_HostRegistReq)+64)
+			{
+				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
+				res = false;
+			}
+			else
+				res = this->RegisitNewBoxNode();
+			break;
 		case 0x0001:
 			if (bytesLeft()>0)
 				// message is not complete, return
@@ -236,7 +252,21 @@ namespace ParkinglotsSvr{
 		//do
 		switch (m_current_app_header.header.MsgType)
 		{
-
+		case 0x1002:
+			if (bytesLeft()>0)
+				// message is not complete, return
+				return true;
+			if (m_currentMessageSize!=
+					sizeof(PKLTS_TRANS_MSG) - 1
+					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
+			{
+				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
+				res = false;
+			}
+			else
+				res = this->Box2Svr_CorrectTime();
+			break;
 		case 0x1003:
 			if (bytesLeft()>0)
 				return true;
@@ -267,7 +297,7 @@ namespace ParkinglotsSvr{
 			else
 				res = this->Box2Svr_DownloadUserTable();
 			break;
-		case 0x1002:
+		case 0x10025:
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;

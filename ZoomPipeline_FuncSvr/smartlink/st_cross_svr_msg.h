@@ -33,7 +33,7 @@ namespace ParkinglotsSvr{
 			unsigned __int8 data[1];
 			unsigned __int32 uuids[1];
 		} payload;
-	} EXAMPLE_CROSSSVR_MSG;
+	} PKLTS_CROSSSVR_MSG;
 
 #endif
 

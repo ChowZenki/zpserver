@@ -297,9 +297,9 @@ namespace ParkinglotsSvr{
 		int nNodeSz = uuids.size();
 		if (nNodeSz>0)
 		{
-			int nMsgLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) +  nNodeSz * sizeof(quint32);
+			int nMsgLen = sizeof(PKLTS_CROSSSVR_MSG::tag_msgHearder) +  nNodeSz * sizeof(quint32);
 			QByteArray array(nMsgLen,0);
-			EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) array.data();
+			PKLTS_CROSSSVR_MSG * pMsg = (PKLTS_CROSSSVR_MSG *) array.data();
 			pMsg->header.Mark = 0x4567;
 			pMsg->header.version = 1;
 			pMsg->header.messageLen = nNodeSz * sizeof(quint32);
@@ -317,9 +317,9 @@ namespace ParkinglotsSvr{
 		QStringList svrs = m_pCluster->SvrNames();
 		if (svrs.empty()==false)
 		{
-			int nMsgLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder) +  sizeof(quint32);
+			int nMsgLen = sizeof(PKLTS_CROSSSVR_MSG::tag_msgHearder) +  sizeof(quint32);
 			QByteArray array(nMsgLen,0);
-			EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) array.data();
+			PKLTS_CROSSSVR_MSG * pMsg = (PKLTS_CROSSSVR_MSG *) array.data();
 			pMsg->header.Mark = 0x4567;
 			pMsg->header.version = 1;
 			pMsg->header.messageLen = sizeof(quint32);
@@ -415,9 +415,9 @@ namespace ParkinglotsSvr{
 	}
 	void st_client_table::cross_svr_send_data(QString  svrname,QByteArray  arr)
 	{
-		int nMsgLen = sizeof(EXAMPLE_CROSSSVR_MSG::tag_msgHearder);
+		int nMsgLen = sizeof(PKLTS_CROSSSVR_MSG::tag_msgHearder);
 		QByteArray array(nMsgLen,0);
-		EXAMPLE_CROSSSVR_MSG * pMsg = (EXAMPLE_CROSSSVR_MSG *) array.data();
+		PKLTS_CROSSSVR_MSG * pMsg = (PKLTS_CROSSSVR_MSG *) array.data();
 		pMsg->header.Mark = 0x4567;
 		pMsg->header.version = 1;
 		pMsg->header.messageLen = arr.size();

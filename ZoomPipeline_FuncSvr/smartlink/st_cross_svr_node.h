@@ -24,7 +24,7 @@ namespace ParkinglotsSvr{
 		//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 		QByteArray m_currStBlock;
 		//current Header
-		EXAMPLE_CROSSSVR_MSG::tag_msgHearder m_st_Header;
+		PKLTS_CROSSSVR_MSG::tag_msgHearder m_st_Header;
 		quint32 m_destin_uuid;
 	signals:
 		void evt_SendToNode(quint32 uuid, QByteArray  msg);

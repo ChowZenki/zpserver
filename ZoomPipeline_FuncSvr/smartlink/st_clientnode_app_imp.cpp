@@ -62,7 +62,7 @@ namespace ParkinglotsSvr{
 		{
 			QSqlQuery query(db);
 
-			QString sql = "select host_serial_num,equip_id,first_login from instruments where host_serial_num = ?;";
+			QString sql = "select serialnum,macid,ifregisted from macinfo where serialnum = ?;";
 			query.prepare(sql);
 			query.addBindValue(strSerial);
 
@@ -72,24 +72,23 @@ namespace ParkinglotsSvr{
 				{
 					bool bOk = false;
 					int ncurrid = query.value(1).toInt(&bOk);
-					int nfirstlogin =  query.value(2).toInt();
+					int nregisdited =  query.value(2).toInt();
 					if (bOk==true)
 					{
 						if (ncurrid>=0x0010000 && ncurrid <=0x0FFFFFFF)
 						{
 							reply.ID = ncurrid;
-							reply.DoneCode = nfirstlogin==1?0:1;
-							//strcpy(reply.TextInfo,"Re-regisit Succeed.");
+							reply.DoneCode = nregisdited==0?0:1;
+
 							m_bUUIDRecieved = true;
 							m_uuid = ncurrid;
 							m_pClientTable->regisitClientUUID(this);
-							if (nfirstlogin==1)
+							if (nregisdited==0)
 							{
-								//strcpy(reply.TextInfo,"First-Regisit Succeed.");
 								QSqlQuery queryUpdate(db);
-								sql = "update instruments set first_login = 0 where  host_serial_num = ?;";
+								sql = "update macinfo set ifregisted = 1 where  macid = ?;";
 								queryUpdate.prepare(sql);
-								queryUpdate.addBindValue(strSerial);
+								queryUpdate.addBindValue(ncurrid);
 								if (false==queryUpdate.exec())
 								{
 									reply.DoneCode = 2;

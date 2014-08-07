@@ -60,31 +60,31 @@
          <item>
           <widget class="QLabel" name="label_5">
            <property name="text">
+            <string>serial_num</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_serial_num"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_clientRegisit">
+           <property name="text">
+            <string>Regisit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
             <string>user_id</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_username"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>password</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit_password">
-           <property name="echoMode">
-            <enum>QLineEdit::PasswordEchoOnEdit</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_clientLogout">
-           <property name="text">
-            <string>Log out</string>
+          <widget class="QLineEdit" name="lineEdit_user_id">
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -98,7 +98,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
           <widget class="QLabel" name="label_10">
            <property name="text">
@@ -107,7 +107,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_3">
+          <spacer name="horizontalSpacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>

@@ -31,8 +31,8 @@ MainDialog::MainDialog(QWidget *parent) :
 	QSettings settings("goldenhawking club","FunctionalClientTest",this);
 	ui->lineEdit_ip->setText(settings.value("settings/ip","localhost").toString());
 	ui->lineEdit_Port->setText(settings.value("settings/port","23456").toString());
-	ui->lineEdit_username->setText(settings.value("settings/client2svr_username","111").toString());
-	ui->lineEdit_password->setText(settings.value("settings/client2svr_password","111").toString());
+	ui->lineEdit_serial_num->setText(settings.value("settings/client2svr_serialnum","TESTMACHINE").toString());
+	ui->lineEdit_user_id->setText(settings.value("settings/client2svr_user_id","0").toString());
 	ui->plainTextEdit_box_userids->setPlainText(settings.value("settings/box2svr_uploadid","0,").toString());
 	ui->lineEdit_client_uuid->setText(settings.value("settings/client_uuid","112").toString());
 }
@@ -115,8 +115,8 @@ void MainDialog::saveIni()
 	QSettings settings("goldenhawking club","FunctionalClientTest",this);
 	settings.setValue("settings/ip", ui->lineEdit_ip->text());
 	settings.setValue("settings/port", ui->lineEdit_Port->text());
-	settings.setValue("settings/client2svr_username", ui->lineEdit_username->text());
-	settings.setValue("settings/client2svr_password", ui->lineEdit_password->text());
+	settings.setValue("settings/client2svr_serialnum", ui->lineEdit_serial_num->text());
+	settings.setValue("settings/client2svr_user_id", ui->lineEdit_user_id->text());
 	settings.setValue("settings/box2svr_uploadid", ui->plainTextEdit_box_userids->toPlainText());
 	settings.setValue("settings/client_uuid", ui->lineEdit_client_uuid->text());
 
@@ -149,6 +149,52 @@ void MainDialog::on_pushButton_connect_clicked()
 	client->connectToHost(ui->lineEdit_ip->text(),ui->lineEdit_Port->text().toUShort());
 }
 
+//Regisit
+void  MainDialog::on_pushButton_clientRegisit_clicked()
+{
+	if (client->isOpen()==false)
+	{
+		QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
+		return;
+	}
+	if (m_bLogedIn==true)
+	{
+		QMessageBox::warning(this,"Already log in!","uuid has been revieved and login.");
+		return;
+	}
+	saveIni();
+	//Get the serial Num
+	QString serialNum = ui->lineEdit_serial_num->text();
+	std::string str_serialNum = serialNum.toStdString();
+	const char * pSrcSerialNum = str_serialNum.c_str();
+	int nMaxLenSerialNum = str_serialNum.length();
+
+	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+			+sizeof(stMsg_HostRegistReq) + nMaxLenSerialNum;
+	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+	char * ptr = array.data();
+	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
+													 );
+	pMsg->Mark = 0x55AA;
+	pMsg->SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );;
+
+	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+	pMsg->DataLen = nMsgLen;
+
+
+	pApp->header.MsgType = 0x1000;
+
+	for (int i=0;i<=nMaxLenSerialNum;i++)
+		pApp->MsgUnion.msg_HostRegistReq.HostSerialNum[i] =
+				i<nMaxLenSerialNum?pSrcSerialNum[i]:0;
+
+	//3/10 possibility to send a data block to server
+	client->SendData(array);
+}
+
 void MainDialog::on_pushButton_clientLogin_clicked()
 {
 	if (client->isOpen()==false)
@@ -157,39 +203,39 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 		return;
 	}
 	saveIni();
-	quint32 userID = ui->lineEdit_username->text().toUInt();
-	QString strPassWd = ui->lineEdit_password->text();
-	std::string strStdPassword = strPassWd.toStdString();
-	const char * pSrcPassword = strStdPassword.c_str();
-	int nMaxLenPassword = strStdPassword.length();
+//	quint32 userID = ui->lineEdit_username->text().toUInt();
+//	QString strPassWd = ui->lineEdit_password->text();
+//	std::string strStdPassword = strPassWd.toStdString();
+//	const char * pSrcPassword = strStdPassword.c_str();
+//	int nMaxLenPassword = strStdPassword.length();
 
-	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-			+sizeof(stMsg_HostLogonReq)+nMaxLenPassword;
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );
+//	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+//			+sizeof(stMsg_HostLogonReq)+nMaxLenPassword;
+//	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+//	char * ptr = array.data();
+//	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+//	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+//													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
+//													 );
+//	pMsg->Mark = 0x55AA;
+//	pMsg->SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );
 
-	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+//	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
-	pMsg->DataLen = nMsgLen;
-
-
-	pApp->header.MsgType = 0x0001;
-
-	pApp->MsgUnion.msg_HostLogonReq.ID = userID;
-
-	for (int i=0;i<=nMaxLenPassword;i++)
-		pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
-				i<nMaxLenPassword?pSrcPassword[i]:0;
+//	pMsg->DataLen = nMsgLen;
 
 
-	//3/10 possibility to send a data block to server
-	client->SendData(array);
+//	pApp->header.MsgType = 0x0001;
+
+//	pApp->MsgUnion.msg_HostLogonReq.ID = userID;
+
+//	for (int i=0;i<=nMaxLenPassword;i++)
+//		pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
+//				i<nMaxLenPassword?pSrcPassword[i]:0;
+
+
+//	//3/10 possibility to send a data block to server
+//	client->SendData(array);
 }
 
 void MainDialog::on_pushButton_box_upload_uid_clicked()
@@ -221,7 +267,7 @@ void MainDialog::on_pushButton_box_upload_uid_clicked()
 													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );
 
 	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
@@ -260,7 +306,7 @@ void MainDialog::on_pushButton_box_download_uid_clicked()
 													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );
 
 	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
 
@@ -272,44 +318,6 @@ void MainDialog::on_pushButton_box_download_uid_clicked()
 	client->SendData(array);
 }
 
-void  MainDialog::on_pushButton_clientLogout_clicked()
-{
-	if (client->isOpen()==false)
-	{
-		QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
-		return;
-	}
-	if (m_bLogedIn==false)
-	{
-		QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
-		return;
-	}
-	saveIni();
-	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-			+sizeof(stMsg_ClientLogoutReq);
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
-
-	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
-
-	pMsg->DataLen = nMsgLen;
-
-
-	pApp->header.MsgType = 0x1002;
-
-
-	pApp->MsgUnion.msg_ClientLogoutReq.UserName[0] = 0;
-
-
-	//3/10 possibility to send a data block to server
-	client->SendData(array);
-}
 
 //!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 //!return bytes Used.
@@ -444,7 +452,21 @@ int MainDialog::deal_current_message_block()
 													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
 													 );
 
-	if (pApp->header.MsgType==0x7FFE)
+	if (pApp->header.MsgType==0x1800)
+	{
+		if (pApp->MsgUnion.msg_HostRegistRsp.DoneCode<2 && pApp->MsgUnion.msg_HostRegistRsp.DoneCode>=0)
+		{
+			m_bLogedIn = true;
+			QMessageBox::information(this,tr("Succeed!"),tr("Reg succeed!"));
+			ui->lineEdit_user_id->setText(QString("%1").arg(pApp->MsgUnion.msg_HostRegistRsp.ID));
+		}
+		else
+			QMessageBox::information(this,tr("Failed!"),tr("Log in failed!"));
+		displayMessage(tr("Res = %1")
+				   .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
+				   );
+	}
+	else if (pApp->header.MsgType==0x7FFE)
 	{
 		if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
 		{
@@ -543,7 +565,7 @@ void MainDialog::on_pushButton_sendToClient_clicked()
 	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
 
 	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_username->text().toUInt()) & 0xffffffff );
+	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );
 	pMsg->DstID = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
 
 	pMsg->DataLen = arrMsg.size();

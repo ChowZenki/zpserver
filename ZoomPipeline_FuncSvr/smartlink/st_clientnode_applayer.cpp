@@ -95,11 +95,6 @@ namespace ParkinglotsSvr{
 	int st_clientNodeAppLayer::deal_current_message_block()
 	{
 		//then , Start deal to-server messages
-		//Uncomment these codes to enable debug msg dump.
-//		if (m_currentBlock.length()>=64)
-//			emit evt_Message(this,"Debug:" + m_currentBlock.toHex().left(64) + "..." + m_currentBlock.toHex().right(64));
-//		else
-//			emit evt_Message(this,"Debug:" + m_currentBlock.toHex());
 		if (m_currentHeader.DstID==0x00000001)
 		{
 			if (this->m_bLoggedIn==false || this->m_bUUIDRecieved==false)

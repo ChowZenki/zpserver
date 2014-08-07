@@ -63,10 +63,10 @@ public slots:
 	void displayMessage(QString str);
 
 	void on_pushButton_connect_clicked();
+	void on_pushButton_clientRegisit_clicked();
 	void on_pushButton_clientLogin_clicked();
 	void on_pushButton_box_upload_uid_clicked();
 	void on_pushButton_box_download_uid_clicked();
-	void on_pushButton_clientLogout_clicked();
 	void on_pushButton_sendToClient_clicked();
 
 };

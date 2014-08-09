@@ -131,19 +131,19 @@ namespace ParkinglotsSvr{
 
 		return reply.DoneCode==2?false:true;
 	}
-	bool st_clientNodeAppLayer::LoginClient()
+	bool st_clientNodeAppLayer::LoginHost()
 	{
 		const PKLTS_APP_LAYER * pAppLayer =
 				(const PKLTS_APP_LAYER *)(
 					((const char *)(m_currentBlock.constData()))
 					+sizeof(PKLTS_TRANS_MSG)-1);
 		int nAppLen = m_currentBlock.length()- (sizeof(PKLTS_TRANS_MSG)-1)- sizeof(tag_pklts_app_layer::tag_app_layer_header) - sizeof (quint32);
-		QString strPasswd ;
+		QString strSerialNum ;
 		quint32 UserID = pAppLayer->MsgUnion.msg_HostLogonReq.ID;
 
 		int nSwim = 0;
 		while (  nSwim < 65 && nSwim <nAppLen && pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim]!=0 )
-			strPasswd+= pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim++];
+			strSerialNum+= pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim++];
 
 
 		//form Msgs
@@ -162,7 +162,7 @@ namespace ParkinglotsSvr{
 
 		pMsg->DataLen = nMsgLen;
 
-		pApp->header.MsgType = 0x7FFE;
+		pApp->header.MsgType = 0x1801;
 
 		stMsg_HostLogonRsp & reply = pApp->MsgUnion.msg_HostLogonRsp;
 
@@ -174,33 +174,30 @@ namespace ParkinglotsSvr{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-
-			QString sql = "select user_id,password from users where user_id = ? and password = ?;";
+			QString sql = "select macid,serialnum from macinfo where macid = ? and serialnum = ?;";
 			query.prepare(sql);
 			query.addBindValue(UserID);
-			query.addBindValue(strPasswd);
+			query.addBindValue(strSerialNum);
 
 			if (true==query.exec())
 			{
 				if (query.next())
 				{
 					bool bOk = false;
-					quint32 ncurrid = query.value(1).toUInt(&bOk);
+					quint32 ncurrid = query.value(0).toUInt(&bOk);
 					if (bOk==true)
 					{
 						if (this->bIsValidUserId(ncurrid))
 						{
-
 							reply.DoneCode = 0;
-							//reply.UserID = ncurrid;
 							m_bLoggedIn = true;
 							m_bUUIDRecieved = true;
 							m_uuid = ncurrid;
 							m_pClientTable->regisitClientUUID(this);
-							if (false == loadRelations())
-							{
-								reply.DoneCode = 3;
-							}
+//							if (false == loadRelations())
+//							{
+//								reply.DoneCode = 3;
+//							}
 							//Cluster-Balance.
 							//if (m_pClientTable->NeedRedirect(reply.Address_Redirect,&reply.port_Redirect))
 							//{

@@ -24,7 +24,7 @@ namespace ParkinglotsSvr{
 		bool Deal_ToServer_Handshakes();
 		bool RegisitNewBoxNode();
 		//0x0001<->0x7FFE msg, stMsg_ClientLoginReq
-		bool LoginClient();
+		bool LoginHost();
 		//!Deal node2Svr Msgs
 		bool Deal_Node2Svr_Msgs();
 		//0x1003 - 0x7FFC

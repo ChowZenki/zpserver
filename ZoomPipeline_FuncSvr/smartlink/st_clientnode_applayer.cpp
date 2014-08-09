@@ -199,7 +199,7 @@ namespace ParkinglotsSvr{
 			else
 				res = this->RegisitNewBoxNode();
 			break;
-		case 0x0001:
+		case 0x1001:
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
@@ -212,7 +212,7 @@ namespace ParkinglotsSvr{
 				res = false;
 			}
 			else
-				res = this->LoginClient();
+				res = this->LoginHost();
 			break;
 		default:
 			emit evt_Message(this,tr("Message type not supported."));

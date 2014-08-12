@@ -69,6 +69,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_clientRegisit">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Regisit</string>
            </property>
@@ -90,6 +93,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_clientLogin">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Login</string>
            </property>
@@ -121,6 +127,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_box_download_uid">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Download</string>
            </property>
@@ -155,6 +164,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_box_upload_uid">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Upload</string>
            </property>
@@ -206,6 +218,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_sendToClient">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Send</string>
            </property>

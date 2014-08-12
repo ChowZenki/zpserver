@@ -57,7 +57,7 @@ void MainDialog::on_client_connected()
 	{
 		displayMessage(QString("client %1 connected.").arg((quintptr)pSock));
 		ui->pushButton_connect->setEnabled(false);
-
+		ui->pushButton_clientRegisit->setEnabled(true);
 	}
 
 }
@@ -457,31 +457,38 @@ int MainDialog::deal_current_message_block()
 		if (pApp->MsgUnion.msg_HostRegistRsp.DoneCode<2 && pApp->MsgUnion.msg_HostRegistRsp.DoneCode>=0)
 		{
 			m_bLogedIn = true;
-			QMessageBox::information(this,tr("Succeed!"),tr("Reg succeed!"));
+			displayMessage(tr("Regisit Succeed, Res = %1")
+					   .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
+					   );
+			ui->pushButton_clientLogin->setEnabled(true);
 			ui->lineEdit_user_id->setText(QString("%1").arg(pApp->MsgUnion.msg_HostRegistRsp.ID));
 		}
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("Log in failed!"));
-		displayMessage(tr("Res = %1")
-				   .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
-				   );
+			displayMessage(tr("Regisit Failed, Res = %1")
+					   .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
+					   );
+
+
 	}
 	else if (pApp->header.MsgType==0x1801)
 	{
 		if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
-			QMessageBox::information(this,tr("Succeed!"),tr("Log in succeed!"));
+			displayMessage(tr("Login Succeed, Res = %1")
+					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   );
 		}
 		else if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==1)
 		{
-			QMessageBox::information(this,tr("Failed!"),tr("Log in failed! ID Error"));
+			displayMessage(tr("Login Failed, Res = %1")
+					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   );
 		}
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("Log in failed! This client already logged in."));
-		displayMessage(tr("Res = %1")
-				   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
-				   );
+			displayMessage(tr("Login Failed,, Res = %1")
+					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   );
 	}
 	else if (pApp->header.MsgType==0x7FFC)
 	{

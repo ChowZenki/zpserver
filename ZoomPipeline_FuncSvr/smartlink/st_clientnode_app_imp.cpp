@@ -62,7 +62,7 @@ namespace ParkinglotsSvr{
 		{
 			QSqlQuery query(db);
 
-			QString sql = "select serialnum,macid,ifregisted from macinfo where serialnum = ?;";
+			QString sql = "select serialnum,macid,ifregisted from maclist where serialnum = ?;";
 			query.prepare(sql);
 			query.addBindValue(strSerial);
 
@@ -86,7 +86,7 @@ namespace ParkinglotsSvr{
 							if (nregisdited==0)
 							{
 								QSqlQuery queryUpdate(db);
-								sql = "update macinfo set ifregisted = 1 where  macid = ?;";
+								sql = "update maclist set ifregisted = 1 where  macid = ?;";
 								queryUpdate.prepare(sql);
 								queryUpdate.addBindValue(ncurrid);
 								if (false==queryUpdate.exec())
@@ -174,7 +174,7 @@ namespace ParkinglotsSvr{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			QString sql = "select macid,serialnum from macinfo where macid = ? and serialnum = ?;";
+			QString sql = "select macid,serialnum from maclist where macid = ? and serialnum = ?;";
 			query.prepare(sql);
 			query.addBindValue(UserID);
 			query.addBindValue(strSerialNum);

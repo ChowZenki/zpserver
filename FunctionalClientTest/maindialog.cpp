@@ -79,6 +79,8 @@ void MainDialog::on_client_disconnected()
 		pSock->abort();
 		pSock->deleteLater();
 	}
+	ui->pushButton_clientRegisit->setEnabled(false);
+	ui->pushButton_clientLogin->setEnabled(false);
 }
 void MainDialog::displayError(QAbstractSocket::SocketError /*err*/)
 {
@@ -140,6 +142,28 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 			//3/10 possibility to send a data block to server
 			client->SendData(array);
 
+		}
+		if (nCount % 250 == 0 && client->isOpen()==true && this->m_bLogedIn==true)
+		{
+			quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+					/*+sizeof(stMsg_HostTimeCorrectReq)*/ ;
+			QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+			char * ptr = array.data();
+			PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
+			PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
+															  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
+															 );
+			pMsg->Mark = 0x55AA;
+			pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );;
+
+			pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+
+			pMsg->DataLen = nMsgLen;
+
+
+			pApp->header.MsgType = 0x1002;
+			//3/10 possibility to send a data block to server
+			client->SendData(array);
 		}
 	}
 }
@@ -488,6 +512,25 @@ int MainDialog::deal_current_message_block()
 		else
 			displayMessage(tr("Login Failed,, Res = %1")
 					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   );
+	}
+	else if (pApp->header.MsgType==0x1802)
+	{
+		if (pApp->MsgUnion.msg_HostTimeCorrectRsp.DoneCode==0)
+		{
+			m_bLogedIn = true;
+			displayMessage(tr("Host Time is %1-%2-%3 %4:%5:%6.")
+					   .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Year)
+							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Month)
+							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Day)
+							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Hour)
+							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Minute)
+							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Second)
+					   );
+		}
+		else
+			displayMessage(tr("Time Crooecting Failed,, Res = %1")
+					   .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DoneCode)
 					   );
 	}
 	else if (pApp->header.MsgType==0x7FFC)

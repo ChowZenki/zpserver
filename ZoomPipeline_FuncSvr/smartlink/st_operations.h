@@ -2,6 +2,7 @@
 #define ST_OPERATIONS_H
 
 #include <QObject>
+#include <QVector>
 #include <QSqlDatabase>
 #include "st_message.h"
 namespace ParkinglotsSvr{
@@ -18,6 +19,7 @@ namespace ParkinglotsSvr{
 	public:
 		quint8 regisit_host(QString serialnum, quint32 * host_id );
 		quint8 login_host(QString serialnum, quint32 host_id );
+		bool   insert_device_table (int nItems, QVector<QString> & vec_dev_names,QVector<QString> & vec_dev_nos,QVector<QString> & vec_dev_ids);
 	};
 }
 

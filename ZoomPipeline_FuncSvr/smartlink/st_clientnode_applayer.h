@@ -25,6 +25,7 @@ namespace ParkinglotsSvr{
 		//!Deal node2Svr Msgs
 		bool Deal_Node2Svr_Msgs();
 		bool Box2Svr_CorrectTime();
+		bool RecieveDeviceListFromHost();
 		//data items
 	protected:
 		QMutex m_mutex_equipID;

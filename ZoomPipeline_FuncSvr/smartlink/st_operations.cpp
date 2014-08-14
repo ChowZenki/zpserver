@@ -110,4 +110,9 @@ namespace ParkinglotsSvr{
 		return DoneCode;
 	}
 
+	bool    st_operations::insert_device_table (int nItems, QVector<QString> & vec_dev_names,QVector<QString> & vec_dev_nos,QVector<QString> & vec_dev_ids)
+	{
+		return false;
+	}
+
 }

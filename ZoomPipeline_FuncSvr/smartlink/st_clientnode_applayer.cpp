@@ -115,7 +115,7 @@ namespace ParkinglotsSvr{
 					+ sizeof (PKLTS_APP_HEADER)
 					+ sizeof (stMsg_HostRegistReq)+64)
 			{
-				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message, size not correct."));
 				res = false;
 			}
 			else
@@ -130,14 +130,14 @@ namespace ParkinglotsSvr{
 					+ sizeof (PKLTS_APP_HEADER)
 					+ sizeof (stMsg_HostLogonReq)+66)
 			{
-				emit evt_Message(this,tr("Broken Message stMsg_ClientLoginReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message, size not correct."));
 				res = false;
 			}
 			else
 				res = this->LoginHost();
 			break;
 		default:
-			emit evt_Message(this,tr("Message type not supported."));
+			emit evt_Message(this,tr("Unknown Message:%1").arg(m_current_app_header.MsgType));
 			res = false;
 			break;
 		}
@@ -166,7 +166,7 @@ namespace ParkinglotsSvr{
 				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_HEADER),
 				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 				   );
-		//do
+		//do only when all messages has been recieved
 		if (bytesLeft()>0)
 			return true;
 		switch (m_current_app_header.MsgType)
@@ -177,22 +177,31 @@ namespace ParkinglotsSvr{
 					+ sizeof (PKLTS_APP_HEADER)
 					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
 			{
-				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
+				emit evt_Message(this,tr("Broken Message size not correct."));
 				res = false;
 			}
 			else
 				res = this->Box2Svr_CorrectTime();
 			break;
-
+		case 0x100B:
+			if (m_currentMessageSize<
+					sizeof(PKLTS_TRANS_HEADER)
+					+ sizeof (PKLTS_APP_HEADER)
+					+ sizeof (stMsg_SendDeviceListReq)-1)
+			{
+				emit evt_Message(this,tr("Broken Message size not correct."));
+				res = false;
+			}
+			else
+				res = this->RecieveDeviceListFromHost();
+			break;
 		default:
-			emit evt_Message(this,tr("Message type not supported."));
-			res = false;
+			emit evt_Message(this,tr("Unsupported Message:%1,Bytes:%2").arg(m_current_app_header.MsgType)
+							 .arg(QString(m_currentBlock.left(48).toHex())));
+			res = true;
 			break;
 		}
-
 		m_currentBlock.clear();
-
-
 		return res;
 	}
 

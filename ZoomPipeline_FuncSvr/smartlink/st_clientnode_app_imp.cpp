@@ -6,6 +6,7 @@
 #include <QMutexLocker>
 #include <QSettings>
 #include <QSet>
+#include <QVector>
 #include "st_operations.h"
 namespace ParkinglotsSvr{
 	//0x0001 msg, stMsg_HostRegistReq
@@ -153,6 +154,79 @@ namespace ParkinglotsSvr{
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
 		return reply.DoneCode==0?true:false;
+	}
+	bool st_clientNodeAppLayer::RecieveDeviceListFromHost()
+	{
+		const PKLTS_MSG * pRawMsg =
+				(const PKLTS_MSG *)(
+					((const char *)(m_currentBlock.constData()))
+					);
+		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		//How many devices
+		unsigned int nItems = pAppLayer->app_data.msg_SendDeviceListReq.DeviceNums;
+		//total string length
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER)- sizeof(PKLTS_APP_HEADER) - sizeof (quint16);
+		//the first byte of the string list
+		const char * ptr_start =  pAppLayer->app_data.msg_SendDeviceListReq.pStrings ;
+
+		QVector<QString> strDeviceNames;
+		//fill the string list
+		int nSwim = 0;
+		while (  nSwim < nAppLen && strDeviceNames.size()<nItems)
+		{
+			QString strCurrentItem;
+			while ( nSwim < nAppLen && ptr_start[nSwim]!=0 )
+				strCurrentItem += ptr_start[nSwim++];
+			strDeviceNames.push_back(strCurrentItem);
+		}
+		if ( strDeviceNames.size()<nItems)
+			return false;
+
+		QVector<QString> strDeviceNos;
+		while (  nSwim < nAppLen && strDeviceNos.size()<nItems)
+		{
+			QString strCurrentItem;
+			while ( nSwim < nAppLen && ptr_start[nSwim]!=0 )
+				strCurrentItem += ptr_start[nSwim++];
+			strDeviceNos.push_back(strCurrentItem);
+		}
+		if ( strDeviceNos.size()<nItems)
+			return false;
+
+		QVector<QString> strDeviceIDs;
+		while (  nSwim < nAppLen  && strDeviceIDs.size()<nItems )
+		{
+			const char bufStrHex [] = "0123456789ABCDEF";
+			QString strCurrentID;
+			for (int i=0;i<24 && nSwim < nAppLen ;++i,++nSwim)
+			{
+				strCurrentID += bufStrHex[(ptr_start[nSwim]>>4)&0x0F];
+				strCurrentID += bufStrHex[(ptr_start[nSwim])&0x0F];
+			}
+			if (strCurrentID.length()==48)
+				strDeviceIDs.push_back(strCurrentID);
+		}
+		if ( strDeviceIDs.size()<nItems)
+			return false;
+
+		//form Msgs
+		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER);
+		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		char * ptr = array.data();
+		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		pMsg->trans_header.Mark = 0x55AA;
+		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+		pMsg->trans_header.DataLen = nMsgLen;
+		pApp->app_header.MsgType = 0x180B;
+		//Check the database, find current equipment info
+		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
+		st_operations dboper(&db);
+		bool res = dboper.insert_device_table(nItems,strDeviceNames,strDeviceNos,strDeviceIDs);
+		//Send back
+		emit evt_SendDataToClient(this->sock(),array);
+		return res;
 	}
 
 }

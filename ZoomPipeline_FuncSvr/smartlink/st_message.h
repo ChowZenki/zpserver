@@ -52,18 +52,17 @@ namespace ParkinglotsSvr{
 			quint8 Second;
 		} DateTime;
 	}stMsg_HostTimeCorrectRsp;
-	//PKLTS_APP_LAYER::MsgType =  0x1004
-	typedef struct tag_stMsg_DownloadUserListReq{
 
-	} stMsg_DownloadUserListReq;
+	//0x100B SendDeviceListReq
+	typedef struct tag_stMsg_SendDeviceListReq{
+		quint16 DeviceNums;  //device nums
+		char pStrings[1];
+	}stMsg_SendDeviceListReq;
 
-	//PKLTS_APP_LAYER::MsgType =  0x7FFB
-	typedef struct tag_stMsg_DownloadUserListRsp{
-		quint8 DoneCode;
-		quint16 UserNum;
-		quint32 pUserIDList[1];
-	} stMsg_DownloadUserListRsp;
-
+	//0x0x180B
+	typedef struct tag_stMsg_SendDeviceListRsp{
+		//空
+	}stMsg_SendDeviceListRsp;
 
 
 
@@ -93,10 +92,10 @@ namespace ParkinglotsSvr{
 					stMsg_HostRegistRsp msg_HostRegistRsp;
 					stMsg_HostLogonReq msg_HostLogonReq;
 					stMsg_HostLogonRsp msg_HostLogonRsp;
-					stMsg_DownloadUserListReq msg_DownloadUserListReq;
-					stMsg_DownloadUserListRsp msg_DownloadUserListRsp;
 					stMsg_HostTimeCorrectReq msg_HostTimeCorrectReq;
 					stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
+					stMsg_SendDeviceListReq msg_SendDeviceListReq;
+					stMsg_SendDeviceListRsp msg_SendDeviceListRsp;
 					quint8 msg[1];
 				} app_data;
 			} app_layer;

@@ -7,7 +7,6 @@
 #include <QByteArray>
 #include "qghtcpclient.h"
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
-#include "../ZoomPipeline_FuncSvr/smartlink/st_msg_applayer.h"
 using namespace ParkinglotsSvr;
 namespace Ui {
 	class MainDialog;
@@ -45,14 +44,9 @@ protected:
 	//Current Message Offset, according to m_currentHeader
 	int m_currentMessageSize;
 	//Current un-procssed message block.for large blocks,
-	//this array will be re-setted as soon as some part of data has been
-	//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 	QByteArray m_currentBlock;
 	//current Header
-	PKLTS_TRANS_MSG m_currentHeader;
-	PKLTS_APP_LAYER m_current_app_header;
-
-
+	PKLTS_TRANS_HEADER m_currentHeader;
 
 public slots:
 	void new_data_recieved();
@@ -65,10 +59,6 @@ public slots:
 	void on_pushButton_connect_clicked();
 	void on_pushButton_clientRegisit_clicked();
 	void on_pushButton_clientLogin_clicked();
-	void on_pushButton_box_upload_uid_clicked();
-	void on_pushButton_box_download_uid_clicked();
-	void on_pushButton_sendToClient_clicked();
-
 };
 
 #endif // MAINDIALOG_H

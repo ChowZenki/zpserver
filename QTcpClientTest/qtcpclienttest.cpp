@@ -225,18 +225,16 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 					uuid = pSockTcp->uuid();
 				else
 					continue;
-				quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(PKLTS_TRANS_MSG);
-				QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+				quint16 nMsgLen = qrand()%(32)+nPayload-32-sizeof(PKLTS_TRANS_HEADER);
+				QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 				char * ptr = array.data();
-				PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-				pMsg->Mark = 0x55AA;
-				pMsg->SrcID = uuid;
-
-				pMsg->DstID = getRadomUUIDDestin();
-
-				pMsg->DataLen = nMsgLen;
+				PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+				pMsg->trans_header.Mark = 0x55AA;
+				pMsg->trans_header.SrcID = uuid;
+				pMsg->trans_header.DstID = getRadomUUIDDestin();
+				pMsg->trans_header.DataLen = nMsgLen;
 				for (int i=0;i<nMsgLen;i++)
-					pMsg->data[i] = '0' + i%10;
+					pMsg->trans_payload.data[i] = '0' + i%10;
 
 				if (pSockSsl)
 					pSockSsl->SendData(array);

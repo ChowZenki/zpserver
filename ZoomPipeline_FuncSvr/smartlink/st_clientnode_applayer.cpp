@@ -9,86 +9,8 @@ namespace ParkinglotsSvr{
 	{
 
 		m_bLoggedIn= false;
-		memset(&m_current_app_header,0,sizeof(PKLTS_APP_LAYER));
+		memset(&m_current_app_header,0,sizeof(PKLTS_APP_HEADER));
 		memset(m_serialNum,0,sizeof(char)*65);
-	}
-
-	bool st_clientNodeAppLayer::loadRelations()
-	{
-		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
-		if (db.isValid()==true && db.isOpen()==true )
-		{
-			QString sql = "select friend_id from relations where user_id = ?;";
-
-			QSqlQuery query(db);
-			query.prepare(sql);
-			query.addBindValue((quint32)m_uuid);
-			if (false== query.exec())
-			{
-				emit evt_Message(this,tr("try to get relations Failed! ")+ query.lastError().text());
-				return false;
-			}
-
-			m_matched_nodes.clear();
-			while (query.next())
-			{
-				quint32 val = query.value(0).toUInt();
-				m_matched_nodes.insert(val);
-			}
-			return true;
-		}
-		else
-		{
-			//Server db is currently not accessable, wait.
-			emit evt_Message(this,"Server Not Accessable Now.");
-		}
-		return false;
-	}
-
-	bool st_clientNodeAppLayer::saveRelations()
-	{
-		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
-		if (db.isValid()==true && db.isOpen()==true )
-		{
-			QSqlQuery query(db);
-			QString sql = "delete from relations where user_id = ?;";
-
-			query.prepare(sql);
-			query.addBindValue((quint32)m_uuid);
-			if (false== query.exec())
-			{
-				emit evt_Message(this,tr("try to del old relations Failed! ")+ query.lastError().text());
-				return false;
-			}
-
-
-
-			sql = "insert into relations (user_id,friend_id) values (?,?);";
-			//the forigen key can automatic avoid non-existing values.
-			foreach(quint32 nodeid,m_matched_nodes)
-			{
-
-				QSqlQuery query(db);
-				if (bIsValidUserId(nodeid)==false)
-					continue;
-				query.prepare(sql);
-				query.addBindValue((quint32)m_uuid);
-				query.addBindValue(nodeid);
-
-				if (false== query.exec())
-				{
-					emit evt_Message(this,tr("try to insert new relations Failed! ")+ query.lastError().text());
-					return false;
-				}
-			}
-			return true;
-		}
-		else
-		{
-			//Server db is currently not accessable, wait.
-			emit evt_Message(this,"Server Not Accessable Now.");
-		}
-		return false;
 	}
 
 	//!deal current message
@@ -158,7 +80,7 @@ namespace ParkinglotsSvr{
 
 		}
 		if (bytesLeft()==0)
-			m_current_app_header.header.MsgType = 0x00;
+			m_current_app_header.MsgType = 0x00;
 		return     st_clientNode_baseTrans::deal_current_message_block();
 	}
 
@@ -170,27 +92,27 @@ namespace ParkinglotsSvr{
 		//qDebug()<<this->m_currentBlock.toHex()<<"\n";
 		if (m_currentHeader.DataLen < sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
 			return false;
-		if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG) - 1 + sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
+		if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER) + sizeof (PKLTS_APP_HEADER))
 		{
 			// header is not complete, return
 			return true;
 		}
 		//Catch the header
-		if (m_current_app_header.header.MsgType==0x00)
+		if (m_current_app_header.MsgType==0x00)
 			memcpy((void *)&this->m_current_app_header,
-				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_MSG) - 1,
+				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_HEADER),
 				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 				   );
 		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
-		switch (m_current_app_header.header.MsgType)
+		switch (m_current_app_header.MsgType)
 		{
 		case 0x1000:
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize>
-					sizeof(PKLTS_TRANS_MSG) - 1
-					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+					sizeof(PKLTS_TRANS_HEADER)
+					+ sizeof (PKLTS_APP_HEADER)
 					+ sizeof (stMsg_HostRegistReq)+64)
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
@@ -204,8 +126,8 @@ namespace ParkinglotsSvr{
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize>
-					sizeof(PKLTS_TRANS_MSG) - 1
-					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+					sizeof(PKLTS_TRANS_HEADER)
+					+ sizeof (PKLTS_APP_HEADER)
 					+ sizeof (stMsg_HostLogonReq)+66)
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_ClientLoginReq, size not correct."));
@@ -233,27 +155,26 @@ namespace ParkinglotsSvr{
 
 		if (m_currentHeader.DataLen < sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
 			return false;
-		if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG) - 1 + sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
+		if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER) + sizeof (PKLTS_APP_HEADER))
 		{
 			// header is not complete, return
 			return true;
 		}
 		//Catch the header
-		if (m_current_app_header.header.MsgType==0x00)
+		if (m_current_app_header.MsgType==0x00)
 			memcpy((void *)&this->m_current_app_header,
-				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_MSG) - 1,
+				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_HEADER),
 				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
 				   );
 		//do
-		switch (m_current_app_header.header.MsgType)
+		if (bytesLeft()>0)
+			return true;
+		switch (m_current_app_header.MsgType)
 		{
 		case 0x1002:
-			if (bytesLeft()>0)
-				// message is not complete, return
-				return true;
 			if (m_currentMessageSize!=
-					sizeof(PKLTS_TRANS_MSG) - 1
-					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+					sizeof(PKLTS_TRANS_HEADER)
+					+ sizeof (PKLTS_APP_HEADER)
 					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
 			{
 				emit evt_Message(this,tr("Broken Message stMsg_HostRegistReq, size not correct."));
@@ -261,51 +182,6 @@ namespace ParkinglotsSvr{
 			}
 			else
 				res = this->Box2Svr_CorrectTime();
-			break;
-		case 0x1003:
-			if (bytesLeft()>0)
-				return true;
-
-			if (m_currentMessageSize<
-					sizeof(PKLTS_TRANS_MSG) - 1
-					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
-					+ sizeof (stMsg_UploadUserListReq) - sizeof(quint32))
-			{
-				emit evt_Message(this,tr("Broken Message stMsg_UploadUserListReq, size not correct."));
-				res = false;
-			}
-			else
-				res = this->Box2Svr_UploadUserTable();
-			break;
-		case 0x1004:
-			if (bytesLeft()>0)
-				// message is not complete, return
-				return true;
-			if (m_currentMessageSize!=
-					sizeof(PKLTS_TRANS_MSG) - 1
-					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
-					/*+ sizeof (stMsg_DownloadUserListReq)*/)
-			{
-				emit evt_Message(this,tr("Broken Message stMsg_DownloadUserListReq, size not correct."));
-				res = false;
-			}
-			else
-				res = this->Box2Svr_DownloadUserTable();
-			break;
-		case 0x10025:
-			if (bytesLeft()>0)
-				// message is not complete, return
-				return true;
-			if (m_currentMessageSize!=
-					sizeof(PKLTS_TRANS_MSG) - 1
-					+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
-					+ sizeof (stMsg_ClientLogoutReq))
-			{
-				emit evt_Message(this,tr("Broken Message stMsg_ClientLogoutReq, size not correct."));
-				res = false;
-			}
-			else
-				res = this->ClientLogout();
 			break;
 
 		default:

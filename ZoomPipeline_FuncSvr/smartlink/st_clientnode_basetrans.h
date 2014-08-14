@@ -52,7 +52,7 @@ namespace ParkinglotsSvr{
 		//dealed, eg, send a 200MB block, the 200MB data will be splitted into pieces
 		QByteArray m_currentBlock;
 		//current Header
-		PKLTS_TRANS_MSG m_currentHeader;
+		PKLTS_TRANS_HEADER m_currentHeader;
 		//The raw data queue and its mutex
 		QList<QByteArray> m_list_RawData;
 		QMutex m_mutex_rawData;

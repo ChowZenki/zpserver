@@ -32,7 +32,7 @@ namespace ParkinglotsSvr{
 	}
 	qint32 st_clientNode_baseTrans::bytesLeft()
 	{
-		return m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
+		return m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
 				-m_currentMessageSize ;
 	}
 	//judge whether id is valid.
@@ -171,31 +171,31 @@ namespace ParkinglotsSvr{
 			else if (m_currentHeader.Mark == 0x55AA)
 				//Trans Message
 			{
-				//while (m_currentMessageSize< sizeof(PKLTS_TRANS_MSG)-1 && blocklen>offset)
+				//while (m_currentMessageSize< sizeof(PKLTS_TRANS_HEADER) && blocklen>offset)
 				//{
 				//	m_currentBlock.push_back(dataptr[offset++]);
 				//	m_currentMessageSize++;
 				//}
-				if (m_currentMessageSize< sizeof(PKLTS_TRANS_MSG)-1 && blocklen>offset)
+				if (m_currentMessageSize< sizeof(PKLTS_TRANS_HEADER) && blocklen>offset)
 				{
 					int nCpy =  blocklen - offset;
-					if (nCpy > sizeof(PKLTS_TRANS_MSG)-1 - m_currentMessageSize)
-						nCpy =  sizeof(PKLTS_TRANS_MSG)-1 - m_currentMessageSize;
+					if (nCpy > sizeof(PKLTS_TRANS_HEADER) - m_currentMessageSize)
+						nCpy =  sizeof(PKLTS_TRANS_HEADER) - m_currentMessageSize;
 					m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
 					offset += nCpy;
 					m_currentMessageSize+=nCpy;
 				}
-				if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG)-1) //Header not completed.
+				if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER)) //Header not completed.
 					continue;
-				else if (m_currentMessageSize == sizeof(PKLTS_TRANS_MSG)-1)//Header just  completed.
+				else if (m_currentMessageSize == sizeof(PKLTS_TRANS_HEADER))//Header just  completed.
 				{
 					const char * headerptr = m_currentBlock.constData();
-					memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_MSG)-1);
+					memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_HEADER));
 
 					//continue reading if there is data left behind
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
+						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
 								-m_currentMessageSize ;
 						//while (bitLeft>0 && blocklen>offset)
 						//{
@@ -227,7 +227,7 @@ namespace ParkinglotsSvr{
 				{
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
+						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
 								-m_currentMessageSize ;
 						//while (bitLeft>0 && blocklen>offset)
 						//{

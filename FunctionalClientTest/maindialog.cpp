@@ -1,7 +1,6 @@
 #include "maindialog.h"
 #include "ui_maindialog.h"
 #include "../ZoomPipeline_FuncSvr/smartlink/st_message.h"
-#include "../ZoomPipeline_FuncSvr/smartlink/st_msg_applayer.h"
 #include <QSettings>
 #include <time.h>
 #include <QMessageBox>
@@ -34,7 +33,6 @@ MainDialog::MainDialog(QWidget *parent) :
 	ui->lineEdit_serial_num->setText(settings.value("settings/client2svr_serialnum","TESTMACHINE").toString());
 	ui->lineEdit_user_id->setText(settings.value("settings/client2svr_user_id","0").toString());
 	ui->plainTextEdit_box_userids->setPlainText(settings.value("settings/box2svr_uploadid","0,").toString());
-	ui->lineEdit_client_uuid->setText(settings.value("settings/client_uuid","112").toString());
 }
 
 MainDialog::~MainDialog()
@@ -120,8 +118,6 @@ void MainDialog::saveIni()
 	settings.setValue("settings/client2svr_serialnum", ui->lineEdit_serial_num->text());
 	settings.setValue("settings/client2svr_user_id", ui->lineEdit_user_id->text());
 	settings.setValue("settings/box2svr_uploadid", ui->plainTextEdit_box_userids->toPlainText());
-	settings.setValue("settings/client_uuid", ui->lineEdit_client_uuid->text());
-
 }
 
 void MainDialog::timerEvent(QTimerEvent * evt)
@@ -145,23 +141,17 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 		}
 		if (nCount % 250 == 0 && client->isOpen()==true && this->m_bLogedIn==true)
 		{
-			quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+
+			quint16 nMsgLen = sizeof(PKLTS_APP_HEADER);
 					/*+sizeof(stMsg_HostTimeCorrectReq)*/ ;
-			QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+			QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 			char * ptr = array.data();
-			PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-			PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-															  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-															 );
-			pMsg->Mark = 0x55AA;
-			pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );;
-
-			pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
-
-			pMsg->DataLen = nMsgLen;
-
-
-			pApp->header.MsgType = 0x1002;
+			PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+			pMsg->trans_header.Mark = 0x55AA;
+			pMsg->trans_header.SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );;
+			pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+			pMsg->trans_header.DataLen = nMsgLen;
+			pMsg->trans_payload.app_layer.app_header.MsgType = 0x1002;
 			//3/10 possibility to send a data block to server
 			client->SendData(array);
 		}
@@ -193,26 +183,20 @@ void  MainDialog::on_pushButton_clientRegisit_clicked()
 	const char * pSrcSerialNum = str_serialNum.c_str();
 	int nMaxLenSerialNum = str_serialNum.length();
 
-	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+	quint16 nMsgLen =sizeof(PKLTS_APP_HEADER)
 			+sizeof(stMsg_HostRegistReq) + nMaxLenSerialNum;
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );;
+	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
 
-	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
-
-	pMsg->DataLen = nMsgLen;
-
-
-	pApp->header.MsgType = 0x1000;
+	pMsg->trans_header.Mark = 0x55AA;
+	pMsg->trans_header.SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );;
+	pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->trans_header.DataLen = nMsgLen;
+	pMsg->trans_payload.app_layer.app_header.MsgType = 0x1000;
 
 	for (int i=0;i<=nMaxLenSerialNum;i++)
-		pApp->MsgUnion.msg_HostRegistReq.HostSerialNum[i] =
+		pMsg->trans_payload.app_layer.app_data.msg_HostRegistReq.HostSerialNum[i] =
 				i<nMaxLenSerialNum?pSrcSerialNum[i]:0;
 
 	//3/10 possibility to send a data block to server
@@ -233,110 +217,20 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 	const char * pSrcSerialNum = strStdSerialNum.c_str();
 	int nMaxLenSerialNum = strStdSerialNum.length();
 
-	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+	quint16 nMsgLen = sizeof(PKLTS_APP_HEADER)
 			+sizeof(stMsg_HostLogonReq)+nMaxLenSerialNum;
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(userID) & 0xffffffff );
-
-	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
-
-	pMsg->DataLen = nMsgLen;
-
-
-	pApp->header.MsgType = 0x1001;
-
-	pApp->MsgUnion.msg_HostLogonReq.ID = userID;
-
+	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+	pMsg->trans_header.Mark = 0x55AA;
+	pMsg->trans_header.SrcID = (quint32)((quint64)(userID) & 0xffffffff );
+	pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->trans_header.DataLen = nMsgLen;
+	pMsg->trans_payload.app_layer.app_header.MsgType = 0x1001;
+	pMsg->trans_payload.app_layer.app_data.msg_HostLogonReq.ID = userID;
 	for (int i=0;i<=nMaxLenSerialNum;i++)
-		pApp->MsgUnion.msg_HostLogonReq.HostSerialNum[i] =
+		pMsg->trans_payload.app_layer.app_data.msg_HostLogonReq.HostSerialNum[i] =
 				i<nMaxLenSerialNum?pSrcSerialNum[i]:0;
-
-
-	//3/10 possibility to send a data block to server
-	client->SendData(array);
-}
-
-void MainDialog::on_pushButton_box_upload_uid_clicked()
-{
-	if (client->isOpen()==false)
-	{
-		QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
-		return;
-	}
-	if (m_bLogedIn==false)
-	{
-		QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
-		return;
-	}
-	saveIni();
-	QStringList lst = ui->plainTextEdit_box_userids->toPlainText().split(",");
-	QVector<quint32> vecInt;
-	foreach (QString item,lst)
-	{
-		vecInt.push_back(item.toUInt());
-	}
-
-	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-			+sizeof(stMsg_UploadUserListReq)+ sizeof(quint32)*vecInt.size() - sizeof(quint32);
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );
-
-	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
-
-	pMsg->DataLen = nMsgLen;
-
-
-	pApp->header.MsgType = 0x1003;
-
-	pApp->MsgUnion.msg_UploadUserListReq.UserNum = (quint16)(vecInt.size() & 0x00ffff);
-	for (int i=0;i< vecInt.size();i++)
-		pApp->MsgUnion.msg_UploadUserListReq.pUserIDList[i] = vecInt[i];
-
-	//3/10 possibility to send a data block to server
-	client->SendData(array);
-}
-
-void MainDialog::on_pushButton_box_download_uid_clicked()
-{
-	if (client->isOpen()==false)
-	{
-		QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
-		return;
-	}
-	if (m_bLogedIn==false)
-	{
-		QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
-		return;
-	}
-	saveIni();
-	quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-			/*+sizeof(stMsg_DownloadUserListReq)*/;
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );
-
-	pMsg->DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
-
-	pMsg->DataLen = nMsgLen;
-
-	pApp->header.MsgType = 0x1004;
 
 	//3/10 possibility to send a data block to server
 	client->SendData(array);
@@ -390,22 +284,22 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		else if (m_currentHeader.Mark == 0x55AA)
 			//Trans Message
 		{
-			while (m_currentMessageSize< sizeof(PKLTS_TRANS_MSG)-1 && blocklen>offset)
+			while (m_currentMessageSize< sizeof(PKLTS_TRANS_HEADER) && blocklen>offset)
 			{
 				m_currentBlock.push_back(dataptr[offset++]);
 				m_currentMessageSize++;
 			}
-			if (m_currentMessageSize < sizeof(PKLTS_TRANS_MSG)-1) //Header not completed.
+			if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER)) //Header not completed.
 				continue;
-			else if (m_currentMessageSize == sizeof(PKLTS_TRANS_MSG)-1)//Header just  completed.
+			else if (m_currentMessageSize == sizeof(PKLTS_TRANS_HEADER))//Header just  completed.
 			{
 				const char * headerptr = m_currentBlock.constData();
-				memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_MSG)-1);
+				memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_HEADER));
 
 				//continue reading if there is data left behind
 				if (block.length()>offset)
 				{
-					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
+					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
 							-m_currentMessageSize ;
 					while (bitLeft>0 && blocklen>offset)
 					{
@@ -427,7 +321,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 			{
 				if (block.length()>offset)
 				{
-					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
+					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
 							-m_currentMessageSize ;
 					while (bitLeft>0 && blocklen>offset)
 					{
@@ -464,7 +358,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 int MainDialog::deal_current_message_block()
 {
 	//The bytes left to recieve.
-	qint32 bytesLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_MSG) - 1
+	qint32 bytesLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
 			-m_currentMessageSize ;
 	if (bytesLeft)
 		return 0;
@@ -472,107 +366,64 @@ int MainDialog::deal_current_message_block()
 
 	const char * ptr = m_currentBlock.constData();
 
-	PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-													  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-													 );
-
-	if (pApp->header.MsgType==0x1800)
+	PKLTS_MSG * pMsg = (PKLTS_MSG *)((unsigned char *)ptr);
+	PKLTS_MSG::uni_trans_payload::tag_pklts_app_layer * pApp = &pMsg->trans_payload.app_layer;
+	if (pApp->app_header.MsgType==0x1800)
 	{
-		if (pApp->MsgUnion.msg_HostRegistRsp.DoneCode<2 && pApp->MsgUnion.msg_HostRegistRsp.DoneCode>=0)
+		if (pApp->app_data.msg_HostRegistRsp.DoneCode<2 && pApp->app_data.msg_HostRegistRsp.DoneCode>=0)
 		{
 			m_bLogedIn = true;
 			displayMessage(tr("Regisit Succeed, Res = %1")
-					   .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
+					   .arg(pApp->app_data.msg_HostRegistRsp.DoneCode)
 					   );
 			ui->pushButton_clientLogin->setEnabled(true);
-			ui->lineEdit_user_id->setText(QString("%1").arg(pApp->MsgUnion.msg_HostRegistRsp.ID));
+			ui->lineEdit_user_id->setText(QString("%1").arg(pApp->app_data.msg_HostRegistRsp.ID));
 		}
 		else
 			displayMessage(tr("Regisit Failed, Res = %1")
-					   .arg(pApp->MsgUnion.msg_HostRegistRsp.DoneCode)
+					   .arg(pApp->app_data.msg_HostRegistRsp.DoneCode)
 					   );
 
 
 	}
-	else if (pApp->header.MsgType==0x1801)
+	else if (pApp->app_header.MsgType==0x1801)
 	{
-		if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==0)
+		if (pApp->app_data.msg_HostLogonRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
 			displayMessage(tr("Login Succeed, Res = %1")
-					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   .arg(pApp->app_data.msg_HostLogonRsp.DoneCode)
 					   );
 		}
-		else if (pApp->MsgUnion.msg_HostLogonRsp.DoneCode==1)
+		else if (pApp->app_data.msg_HostLogonRsp.DoneCode==1)
 		{
 			displayMessage(tr("Login Failed, Res = %1")
-					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   .arg(pApp->app_data.msg_HostLogonRsp.DoneCode)
 					   );
 		}
 		else
 			displayMessage(tr("Login Failed,, Res = %1")
-					   .arg(pApp->MsgUnion.msg_HostLogonRsp.DoneCode)
+					   .arg(pApp->app_data.msg_HostLogonRsp.DoneCode)
 					   );
 	}
-	else if (pApp->header.MsgType==0x1802)
+	else if (pApp->app_header.MsgType==0x1802)
 	{
-		if (pApp->MsgUnion.msg_HostTimeCorrectRsp.DoneCode==0)
+		if (pApp->app_data.msg_HostTimeCorrectRsp.DoneCode==0)
 		{
 			m_bLogedIn = true;
 			displayMessage(tr("Host Time is %1-%2-%3 %4:%5:%6.")
-					   .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Year)
-							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Month)
-							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Day)
-							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Hour)
-							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Minute)
-							.arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DateTime.Second)
+					   .arg(pApp->app_data.msg_HostTimeCorrectRsp.DateTime.Year)
+							.arg(pApp->app_data.msg_HostTimeCorrectRsp.DateTime.Month)
+							.arg(pApp->app_data.msg_HostTimeCorrectRsp.DateTime.Day)
+							.arg(pApp->app_data.msg_HostTimeCorrectRsp.DateTime.Hour)
+							.arg(pApp->app_data.msg_HostTimeCorrectRsp.DateTime.Minute)
+							.arg(pApp->app_data.msg_HostTimeCorrectRsp.DateTime.Second)
 					   );
 		}
 		else
 			displayMessage(tr("Time Crooecting Failed,, Res = %1")
-					   .arg(pApp->MsgUnion.msg_HostTimeCorrectRsp.DoneCode)
+					   .arg(pApp->app_data.msg_HostTimeCorrectRsp.DoneCode)
 					   );
-	}
-	else if (pApp->header.MsgType==0x7FFC)
-	{
-		if (pApp->MsgUnion.msg_UploadUserListRsp.DoneCode==0)
-			QMessageBox::information(this,tr("Succeed!"),tr("upload succeed!"));
-		else
-			QMessageBox::information(this,tr("Failed!"),tr("upload in Failed!"));
-		displayMessage(tr("Res = %1")
-					   .arg(pApp->MsgUnion.msg_UploadUserListRsp.DoneCode)
-					   );
-
-	}
-	else if (pApp->header.MsgType==0x7FFB)
-	{
-		if (pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode==0)
-		{
-			QMessageBox::information(this,tr("Succeed!"),tr("download succeed!"));
-			QString strRes;
-			for (quint16 i = 0;i<pApp->MsgUnion.msg_DownloadUserListRsp.UserNum;i++)
-			{
-				strRes += QString("%1,").arg(pApp->MsgUnion.msg_DownloadUserListRsp.pUserIDList[i]);
-			}
-			ui->plainTextEdit_box_userids->setPlainText(strRes);
-		}
-		else
-			QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
-		displayMessage(tr("Res = %1")
-					   .arg(pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode)
-					   );
-
-	}
-	else if (pApp->header.MsgType==0x7FFD)
-	{
-		if (pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode==0)
-			QMessageBox::information(this,tr("Succeed!"),tr("log out succeed!"));
-		else
-			QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
-		displayMessage(tr("Res = %1")
-					   .arg(pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode)
-					   );
-		this->client->abort();
 	}
 	else
 	{
@@ -580,44 +431,13 @@ int MainDialog::deal_current_message_block()
 		int nLen =  m_currentHeader.DataLen;
 		for (int i=0;i<nLen;i++)
 		{
-			str += ptr[i+ sizeof(PKLTS_TRANS_MSG) - 1];
+			str += pMsg->trans_payload.data[i];
 		}
-		ui->plainTextEdit_msg_recieved->setPlainText(str);
+		displayMessage(str);
 
 	}
 	m_currentBlock = QByteArray();
 
 
 	return 0;
-}
-
-void MainDialog::on_pushButton_sendToClient_clicked()
-{
-	if (client->isOpen()==false)
-	{
-		QMessageBox::warning(this,"Please connect first!","Connect to server and test funcs");
-		return;
-	}
-	if (m_bLogedIn==false)
-	{
-		QMessageBox::warning(this,"Please log in the host first!","get uuid and login");
-		return;
-	}
-	saveIni();
-	QString strMsg = ui->plainTextEdit_msg_to_client->toPlainText();
-	QByteArray arrMsg(strMsg.toStdString().c_str());
-	QByteArray array(sizeof(PKLTS_TRANS_MSG) - 1,0);
-	char * ptr = array.data();
-	PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-
-	pMsg->Mark = 0x55AA;
-	pMsg->SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );
-	pMsg->DstID = (quint32)((quint64)(ui->lineEdit_client_uuid->text().toUInt()) & 0xffffffff );;
-
-	pMsg->DataLen = arrMsg.size();
-
-	array.append(arrMsg);
-
-	//3/10 possibility to send a data block to server
-	client->SendData(array);
 }

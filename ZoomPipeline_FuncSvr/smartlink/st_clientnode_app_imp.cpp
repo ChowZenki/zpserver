@@ -12,45 +12,43 @@ namespace ParkinglotsSvr{
 	//0x0001 msg, stMsg_HostRegistReq
 	bool st_clientNodeAppLayer::RegisitNewBoxNode()
 	{
-		const PKLTS_APP_LAYER * pAppLayer =
-				(const PKLTS_APP_LAYER *)(
+		const PKLTS_MSG * pRawMsg =
+				(const PKLTS_MSG *)(
 					((const char *)(m_currentBlock.constData()))
-					+sizeof(PKLTS_TRANS_MSG)-1);
-		int nAppLen = m_currentBlock.length()- (sizeof(PKLTS_TRANS_MSG)-1) - sizeof(tag_pklts_app_layer::tag_app_layer_header);
+					);
+		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER) - sizeof(PKLTS_APP_HEADER);
 
 		QString strSerial ;
-		for (int i=0;i<nAppLen /*64*/ && pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i]!=0 ;++i)
+		for (int i=0;i<nAppLen /*64*/ && pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i]!=0 ;++i)
 		{
-			strSerial+= pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i];
-			m_serialNum[i] =  pAppLayer->MsgUnion.msg_HostRegistReq.HostSerialNum[i];
+			strSerial+= pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i];
+			m_serialNum[i] =  pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i];
 		}
 
 		//form return  Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER)
 				+sizeof(stMsg_HostRegistRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-														 );
-		pMsg->Mark = 0x55AA;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
-		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		pMsg->trans_header.Mark = 0x55AA;
+		pMsg->trans_header.SerialNum = m_currentHeader.SerialNum;
+		pMsg->trans_header.Priority = m_currentHeader.Priority;
+		pMsg->trans_header.Reserved1 = 0;
+		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 
-		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 
-		pMsg->DataLen = nMsgLen;
-		pMsg->Reserved2 = 0;
+		pMsg->trans_header.DataLen = nMsgLen;
+		pMsg->trans_header.Reserved2 = 0;
 
+		pApp->app_header.AskID = m_current_app_header.AskID;
+		pApp->app_header.MsgType = 0x1800;
+		pApp->app_header.MsgFmtVersion = m_current_app_header.MsgFmtVersion;
 
-		pApp->header.AskID = m_current_app_header.header.AskID;
-		pApp->header.MsgType = 0x1800;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
-
-		stMsg_HostRegistRsp & reply = pApp->MsgUnion.msg_HostRegistRsp;
+		stMsg_HostRegistRsp & reply = pApp->app_data.msg_HostRegistRsp;
 
 		//Check the database, find current equipment info
 		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
@@ -133,38 +131,35 @@ namespace ParkinglotsSvr{
 	}
 	bool st_clientNodeAppLayer::LoginHost()
 	{
-		const PKLTS_APP_LAYER * pAppLayer =
-				(const PKLTS_APP_LAYER *)(
+		const PKLTS_MSG * pRawMsg =
+				(const PKLTS_MSG *)(
 					((const char *)(m_currentBlock.constData()))
-					+sizeof(PKLTS_TRANS_MSG)-1);
-		int nAppLen = m_currentBlock.length()- (sizeof(PKLTS_TRANS_MSG)-1)- sizeof(tag_pklts_app_layer::tag_app_layer_header) - sizeof (quint32);
+					);
+		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER)- sizeof(PKLTS_APP_HEADER) - sizeof (quint32);
 		QString strSerialNum ;
-		quint32 UserID = pAppLayer->MsgUnion.msg_HostLogonReq.ID;
+		quint32 UserID = pAppLayer->app_data.msg_HostLogonReq.ID;
 
 		int nSwim = 0;
-		while (  nSwim < 65 && nSwim <nAppLen && pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim]!=0 )
-			strSerialNum+= pAppLayer->MsgUnion.msg_HostLogonReq.HostSerialNum[nSwim++];
+		while (  nSwim < 65 && nSwim <nAppLen && pAppLayer->app_data.msg_HostLogonReq.HostSerialNum[nSwim]!=0 )
+			strSerialNum+= pAppLayer->app_data.msg_HostLogonReq.HostSerialNum[nSwim++];
 
 
 		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER)
 				+sizeof(stMsg_HostLogonRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-														 );
-		pMsg->Mark = 0x55AA;
-		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		pMsg->trans_header.Mark = 0x55AA;
+		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+		pMsg->trans_header.DataLen = nMsgLen;
+		pApp->app_header.MsgType = 0x1801;
 
-		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
-
-		pMsg->DataLen = nMsgLen;
-
-		pApp->header.MsgType = 0x1801;
-
-		stMsg_HostLogonRsp & reply = pApp->MsgUnion.msg_HostLogonRsp;
+		stMsg_HostLogonRsp & reply = pApp->app_data.msg_HostLogonRsp;
 
 		//Check the database, find current equipment info
 		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
@@ -241,30 +236,23 @@ namespace ParkinglotsSvr{
 		//form Msgs
 		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
 				+sizeof(stMsg_HostTimeCorrectRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
+		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-														 );
-		pMsg->Mark = 0x55AA;
-		//pMsg->version = m_currentHeader.version;
-		pMsg->SerialNum = m_currentHeader.SerialNum;
-		pMsg->Priority = m_currentHeader.Priority;
-		pMsg->Reserved1 = 0;
-		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		pMsg->trans_header.Mark = 0x55AA;
+		pMsg->trans_header.SerialNum = m_currentHeader.SerialNum;
+		pMsg->trans_header.Priority = m_currentHeader.Priority;
+		pMsg->trans_header.Reserved1 = 0;
+		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+		pMsg->trans_header.DataLen = nMsgLen;
+		pMsg->trans_header.Reserved2 = 0;
+		pApp->app_header.AskID = m_current_app_header.AskID;
+		pApp->app_header.MsgType = 0x1802;
+		pApp->app_header.MsgFmtVersion = m_current_app_header.MsgFmtVersion;
 
-		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
-
-		pMsg->DataLen = nMsgLen;
-		pMsg->Reserved2 = 0;
-
-
-		pApp->header.AskID = m_current_app_header.header.AskID;
-		pApp->header.MsgType = 0x1802;
-		pApp->header.MsgFmtVersion = m_current_app_header.header.MsgFmtVersion;
-
-		stMsg_HostTimeCorrectRsp & reply = pApp->MsgUnion.msg_HostTimeCorrectRsp;
+		stMsg_HostTimeCorrectRsp & reply = pApp->app_data.msg_HostTimeCorrectRsp;
 
 		reply.DoneCode = 0;
 		//reply.TextInfo[0]= 0;
@@ -285,159 +273,4 @@ namespace ParkinglotsSvr{
 		return reply.DoneCode==0?true:false;
 	}
 
-	bool st_clientNodeAppLayer::Box2Svr_UploadUserTable()
-	{
-		const PKLTS_APP_LAYER * pAppLayer =
-				(const PKLTS_APP_LAYER *)(
-					((const char *)(m_currentBlock.constData()))
-					+sizeof(PKLTS_TRANS_MSG)-1);
-
-		if (m_currentMessageSize!=sizeof(PKLTS_TRANS_MSG) - 1
-				+ sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
-				+ sizeof (stMsg_UploadUserListReq) - sizeof(quint32)
-				+ sizeof (quint32) * (pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum)
-				)
-		{
-			emit evt_Message(this,tr("Broken Message stMsg_UploadUserListReq, size not correct."));
-			return false;
-		}
-
-		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-				+sizeof(stMsg_UploadUserListRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-		char * ptr = array.data();
-		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-														 );
-		pMsg->Mark = 0x55AA;
-		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
-
-		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
-
-		pMsg->DataLen = nMsgLen;
-
-		pApp->header.MsgType = 0x7FFC;
-
-		stMsg_UploadUserListRsp & reply = pApp->MsgUnion.msg_UploadUserListRsp;
-
-		reply.DoneCode = 1;
-		//strcpy(reply.TextInfo,"Unknown error");
-		if (loadRelations()==true )
-		{
-			for (quint32 i = 0; i <pAppLayer->MsgUnion.msg_UploadUserListReq.UserNum && i<4096;i++)
-			{
-				if (bIsValidUserId(pAppLayer->MsgUnion.msg_UploadUserListReq.pUserIDList[i])==false)
-					continue;
-				m_matched_nodes.insert(pAppLayer->MsgUnion.msg_UploadUserListReq.pUserIDList[i]);
-			}
-			if (true == saveRelations())
-			{
-				reply.DoneCode = 0;
-				//strcpy(reply.TextInfo,"Succeeded.");
-			}
-		}
-		else
-		{
-			//Server db is currently not accessable, wait.
-			//strcpy(reply.TextInfo,"Failed to load current relations from db.");
-		}
-
-
-		//Send back
-		emit evt_SendDataToClient(this->sock(),array);
-
-
-
-		return reply.DoneCode==0?true:false;
-	}
-	bool st_clientNodeAppLayer::Box2Svr_DownloadUserTable()
-	{
-		bool res = true;
-		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-				+sizeof(stMsg_DownloadUserListRsp) - sizeof(quint32);
-		int nSz = 0;
-		if (loadRelations()==true )
-		{
-			nSz = m_matched_nodes.size();
-			nMsgLen += nSz * sizeof(quint32);
-		}
-		else
-			res = false;
-
-		//form Msgs
-		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-		char * ptr = array.data();
-		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-														 );
-		pMsg->Mark = 0x55AA;
-		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
-
-		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
-
-		pMsg->DataLen = nMsgLen;
-
-		pApp->header.MsgType = 0x7FFB;
-
-		stMsg_DownloadUserListRsp & reply = pApp->MsgUnion.msg_DownloadUserListRsp;
-
-		reply.DoneCode = res==true?0:1;
-		//if (res==false)
-		//strcpy(reply.TextInfo,"load Relation failed");
-		int ii = 0;
-		foreach (quint32 it, m_matched_nodes)
-		{
-			if (ii < nSz && ii<32768)
-			{
-				reply.pUserIDList[ii] = it;
-				reply.UserNum = (quint16) ii+1;
-			}
-			++ii;
-		}
-
-
-		//Send back
-		emit evt_SendDataToClient(this->sock(),array);
-
-
-
-		return reply.DoneCode==0?true:false;
-	}
-	bool st_clientNodeAppLayer::ClientLogout()
-	{
-		bool res = true;
-		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
-				+sizeof(stMsg_ClientLogoutRsp);
-		//int nSz = 0;
-		//form Msgs
-		QByteArray array(sizeof(PKLTS_TRANS_MSG) + nMsgLen - 1,0);
-		char * ptr = array.data();
-		PKLTS_TRANS_MSG * pMsg = (PKLTS_TRANS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = (PKLTS_APP_LAYER *)(((unsigned char *)
-														  (ptr))+sizeof(PKLTS_TRANS_MSG)-1
-														 );
-		pMsg->Mark = 0x55AA;
-		pMsg->SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
-
-		pMsg->DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
-
-		pMsg->DataLen = nMsgLen;
-
-
-		pApp->header.MsgType = 0x7FFD;
-
-		stMsg_ClientLogoutRsp & reply = pApp->MsgUnion.msg_ClientLogoutRsp;
-
-		reply.DoneCode = res==true?0:1;
-		//if (res==false)
-		//strcpy(reply.TextInfo,"load Relation failed");
-		//Send back
-		emit evt_SendDataToClient(this->sock(),array);
-		return reply.DoneCode==0?true:false;
-	}
 }

@@ -99,13 +99,14 @@ namespace ParkinglotsSvr{
 		{
 			if (m_destin_uuid == 0xffffffff)
 			{
-				if (m_currStMegSize >= sizeof(PKLTS_CROSSSVR_MSG::tag_msgHearder)+ sizeof(PKLTS_TRANS_MSG)-1)
+				if (m_currStMegSize >= sizeof(PKLTS_CROSSSVR_MSG::tag_msgHearder)+ sizeof(PKLTS_TRANS_HEADER))
 				{
 					PKLTS_CROSSSVR_MSG * pMsg = (PKLTS_CROSSSVR_MSG *) m_currStBlock.constData();
-					PKLTS_TRANS_MSG * pSmMsg = (PKLTS_TRANS_MSG *) pMsg->payload.data;
-					m_destin_uuid = pSmMsg->DstID;
+					PKLTS_MSG * pSmMsg = (PKLTS_MSG *) pMsg->payload.data;
+					m_destin_uuid = pSmMsg->trans_header.DstID;
 				}
 			}
+
 			if (m_destin_uuid == 0xffffffff)
 				return false;
 			//Send to Client
@@ -115,7 +116,7 @@ namespace ParkinglotsSvr{
 			if (m_currStMegSize == m_currStBlock.size())
 			{
 				PKLTS_CROSSSVR_MSG * pMsg = (PKLTS_CROSSSVR_MSG *) m_currStBlock.constData();
-				PKLTS_TRANS_MSG * pSmMsg = (PKLTS_TRANS_MSG *) pMsg->payload.data;
+				PKLTS_MSG * pSmMsg = (PKLTS_MSG *) pMsg->payload.data;
 				QByteArray blocks((const char *)pSmMsg,m_currStMegSize -  sizeof(PKLTS_CROSSSVR_MSG::tag_msgHearder));
 				res=m_pClientTable->SendToNode(this->m_destin_uuid , blocks);
 			}

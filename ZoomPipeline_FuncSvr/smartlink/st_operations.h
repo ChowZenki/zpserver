@@ -2,6 +2,7 @@
 #define ST_OPERATIONS_H
 
 #include <QObject>
+#include <QSqlDatabase>
 #include "st_message.h"
 namespace ParkinglotsSvr{
 
@@ -11,12 +12,12 @@ namespace ParkinglotsSvr{
 	{
 		Q_OBJECT
 	public:
-		explicit st_operations(QObject *parent = 0);
-
-	signals:
-
-	public slots:
-
+		explicit st_operations(QSqlDatabase * db, QObject *parent = 0);
+	protected:
+		QSqlDatabase * m_pDb;
+	public:
+		quint8 regisit_host(QString serialnum, quint32 * host_id );
+		quint8 login_host(QString serialnum, quint32 host_id );
 	};
 }
 

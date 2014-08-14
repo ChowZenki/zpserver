@@ -1,13 +1,12 @@
 #include "st_clientnode_applayer.h"
 #include "st_client_table.h"
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <assert.h>
 #include <QCoreApplication>
 #include <QMutexLocker>
 #include <QSettings>
-#include <QSqlError>
 #include <QSet>
+#include "st_operations.h"
 namespace ParkinglotsSvr{
 	//0x0001 msg, stMsg_HostRegistReq
 	bool st_clientNodeAppLayer::RegisitNewBoxNode()
@@ -38,9 +37,7 @@ namespace ParkinglotsSvr{
 		pMsg->trans_header.Priority = m_currentHeader.Priority;
 		pMsg->trans_header.Reserved1 = 0;
 		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
-
 		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
-
 		pMsg->trans_header.DataLen = nMsgLen;
 		pMsg->trans_header.Reserved2 = 0;
 
@@ -52,75 +49,18 @@ namespace ParkinglotsSvr{
 
 		//Check the database, find current equipment info
 		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
-
+		st_operations dboper(&db);
 		reply.DoneCode = 2;
 		reply.ID = 0xffffffff;
-		//strcpy(reply.TextInfo,"Unknown error");
-		if (db.isValid()==true && db.isOpen()==true )
+		quint32 ncurrid = 0;
+		reply.DoneCode = dboper.regisit_host(strSerial,&ncurrid);
+		if (reply.DoneCode<2)
 		{
-			QSqlQuery query(db);
-
-			QString sql = "select serialnum,macid,ifregisted from maclist where serialnum = ?;";
-			query.prepare(sql);
-			query.addBindValue(strSerial);
-
-			if (true==query.exec())
-			{
-				if (query.next())
-				{
-					bool bOk = false;
-					int ncurrid = query.value(1).toInt(&bOk);
-					int nregisdited =  query.value(2).toInt();
-					if (bOk==true)
-					{
-						if (ncurrid>=0x0010000 && ncurrid <=0x0FFFFFFF)
-						{
-							reply.ID = ncurrid;
-							reply.DoneCode = nregisdited==0?0:1;
-
-							m_bUUIDRecieved = true;
-							m_uuid = ncurrid;
-							m_pClientTable->regisitClientUUID(this);
-							if (nregisdited==0)
-							{
-								QSqlQuery queryUpdate(db);
-								sql = "update maclist set ifregisted = 1 where  macid = ?;";
-								queryUpdate.prepare(sql);
-								queryUpdate.addBindValue(ncurrid);
-								if (false==queryUpdate.exec())
-								{
-									reply.DoneCode = 2;
-									//strcpy(reply.TextInfo,"Internal Server Error!");
-								}
-							}
-
-						}
-						else
-						{
-							//strcpy(reply.TextInfo,"Equip ID resource error.");
-						}
-					}
-					//else
-					//strcpy(reply.TextInfo,"Raw Dev ID Is Invalid.");
-				}
-				else
-				{
-					// No such device
-					//strcpy(reply.TextInfo,"No such device ID.");
-				}
-			}
-			else
-			{
-				//strcpy(reply.TextInfo,"Server Access Error.");
-				emit evt_Message(this,tr("Database Access Error :")+query.lastError().text());
-			}
+			reply.ID = ncurrid;
+			m_bUUIDRecieved = true;
+			m_uuid = ncurrid;
+			m_pClientTable->regisitClientUUID(this);
 		}
-		else
-		{
-			//Server db is currently not accessable, wait.
-			//strcpy(reply.TextInfo,"Server Not Accessable Now.");
-		}
-
 
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
@@ -158,79 +98,24 @@ namespace ParkinglotsSvr{
 		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 		pMsg->trans_header.DataLen = nMsgLen;
 		pApp->app_header.MsgType = 0x1801;
-
 		stMsg_HostLogonRsp & reply = pApp->app_data.msg_HostLogonRsp;
 
 		//Check the database, find current equipment info
 		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
-
-		reply.DoneCode = 3;
-		//strcpy(reply.TextInfo,"Unknown error");
-		if (db.isValid()==true && db.isOpen()==true )
+		st_operations dboper(&db);
+		reply.DoneCode = dboper.login_host(strSerialNum,UserID);
+		if (reply.DoneCode==0)
 		{
-			QSqlQuery query(db);
-			QString sql = "select macid,serialnum from maclist where macid = ? and serialnum = ?;";
-			query.prepare(sql);
-			query.addBindValue(UserID);
-			query.addBindValue(strSerialNum);
-
-			if (true==query.exec())
-			{
-				if (query.next())
-				{
-					bool bOk = false;
-					quint32 ncurrid = query.value(0).toUInt(&bOk);
-					if (bOk==true)
-					{
-						if (this->bIsValidUserId(ncurrid))
-						{
-							reply.DoneCode = 0;
-							m_bLoggedIn = true;
-							m_bUUIDRecieved = true;
-							m_uuid = ncurrid;
-							m_pClientTable->regisitClientUUID(this);
-//							if (false == loadRelations())
-//							{
-//								reply.DoneCode = 3;
-//							}
-							//Cluster-Balance.
-							//if (m_pClientTable->NeedRedirect(reply.Address_Redirect,&reply.port_Redirect))
-							//{
-							//	reply.DoneCode = 1;
-							//}
-						}
-						// else
-						// strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
-					}
-					//else
-					// strcpy(reply.TextInfo,"UserID Is Invalid.Accunt locked by svr");
-				}
-				else
-				{
-					// No such device
-					//strcpy(reply.TextInfo,"No such user or password.");
-				}
-			}
-			else
-			{
-				//strcpy(reply.TextInfo,"Server Access Error.");
-				emit evt_Message(this,tr("Database Access Error :")+query.lastError().text());
-			}
+			m_bLoggedIn = true;
+			m_bUUIDRecieved = true;
+			m_uuid = UserID;
+			m_pClientTable->regisitClientUUID(this);
 		}
-		else
-		{
-			//Server db is currently not accessable, wait.
-			//strcpy(reply.TextInfo,"Server Not Accessable Now.");
-		}
-
-
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
-
-
-
 		return reply.DoneCode==3?false:true;
 	}
+
 	bool st_clientNodeAppLayer::Box2Svr_CorrectTime()
 	{
 		//form Msgs
@@ -267,9 +152,6 @@ namespace ParkinglotsSvr{
 		reply.DateTime.Second = dtm.time().second();
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
-
-
-
 		return reply.DoneCode==0?true:false;
 	}
 

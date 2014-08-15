@@ -128,7 +128,7 @@ namespace SmartLink{
 				memcpy((void *)&m_currentHeader,headerptr,2);
 			}
 
-			const char * ptrCurrData = m_currentBlock.constData();
+
 			//Heart Beating
 			if (m_currentHeader.Mark == 0xBEBE)
 			{
@@ -245,6 +245,7 @@ namespace SmartLink{
 			} //end deal trans message
 			else
 			{
+				const char * ptrCurrData = m_currentBlock.constData();
 				emit evt_Message(this,tr("Client Send a unknown start Header %1 %2. Close client immediately.")
 								 .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
 				m_currentMessageSize = 0;

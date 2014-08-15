@@ -136,7 +136,6 @@ namespace ZP_Cluster{
 				memcpy((void *)&m_currentHeader,headerptr,2);
 			}
 
-			const char * ptrCurrData = m_currentBlock.constData();
 			if (m_currentHeader.Mark == 0x1234)
 				//Valid Message
 			{
@@ -198,6 +197,7 @@ namespace ZP_Cluster{
 			} //end deal trans message
 			else
 			{
+				const char * ptrCurrData = m_currentBlock.constData();
 				emit evt_Message(this,tr("Client Send a unknown start Header %1 %2. Close client immediately.")
 								 .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
 				m_currentMessageSize = 0;

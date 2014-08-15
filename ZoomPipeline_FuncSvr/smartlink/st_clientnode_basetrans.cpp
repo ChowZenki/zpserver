@@ -128,7 +128,7 @@ namespace ParkinglotsSvr{
 				memcpy((void *)&m_currentHeader,headerptr,2);
 			}
 
-			const char * ptrCurrData = m_currentBlock.constData();
+
 			//Heart Beating
 			if (m_currentHeader.Mark == 0xBEBE)
 			{
@@ -148,12 +148,13 @@ namespace ParkinglotsSvr{
 				}
 				if (m_currentMessageSize < sizeof(PKLTS_HEARTBEATING)) //Header not completed.
 					continue;
+
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
 				//Try to Get UUID Immediately
 				if (m_bUUIDRecieved==false)
 				{
-					PKLTS_HEARTBEATING * pHbMsg = (PKLTS_HEARTBEATING *)(ptrCurrData);
+					PKLTS_HEARTBEATING * pHbMsg = (PKLTS_HEARTBEATING *)( m_currentBlock.constData());
 					if (bIsValidUserId(pHbMsg->source_id))
 					{
 						m_bUUIDRecieved = true;
@@ -258,6 +259,7 @@ namespace ParkinglotsSvr{
 			} //end deal trans message
 			else
 			{
+				const char * ptrCurrData =  m_currentBlock.constData();
 				emit evt_Message(this,tr("Client Send a unknown start Header %1 %2. Close client immediately.")
 								 .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
 				m_currentMessageSize = 0;
@@ -308,7 +310,7 @@ namespace ParkinglotsSvr{
 			if (bIsValidUserId(m_currentHeader.SrcID)==true &&
 					m_uuid != m_currentHeader.SrcID)
 			{
-				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly."));
+				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
 			}

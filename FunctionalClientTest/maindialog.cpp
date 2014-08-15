@@ -242,10 +242,9 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 int MainDialog::filter_message(QByteArray  block, int offset)
 {
 	const int blocklen = block.length();
+	const char * dataptr = block.constData();
 	while (blocklen>offset)
 	{
-		const char * dataptr = block.constData();
-
 		//Recieve First 2 byte
 		while (m_currentMessageSize<2 && blocklen>offset )
 		{
@@ -261,7 +260,6 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 			memcpy((void *)&m_currentHeader,headerptr,2);
 		}
 
-		const char * ptrCurrData = m_currentBlock.constData();
 		//Heart Beating
 		if (m_currentHeader.Mark == 0xBEBE)
 		{
@@ -286,6 +284,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		{
 			while (m_currentMessageSize< sizeof(PKLTS_TRANS_HEADER) && blocklen>offset)
 			{
+
 				m_currentBlock.push_back(dataptr[offset++]);
 				m_currentMessageSize++;
 			}
@@ -342,6 +341,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		} //end deal trans message
 		else
 		{
+			const char * ptrCurrData = m_currentBlock.constData();
 			displayMessage(tr("Client Send a unknown start Header %1 %2. Close client immediately.")
 						   .arg((int)(ptrCurrData[0])).arg((int)(ptrCurrData[1])));
 			m_currentMessageSize = 0;

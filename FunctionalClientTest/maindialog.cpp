@@ -32,7 +32,16 @@ MainDialog::MainDialog(QWidget *parent) :
 	ui->lineEdit_Port->setText(settings.value("settings/port","23456").toString());
 	ui->lineEdit_serial_num->setText(settings.value("settings/client2svr_serialnum","TESTMACHINE").toString());
 	ui->lineEdit_user_id->setText(settings.value("settings/client2svr_user_id","0").toString());
-	ui->plainTextEdit_box_userids->setPlainText(settings.value("settings/box2svr_uploadid","0,").toString());
+
+	m_model_devlist.insertColumns(0,3);
+	m_model_devlist.setHeaderData(0,Qt::Horizontal,tr("Device Name"));
+	m_model_devlist.setHeaderData(1,Qt::Horizontal,tr("Device No"));
+	m_model_devlist.setHeaderData(2,Qt::Horizontal,tr("Device ID(24BIN,48HEXASC)"));
+	ui->tableView_deviceList->setModel(&m_model_devlist);
+
+	Qt::WindowFlags flg = this->windowFlags();
+	flg |= Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
+	this->setWindowFlags(flg);
 }
 
 MainDialog::~MainDialog()
@@ -79,6 +88,7 @@ void MainDialog::on_client_disconnected()
 	}
 	ui->pushButton_clientRegisit->setEnabled(false);
 	ui->pushButton_clientLogin->setEnabled(false);
+	ui->pushButton_devlist_upload->setEnabled(false);
 }
 void MainDialog::displayError(QAbstractSocket::SocketError /*err*/)
 {
@@ -117,7 +127,6 @@ void MainDialog::saveIni()
 	settings.setValue("settings/port", ui->lineEdit_Port->text());
 	settings.setValue("settings/client2svr_serialnum", ui->lineEdit_serial_num->text());
 	settings.setValue("settings/client2svr_user_id", ui->lineEdit_user_id->text());
-	settings.setValue("settings/box2svr_uploadid", ui->plainTextEdit_box_userids->toPlainText());
 }
 
 void MainDialog::timerEvent(QTimerEvent * evt)
@@ -377,6 +386,7 @@ int MainDialog::deal_current_message_block()
 					   .arg(pApp->app_data.msg_HostRegistRsp.DoneCode)
 					   );
 			ui->pushButton_clientLogin->setEnabled(true);
+			ui->pushButton_clientRegisit->setEnabled(false);
 			ui->lineEdit_user_id->setText(QString("%1").arg(pApp->app_data.msg_HostRegistRsp.ID));
 		}
 		else
@@ -394,6 +404,9 @@ int MainDialog::deal_current_message_block()
 			displayMessage(tr("Login Succeed, Res = %1")
 					   .arg(pApp->app_data.msg_HostLogonRsp.DoneCode)
 					   );
+			ui->pushButton_clientLogin->setEnabled(false);
+			ui->pushButton_devlist_upload->setEnabled(true);
+
 		}
 		else if (pApp->app_data.msg_HostLogonRsp.DoneCode==1)
 		{
@@ -440,4 +453,86 @@ int MainDialog::deal_current_message_block()
 
 
 	return 0;
+}
+
+void MainDialog::on_pushButton_devlist_add_clicked()
+{
+	int nRow = m_model_devlist.rowCount();
+	m_model_devlist.appendRow(new QStandardItem(ui->lineEdit_dev_name->text()));
+	m_model_devlist.setData(m_model_devlist.index(nRow,1),ui->lineEdit_dev_no->text());
+	m_model_devlist.setData(m_model_devlist.index(nRow,2),ui->lineEdit_dev_id->text());
+}
+
+void MainDialog::on_pushButton_devlist_del_clicked()
+{
+	QModelIndexList lst = ui->tableView_deviceList->selectionModel()->selectedIndexes();
+	int nRow = lst.first().row();
+	m_model_devlist.removeRow(nRow);
+}
+
+void MainDialog::on_pushButton_devlist_upload_clicked()
+{
+	if (m_bLogedIn==false)
+	{
+		QMessageBox::warning(this,"Need log in!","uuid has not been revieved and login.");
+		return;
+	}
+	saveIni();
+
+	//Howmany rows in list
+	int nTotalItems = m_model_devlist.rowCount();
+	if (nTotalItems <=0)
+		return;
+
+	QByteArray array_data;
+	for (int i=0;i<nTotalItems;++i)
+	{
+		QString devName = m_model_devlist.data(m_model_devlist.index(i,0)).toString();
+		array_data.append(devName);
+		array_data.append('\0');
+	}
+	for (int i=0;i<nTotalItems;++i)
+	{
+		QString devName = m_model_devlist.data(m_model_devlist.index(i,1)).toString();
+		array_data.append(devName);
+		array_data.append('\0');
+	}
+	for (int i=0;i<nTotalItems;++i)
+	{
+		QString devName = m_model_devlist.data(m_model_devlist.index(i,2)).toString().toUpper();
+		int nLength = devName.length();
+		for (int j = 0;j<24;++j)
+		{
+			QChar c1 = (j*2<nLength)?devName[j*2]:QChar('0');
+			QChar c2 = (j*2+1<nLength)?devName[j*2+1]:QChar('0');
+			char cUp = c1.toLatin1();
+			char cLow = c2.toLatin1();
+			quint8 u8val = 0;
+			if (cUp>='0' && cUp<='9') u8val += cUp-'0';
+			if (cUp>='A' && cUp<='F') u8val += cUp-'A' + 10;
+			u8val *=16;
+			if (cLow>='0' && cLow<='9') u8val += cLow-'0';
+			if (cLow>='A' && cLow<='F') u8val += cLow-'A' + 10;
+			array_data.append(u8val);
+		}
+	}
+	//Get the serial Num
+	quint16 nMsgLen =sizeof(PKLTS_APP_HEADER)
+			+sizeof(stMsg_SendDeviceListReq) - 1;
+	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+	char * ptr = array.data();
+	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+
+	quint32 userID = ui->lineEdit_user_id->text().toUInt();
+
+	pMsg->trans_header.Mark = 0x55AA;
+	pMsg->trans_header.SrcID = (quint32)((quint64)(userID) & 0xffffffff );;
+	pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->trans_header.DataLen = nMsgLen + array_data.size();
+	pMsg->trans_payload.app_layer.app_header.MsgType = 0x100B;
+	pMsg->trans_payload.app_layer.app_data.msg_SendDeviceListReq.DeviceNums = nTotalItems;
+
+	array.append(array_data);
+	//3/10 possibility to send a data block to server
+	client->SendData(array);
 }

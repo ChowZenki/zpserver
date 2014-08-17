@@ -48,6 +48,10 @@ protected:
 	//current Header
 	PKLTS_TRANS_HEADER m_currentHeader;
 
+private:
+	//Device List Upload Test
+	QStandardItemModel m_model_devlist;
+
 public slots:
 	void new_data_recieved();
 	void on_client_trasferred(qint64);
@@ -59,6 +63,9 @@ public slots:
 	void on_pushButton_connect_clicked();
 	void on_pushButton_clientRegisit_clicked();
 	void on_pushButton_clientLogin_clicked();
+	void on_pushButton_devlist_add_clicked();
+	void on_pushButton_devlist_del_clicked();
+	void on_pushButton_devlist_upload_clicked();
 };
 
 #endif // MAINDIALOG_H

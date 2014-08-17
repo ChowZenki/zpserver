@@ -177,6 +177,7 @@ namespace ParkinglotsSvr{
 			QString strCurrentItem;
 			while ( nSwim < nAppLen && ptr_start[nSwim]!=0 )
 				strCurrentItem += ptr_start[nSwim++];
+			++nSwim;
 			strDeviceNames.push_back(strCurrentItem);
 		}
 		if ( strDeviceNames.size()<nItems)
@@ -188,6 +189,7 @@ namespace ParkinglotsSvr{
 			QString strCurrentItem;
 			while ( nSwim < nAppLen && ptr_start[nSwim]!=0 )
 				strCurrentItem += ptr_start[nSwim++];
+			++nSwim;
 			strDeviceNos.push_back(strCurrentItem);
 		}
 		if ( strDeviceNos.size()<nItems)
@@ -220,10 +222,10 @@ namespace ParkinglotsSvr{
 		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
 		pMsg->trans_header.DataLen = nMsgLen;
 		pApp->app_header.MsgType = 0x180B;
-		//Check the database, find current equipment info
+
 		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
 		st_operations dboper(&db);
-		bool res = dboper.insert_device_table(nItems,strDeviceNames,strDeviceNos,strDeviceIDs);
+		bool res = dboper.insert_device_table(nItems,strDeviceNames,strDeviceNos,strDeviceIDs,this->uuid());
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
 		return res;

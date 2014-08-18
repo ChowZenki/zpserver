@@ -461,7 +461,8 @@ int MainDialog::deal_current_message_block()
 									 );
 		}
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("Log in failed!"));
+            displayMessage(tr("Log in failed!"));
+
 		displayMessage(tr("Res = %1")
 				   .arg(pApp->MsgUnion.msg_ClientLoginRsp.DoneCode)
 				   );
@@ -471,7 +472,7 @@ int MainDialog::deal_current_message_block()
 		if (pApp->MsgUnion.msg_UploadUserListRsp.DoneCode==0)
 			QMessageBox::information(this,tr("Succeed!"),tr("upload succeed!"));
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("upload in Failed!"));
+            displayMessage(tr("Upload failed!"));
 		displayMessage(tr("Res = %1")
 					   .arg(pApp->MsgUnion.msg_UploadUserListRsp.DoneCode)
 					   );
@@ -490,7 +491,7 @@ int MainDialog::deal_current_message_block()
 			ui->plainTextEdit_box_userids->setPlainText(strRes);
 		}
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
+            displayMessage(tr("Download failed!"));
 		displayMessage(tr("Res = %1")
 					   .arg(pApp->MsgUnion.msg_DownloadUserListRsp.DoneCode)
 					   );
@@ -501,11 +502,7 @@ int MainDialog::deal_current_message_block()
 		if (pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode==0)
 			QMessageBox::information(this,tr("Succeed!"),tr("log out succeed!"));
 		else
-			QMessageBox::information(this,tr("Failed!"),tr("download in Failed!"));
-		displayMessage(tr("Res = %1")
-					   .arg(pApp->MsgUnion.msg_ClientLogoutRsp.DoneCode)
-					   );
-		this->client->abort();
+            displayMessage(tr("Download failed!"));
 	}
 	else
 	{

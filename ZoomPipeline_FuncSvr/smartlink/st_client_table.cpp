@@ -5,6 +5,7 @@
 #include "st_cross_svr_msg.h"
 #include <functional>
 #include <QList>
+#include <QStringList>
 namespace ExampleServer{
 	using namespace std::placeholders;
 	st_client_table::st_client_table(

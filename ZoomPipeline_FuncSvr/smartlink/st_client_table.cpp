@@ -4,6 +4,7 @@
 #include "st_cross_svr_node.h"
 #include "st_cross_svr_msg.h"
 #include <functional>
+#include <QStringList>
 #include <QList>
 namespace ParkinglotsSvr{
 	using namespace std::placeholders;

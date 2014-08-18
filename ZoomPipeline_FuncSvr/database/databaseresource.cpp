@@ -28,7 +28,67 @@ namespace ZPDatabase{
 			emit evt_Message(this,msg);
 			return QSqlDatabase();
 		}
-		return  QSqlDatabase::database(strDBName);
+        //We need a thread owner db , instead of the main DB template
+        QString threadName = QString("%1_%2").arg(strDBName).arg((quint64)currentThreadId());
+        if (false==QSqlDatabase::contains(threadName))
+        {
+            QSqlDatabase db = QSqlDatabase::cloneDatabase(QSqlDatabase::database(strDBName),threadName);
+            if (db.open()==false)
+            {
+                QString msg =  "Database:"+tr(" Connection name ")+threadName+
+                        tr(" Can not be cloned from database %1.").arg(strDBName)+
+                        tr(" Err String:") + db.lastError().text();
+                emit evt_Message(this,msg);
+                return QSqlDatabase();
+            }
+            m_ThreadsDB[strDBName].insert(threadName);
+        }
+        //Confirm the thread-owned db is still open
+        QSqlDatabase db = QSqlDatabase::database(threadName);
+        tagConnectionPara & para = m_dbNames[strDBName];
+        bool bNeedReconnect = false;
+        if (db.isOpen()==true)
+        {
+            if (para.testSQL.length())
+            {
+                QSqlQuery query(db);
+                query.exec(para.testSQL);
+                if (query.lastError().type()!=QSqlError::NoError)
+                {
+                    QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" confirm failed. MSG=");
+                    msg += query.lastError().text();
+                    emit evt_Message(this,msg);
+                    bNeedReconnect = true;
+                }
+            }
+            if (bNeedReconnect==true)
+            {
+                db.close();
+                QSqlDatabase::removeDatabase(threadName);
+            }
+        }
+        else
+            bNeedReconnect = true;
+        if (bNeedReconnect==true)
+        {
+            db = QSqlDatabase::cloneDatabase(QSqlDatabase::database(strDBName),threadName);
+            if (db.open()==true)
+            {
+                QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" Re-Established.");
+                emit evt_Message(this,msg);
+            }
+            else
+            {
+                QString msg =  "Database:"+tr(" Connection name ")+threadName+
+                        tr(" Can not be cloned from database %1.").arg(strDBName)+
+                        tr(" Err String:") + db.lastError().text();
+                emit evt_Message(this,msg);
+                m_ThreadsDB[strDBName].remove(threadName);
+                return QSqlDatabase();
+
+            }
+        }
+        return  db;
 	}
 	void DatabaseResource::remove_connections()
 	{
@@ -37,9 +97,10 @@ namespace ZPDatabase{
 			QMutexLocker locker(&m_mutex_reg);
 			sets = currentDatabaseConnections();
 		}
-
 		foreach (QString name, sets.keys())
-			this->remove_connection(name);
+        {
+            this->remove_connection(name);
+        }
 	}
 
 	//!Remove Database
@@ -54,7 +115,8 @@ namespace ZPDatabase{
 			QSqlDatabase::removeDatabase(strDBName);
 			QString msg = "Database:"+tr(" Connection removed ")+strDBName+ tr(" .");
 			emit evt_Message(this,msg);
-
+            RemoveTreadsConnections(strDBName);
+            m_ThreadsDB[strDBName].clear();
 		}
 		else
 		{
@@ -64,6 +126,23 @@ namespace ZPDatabase{
 		m_dbNames.remove(strDBName) ;
 
 	}
+     void DatabaseResource::RemoveTreadsConnections(QString mainName)
+     {
+         if (m_ThreadsDB.contains(mainName))
+         {
+             QSet<QString> & sethreadNames = m_ThreadsDB[mainName];
+             foreach(QString str, sethreadNames)
+             {
+                 QSqlDatabase db = QSqlDatabase::database(str);
+                 if (db.isOpen()==true)
+                     db.close();
+                 QSqlDatabase::removeDatabase(str);
+                 QString msg = "Database:"+tr(" Connection removed ")+str+ tr(" .");
+                 emit evt_Message(this,msg);
+             }
+         }
+     }
+
 	/**
 	 * @brief add a database connection resource
 	 *

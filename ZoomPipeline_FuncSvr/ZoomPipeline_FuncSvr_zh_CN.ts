@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="zh_CN">
+<TS version="2.0" language="zh_CN">
 <context>
     <name>DialogAddressInput</name>
     <message>
         <source>Dialog</source>
-        <translation type="vanished">对话框</translation>
+        <translation>对话框</translation>
     </message>
     <message>
         <location filename="dialogaddressinput.ui" line="14"/>
@@ -27,101 +27,101 @@
     <name>ExampleServer::st_clientNodeAppLayer</name>
     <message>
         <source>Database Access Error :</source>
-        <translation type="vanished">数据库访问错误 :</translation>
+        <translation>数据库访问错误 :</translation>
     </message>
     <message>
         <source>Broken Message stMsg_UploadUserListReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_UploadUserListReq.</translation>
+        <translation>消息长度不匹配. stMsg_UploadUserListReq.</translation>
     </message>
     <message>
         <source>try to get relations Failed! </source>
-        <translation type="vanished">试图获取权属关系失败!</translation>
+        <translation>试图获取权属关系失败!</translation>
     </message>
     <message>
         <source>try to del old relations Failed! </source>
-        <translation type="vanished">试图删除旧的权属关系失败!</translation>
+        <translation>试图删除旧的权属关系失败!</translation>
     </message>
     <message>
         <source>try to insert new relations Failed! </source>
-        <translation type="vanished">试图插入新的权属关系失败!</translation>
+        <translation>试图插入新的权属关系失败!</translation>
     </message>
     <message>
         <source>To-server Message Failed.</source>
-        <translation type="vanished">发往服务器的消息解译/处理失败.</translation>
+        <translation>发往服务器的消息解译/处理失败.</translation>
     </message>
     <message>
         <source>Client To Server Message Failed.</source>
-        <translation type="vanished">客户端发往主机的程序解译失败.</translation>
+        <translation>客户端发往主机的程序解译失败.</translation>
     </message>
     <message>
         <source>warning, UUID 0xFFFFFFFF.ignore</source>
-        <translation type="vanished">警告, UUID为 0xFFFFFFF 的消息被忽略</translation>
+        <translation>警告, UUID为 0xFFFFFFF 的消息被忽略</translation>
     </message>
     <message>
         <source>Bad UUID %1. Client Kicked out</source>
-        <translation type="vanished">非法的 UUID %1. 立刻踢出套接字</translation>
+        <translation>非法的 UUID %1. 立刻踢出套接字</translation>
     </message>
     <message>
         <source>Destin ID </source>
-        <translation type="vanished">目的节点ID </translation>
+        <translation>目的节点ID </translation>
     </message>
     <message>
         <source> is not currently logged in.</source>
-        <translation type="vanished">尚未在本服务器登记。</translation>
+        <translation>尚未在本服务器登记。</translation>
     </message>
     <message>
         <source>Broken Message stMsg_ClientLoginReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_ClientLoginReq.</translation>
+        <translation>消息长度不匹配. stMsg_ClientLoginReq.</translation>
     </message>
     <message>
         <source>Message type not supported.</source>
-        <translation type="vanished">消息类型不被支持.</translation>
+        <translation>消息类型不被支持.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_DownloadUserListReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_DownloadUserListReq.</translation>
+        <translation>消息长度不匹配. stMsg_DownloadUserListReq.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_ClientLogoutReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_ClientLogoutReq.</translation>
+        <translation>消息长度不匹配. stMsg_ClientLogoutReq.</translation>
     </message>
 </context>
 <context>
     <name>ExampleServer::st_clientNode_baseTrans</name>
     <message>
         <source>Client Send a unknown start Header %1 %2. Close client immediately.</source>
-        <translation type="vanished">客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
+        <translation>客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
     </message>
     <message>
         <source>Client ID is invalid! Close client immediatly.</source>
-        <translation type="vanished">节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
+        <translation>节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
     </message>
     <message>
         <source>Client </source>
-        <translation type="vanished">节点 </translation>
+        <translation>节点 </translation>
     </message>
     <message>
         <source> is dead, kick out.</source>
-        <translation type="vanished">丢失心跳，终止该节点的连接。</translation>
+        <translation>丢失心跳，终止该节点的连接。</translation>
     </message>
 </context>
 <context>
     <name>ExampleServer::st_client_table</name>
     <message>
         <source>Send Initial UUIDs to Remote Svr:</source>
-        <translation type="vanished">打包发送目前所有的UUID到远程服务器：</translation>
+        <translation>打包发送目前所有的UUID到远程服务器：</translation>
     </message>
     <message>
         <source>Recieved %1 bytes Msg from </source>
-        <translation type="vanished">收到了 %1 字节数据,来源</translation>
+        <translation>收到了 %1 字节数据,来源</translation>
     </message>
     <message>
         <source>Recieved remote %1 client uuid(s) from svr </source>
-        <translation type="vanished">收到了远端服务器拥有的 %1 个客户端UUID. 远端服务器 </translation>
+        <translation>收到了远端服务器拥有的 %1 个客户端UUID. 远端服务器 </translation>
     </message>
     <message>
         <source>Removed remote %1 client uuid(s) from svr </source>
-        <translation type="vanished">移除了 %1 个属于远端服务器的 UUID. 远端服务器 </translation>
+        <translation>移除了 %1 个属于远端服务器的 UUID. 远端服务器 </translation>
     </message>
 </context>
 <context>
@@ -154,23 +154,23 @@
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="63"/>
         <source>serial_num</source>
-        <translation type="unfinished"></translation>
+        <translation>设备序列号</translation>
     </message>
     <message>
         <source>BoxToServer</source>
-        <translation type="vanished">主机和服务器测试</translation>
+        <translation>主机和服务器测试</translation>
     </message>
     <message>
         <source>login</source>
-        <translation type="vanished">登入</translation>
+        <translation>登入</translation>
     </message>
     <message>
         <source>Box Serial Number</source>
-        <translation type="vanished">主机序列号</translation>
+        <translation>主机序列号</translation>
     </message>
     <message>
         <source>Box ID </source>
-        <translation type="vanished">主机ID</translation>
+        <translation>主机ID</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="76"/>
@@ -179,31 +179,31 @@
     </message>
     <message>
         <source>Log in</source>
-        <translation type="vanished">登入</translation>
+        <translation>登入</translation>
     </message>
     <message>
         <source>Time Correct</source>
-        <translation type="vanished">时间校对</translation>
+        <translation>时间校对</translation>
     </message>
     <message>
         <source>Correct</source>
-        <translation type="vanished">校时</translation>
+        <translation>校时</translation>
     </message>
     <message>
         <source>relations</source>
-        <translation type="vanished">权属关系</translation>
+        <translation>权属关系</translation>
     </message>
     <message>
         <source>Upload Relations ( , splitted)</source>
-        <translation type="vanished">上传下述关系(用逗号分隔各个客户端ID)</translation>
+        <translation>上传下述关系(用逗号分隔各个客户端ID)</translation>
     </message>
     <message>
         <source>Upload</source>
-        <translation type="vanished">上传</translation>
+        <translation>上传</translation>
     </message>
     <message>
         <source>download Relations</source>
-        <translation type="vanished">下载权属关系</translation>
+        <translation>下载权属关系</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="83"/>
@@ -212,19 +212,19 @@
     </message>
     <message>
         <source>Download</source>
-        <translation type="vanished">下载</translation>
+        <translation>下载</translation>
     </message>
     <message>
         <source>ClientToServer</source>
-        <translation type="vanished">客户端和服务器测试</translation>
+        <translation>客户端和服务器测试</translation>
     </message>
     <message>
         <source>username</source>
-        <translation type="vanished">用户名</translation>
+        <translation>用户名</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="vanished">注销</translation>
+        <translation>注销</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="100"/>
@@ -233,35 +233,35 @@
     </message>
     <message>
         <source>password</source>
-        <translation type="vanished">口令</translation>
+        <translation>口令</translation>
     </message>
     <message>
         <source>userid</source>
-        <translation type="vanished">用户ID</translation>
+        <translation>用户ID</translation>
     </message>
     <message>
         <source>Download Hosts</source>
-        <translation type="vanished">下载权属关系</translation>
+        <translation>下载权属关系</translation>
     </message>
     <message>
         <source>Send Msg</source>
-        <translation type="vanished">发送测试数据</translation>
+        <translation>发送测试数据</translation>
     </message>
     <message>
         <source>Msg</source>
-        <translation type="vanished">发送数据</translation>
+        <translation>发送数据</translation>
     </message>
     <message>
         <source>Send To UUID:</source>
-        <translation type="vanished">发送到UUID:</translation>
+        <translation>发送到UUID:</translation>
     </message>
     <message>
         <source>Send</source>
-        <translation type="vanished">发送</translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Recieved:</source>
-        <translation type="vanished">收到的数据</translation>
+        <translation>收到的数据:</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="113"/>
@@ -281,97 +281,97 @@
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="376"/>
         <source>Regisit Succeed, Res = %1</source>
-        <translation type="unfinished"></translation>
+        <translation>注册成功, 结果 %1</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="383"/>
         <source>Regisit Failed, Res = %1</source>
-        <translation type="unfinished"></translation>
+        <translation>注册失败, 结果 %1</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="394"/>
         <source>Login Succeed, Res = %1</source>
-        <translation type="unfinished"></translation>
+        <translation>登入成功, 结果 %1</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="400"/>
         <source>Login Failed, Res = %1</source>
-        <translation type="unfinished"></translation>
+        <translation>登入失败, 结果 %1</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="405"/>
         <source>Login Failed,, Res = %1</source>
-        <translation type="unfinished"></translation>
+        <translation>登入失败, 结果 %1</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="414"/>
         <source>Host Time is %1-%2-%3 %4:%5:%6.</source>
-        <translation type="unfinished"></translation>
+        <translation>服务器时刻是:%1-%2-%3 %4:%5:%6. </translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.cpp" line="424"/>
         <source>Time Crooecting Failed,, Res = %1</source>
-        <translation type="unfinished"></translation>
+        <translation>从服务器矫正时间失败, 返回值 %1</translation>
     </message>
     <message>
         <source>Res = %1, ID = %2</source>
-        <translation type="vanished">结果 %1 ID %2</translation>
+        <translation>结果 %1 ID %2</translation>
     </message>
     <message>
         <source>Succeed!</source>
-        <translation type="vanished">成功！</translation>
+        <translation>成功！</translation>
     </message>
     <message>
         <source>Log in succeed!</source>
-        <translation type="vanished">登入成功！</translation>
+        <translation>登入成功！</translation>
     </message>
     <message>
         <source>But you can connect to another idle svr:%1:%2!</source>
-        <translation type="vanished">但是，您可以连接到一个更加空闲的服务器 %1:%2!</translation>
+        <translation>但是，您可以连接到一个更加空闲的服务器 %1:%2!</translation>
     </message>
     <message>
         <source>Failed!</source>
-        <translation type="vanished">失败！</translation>
+        <translation>失败！</translation>
     </message>
     <message>
         <source>Log in Failed!</source>
-        <translation type="vanished">登入失败！</translation>
+        <translation>登入失败！</translation>
     </message>
     <message>
         <source>Res = %1</source>
-        <translation type="vanished">结果 %1 </translation>
+        <translation>结果 %1 </translation>
     </message>
     <message>
         <source>Time Corrected!</source>
-        <translation type="vanished">时间校对成功！</translation>
+        <translation>时间校对成功！</translation>
     </message>
     <message>
         <source>Time Correct Failed!</source>
-        <translation type="vanished">时间校对失败！</translation>
+        <translation>时间校对失败！</translation>
     </message>
     <message>
         <source>Log in failed!</source>
-        <translation type="vanished">登入失败！</translation>
+        <translation>登入失败！</translation>
     </message>
     <message>
         <source>upload succeed!</source>
-        <translation type="vanished">上传成功！</translation>
+        <translation>上传成功！</translation>
     </message>
     <message>
         <source>upload in Failed!</source>
-        <translation type="vanished">上传失败！</translation>
+        <translation>上传失败！</translation>
     </message>
     <message>
         <source>download succeed!</source>
-        <translation type="vanished">下载成功!</translation>
+        <translation>下载成功!</translation>
     </message>
     <message>
         <source>download in Failed!</source>
-        <translation type="vanished">下载失败!</translation>
+        <translation>下载失败!</translation>
     </message>
     <message>
         <source>log out succeed!</source>
-        <translation type="vanished">注销成功!</translation>
+        <translation>注销成功!</translation>
     </message>
 </context>
 <context>
@@ -379,54 +379,54 @@
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="28"/>
         <source>To-server Message Failed.</source>
-        <translation type="unfinished">发往服务器的消息解译/处理失败.</translation>
+        <translation>发往服务器的消息解译/处理失败.</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="40"/>
         <source>Client To Server Message Failed.</source>
-        <translation type="unfinished">客户端发往主机的程序解译失败.</translation>
+        <translation>客户端发往主机的程序解译失败.</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="47"/>
         <source>warning, UUID 0xFFFFFFFF.ignore</source>
-        <translation type="unfinished">警告, UUID为 0xFFFFFFF 的消息被忽略</translation>
+        <translation>警告, UUID为 0xFFFFFFF 的消息被忽略</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="53"/>
         <source>Bad UUID %1. Client Kicked out</source>
-        <translation type="unfinished">非法的 UUID %1. 立刻踢出套接字</translation>
+        <translation>非法的 UUID %1. 立刻踢出套接字</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="68"/>
         <source>Destin ID </source>
-        <translation type="unfinished">目的节点ID </translation>
+        <translation>目的节点ID </translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="68"/>
         <source> is not currently logged in.</source>
-        <translation type="unfinished">尚未在本服务器登记。</translation>
+        <translation>尚未在本服务器登记。</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="118"/>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="133"/>
         <source>Broken Message, size not correct.</source>
-        <translation type="unfinished"></translation>
+        <translation>消息长度不匹配. </translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="140"/>
         <source>Unknown Message:%1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知的消息类型: %1</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="180"/>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="192"/>
         <source>Broken Message size not correct.</source>
-        <translation type="unfinished"></translation>
+        <translation>消息长度不匹配. </translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_applayer.cpp" line="199"/>
         <source>Unsupported Message:%1,Bytes:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>尚未实现的消息类型 %1, 首部字节为: %2</translation>
     </message>
 </context>
 <context>
@@ -434,28 +434,28 @@
     <message>
         <location filename="smartlink/st_clientnode_basetrans.cpp" line="263"/>
         <source>Client Send a unknown start Header %1 %2. Close client immediately.</source>
-        <translation type="unfinished">客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
+        <translation>客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_basetrans.cpp" line="293"/>
         <location filename="smartlink/st_clientnode_basetrans.cpp" line="306"/>
         <source>Client ID is invalid! Close client immediatly.</source>
-        <translation type="unfinished">节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
+        <translation>节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_basetrans.cpp" line="313"/>
         <source>Client ID Changed in Runtime! Close client immediatly, %1-&gt;%2.</source>
-        <translation type="unfinished"></translation>
+        <translation>客户端的ID在运行时发生了跳变! 立刻关闭与客户端的连接, %1-&gt;%2.</translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_basetrans.cpp" line="329"/>
         <source>Client </source>
-        <translation type="unfinished">节点 </translation>
+        <translation>节点 </translation>
     </message>
     <message>
         <location filename="smartlink/st_clientnode_basetrans.cpp" line="329"/>
         <source> is dead, kick out.</source>
-        <translation type="unfinished">丢失心跳，终止该节点的连接。</translation>
+        <translation>丢失心跳，终止该节点的连接。</translation>
     </message>
 </context>
 <context>
@@ -463,22 +463,22 @@
     <message>
         <location filename="smartlink/st_client_table.cpp" line="313"/>
         <source>Send Initial UUIDs to Remote Svr:</source>
-        <translation type="unfinished">打包发送目前所有的UUID到远程服务器：</translation>
+        <translation>打包发送目前所有的UUID到远程服务器：</translation>
     </message>
     <message>
         <location filename="smartlink/st_client_table.cpp" line="361"/>
         <source>Recieved %1 bytes Msg from </source>
-        <translation type="unfinished">收到了 %1 字节数据,来源</translation>
+        <translation>收到了 %1 字节数据,来源</translation>
     </message>
     <message>
         <location filename="smartlink/st_client_table.cpp" line="386"/>
         <source>Recieved remote %1 client uuid(s) from svr </source>
-        <translation type="unfinished">收到了远端服务器拥有的 %1 个客户端UUID. 远端服务器 </translation>
+        <translation>收到了远端服务器拥有的 %1 个客户端UUID. 远端服务器 </translation>
     </message>
     <message>
         <location filename="smartlink/st_client_table.cpp" line="414"/>
         <source>Removed remote %1 client uuid(s) from svr </source>
-        <translation type="unfinished">移除了 %1 个属于远端服务器的 UUID. 远端服务器 </translation>
+        <translation>移除了 %1 个属于远端服务器的 UUID. 远端服务器 </translation>
     </message>
 </context>
 <context>
@@ -488,7 +488,7 @@
         <location filename="smartlink/st_operations.cpp" line="63"/>
         <location filename="smartlink/st_operations.cpp" line="105"/>
         <source>Database Access Error :</source>
-        <translation type="unfinished">数据库访问错误 :</translation>
+        <translation>数据库访问错误 :</translation>
     </message>
     <message>
         <location filename="smartlink/st_operations.cpp" line="53"/>
@@ -496,23 +496,23 @@
         <location filename="smartlink/st_operations.cpp" line="95"/>
         <location filename="smartlink/st_operations.cpp" line="99"/>
         <source>ID is not valid : %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ID 取值范围不正确: %1</translation>
     </message>
     <message>
         <location filename="smartlink/st_operations.cpp" line="60"/>
         <source>Serial is not valid : %1</source>
-        <translation type="unfinished"></translation>
+        <translation>序列号不正确: %1</translation>
     </message>
     <message>
         <location filename="smartlink/st_operations.cpp" line="67"/>
         <location filename="smartlink/st_operations.cpp" line="109"/>
         <source>Database is not ready.</source>
-        <translation type="unfinished"></translation>
+        <translation>数据库尚未准备好.</translation>
     </message>
     <message>
         <location filename="smartlink/st_operations.cpp" line="102"/>
         <source>Serial/ID is not valid : %1,%2</source>
-        <translation type="unfinished"></translation>
+        <translation>序列号/ID 不正确: %1,%2</translation>
     </message>
 </context>
 <context>
@@ -600,164 +600,164 @@
     <name>SmartLink::st_clientNode</name>
     <message>
         <source>Client ID is invalid! Close client immediatly.</source>
-        <translation type="vanished">节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
+        <translation>节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
     </message>
     <message>
         <source>To-server Message is not currently supported.</source>
-        <translation type="vanished">发往服务器的消息尚未被支持。</translation>
+        <translation>发往服务器的消息尚未被支持。</translation>
     </message>
     <message>
         <source>Broadcast Message is not currently supported.</source>
-        <translation type="vanished">广播消息尚未被支持。</translation>
+        <translation>广播消息尚未被支持。</translation>
     </message>
     <message>
         <source>Destin ID </source>
-        <translation type="vanished">目的节点ID </translation>
+        <translation>目的节点ID </translation>
     </message>
     <message>
         <source> is not currently logged in.</source>
-        <translation type="vanished">尚未在本服务器登记。</translation>
+        <translation>尚未在本服务器登记。</translation>
     </message>
     <message>
         <source>Client </source>
-        <translation type="vanished">节点 </translation>
+        <translation>节点 </translation>
     </message>
     <message>
         <source> is dead, kick out.</source>
-        <translation type="vanished">丢失心跳，终止该节点的连接。</translation>
+        <translation>丢失心跳，终止该节点的连接。</translation>
     </message>
 </context>
 <context>
     <name>SmartLink::st_clientNodeAppLayer</name>
     <message>
         <source>Database Access Error :</source>
-        <translation type="vanished">数据库访问错误 :</translation>
+        <translation>数据库访问错误 :</translation>
     </message>
     <message>
         <source>Broken Message stMsg_UploadUserListReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_UploadUserListReq.</translation>
+        <translation>消息长度不匹配. stMsg_UploadUserListReq.</translation>
     </message>
     <message>
         <source>try to save relations before login!</source>
-        <translation type="vanished">试图在登入前进行权属关系保存!</translation>
+        <translation>试图在登入前进行权属关系保存!</translation>
     </message>
     <message>
         <source>try to get relations Failed! </source>
-        <translation type="vanished">试图获取权属关系失败!</translation>
+        <translation>试图获取权属关系失败!</translation>
     </message>
     <message>
         <source>try to del old relations Failed! </source>
-        <translation type="vanished">试图删除旧的权属关系失败!</translation>
+        <translation>试图删除旧的权属关系失败!</translation>
     </message>
     <message>
         <source>try to insert new relations Failed! </source>
-        <translation type="vanished">试图插入新的权属关系失败!</translation>
+        <translation>试图插入新的权属关系失败!</translation>
     </message>
     <message>
         <source>To-server Message Failed.</source>
-        <translation type="vanished">发往服务器的消息解译/处理失败.</translation>
+        <translation>发往服务器的消息解译/处理失败.</translation>
     </message>
     <message>
         <source>Box To Server Message Failed.</source>
-        <translation type="vanished">主机发往服务器的消息解译失败.</translation>
+        <translation>主机发往服务器的消息解译失败.</translation>
     </message>
     <message>
         <source>Client To Server Message Failed.</source>
-        <translation type="vanished">客户端发往主机的程序解译失败.</translation>
+        <translation>客户端发往主机的程序解译失败.</translation>
     </message>
     <message>
         <source>warning, UUID 0xFFFFFFFF.ignore</source>
-        <translation type="vanished">警告, UUID为 0xFFFFFFF 的消息被忽略</translation>
+        <translation>警告, UUID为 0xFFFFFFF 的消息被忽略</translation>
     </message>
     <message>
         <source>Bad UUID %1. Client Kicked out</source>
-        <translation type="vanished">非法的 UUID %1. 立刻踢出套接字</translation>
+        <translation>非法的 UUID %1. 立刻踢出套接字</translation>
     </message>
     <message>
         <source>Broadcast Message is not currently supported.</source>
-        <translation type="vanished">广播消息尚未被支持。</translation>
+        <translation>广播消息尚未被支持。</translation>
     </message>
     <message>
         <source>Destin ID </source>
-        <translation type="vanished">目的节点ID </translation>
+        <translation>目的节点ID </translation>
     </message>
     <message>
         <source> is not currently logged in.</source>
-        <translation type="vanished">尚未在本服务器登记。</translation>
+        <translation>尚未在本服务器登记。</translation>
     </message>
     <message>
         <source>Application Layer Version too new.</source>
-        <translation type="vanished">应用层协议版本太高。</translation>
+        <translation>应用层协议版本太高。</translation>
     </message>
     <message>
         <source>Broken Message stMsg_HostRegistReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_HostRegistReq.</translation>
+        <translation>消息长度不匹配. stMsg_HostRegistReq.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_HostLogonReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_HostLogonReq.</translation>
+        <translation>消息长度不匹配. stMsg_HostLogonReq.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_ClientLoginReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_ClientLoginReq.</translation>
+        <translation>消息长度不匹配. stMsg_ClientLoginReq.</translation>
     </message>
     <message>
         <source>Message type not supported.</source>
-        <translation type="vanished">消息类型不被支持.</translation>
+        <translation>消息类型不被支持.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_DownloadUserListReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_DownloadUserListReq.</translation>
+        <translation>消息长度不匹配. stMsg_DownloadUserListReq.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_ClientLogoutReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_ClientLogoutReq.</translation>
+        <translation>消息长度不匹配. stMsg_ClientLogoutReq.</translation>
     </message>
     <message>
         <source>Broken Message stMsg_GetHostListReq, size not correct.</source>
-        <translation type="vanished">消息长度不匹配. stMsg_GetHostListReq.</translation>
+        <translation>消息长度不匹配. stMsg_GetHostListReq.</translation>
     </message>
 </context>
 <context>
     <name>SmartLink::st_clientNode_baseTrans</name>
     <message>
         <source>Client Send a unknown start Header %1 %2. Close client immediately.</source>
-        <translation type="vanished">客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
+        <translation>客户发出了一个未知的开始头 %1 %2. 立刻关闭连接.</translation>
     </message>
     <message>
         <source>Client ID is invalid! Close client immediatly.</source>
-        <translation type="vanished">节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
+        <translation>节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
     </message>
     <message>
         <source>Client </source>
-        <translation type="vanished">节点 </translation>
+        <translation>节点 </translation>
     </message>
     <message>
         <source> is dead, kick out.</source>
-        <translation type="vanished">丢失心跳，终止该节点的连接。</translation>
+        <translation>丢失心跳，终止该节点的连接。</translation>
     </message>
 </context>
 <context>
     <name>SmartLink::st_client_table</name>
     <message>
         <source>Send Initial UUIDs to Remote Svr:</source>
-        <translation type="vanished">打包发送目前所有的UUID到远程服务器：</translation>
+        <translation>打包发送目前所有的UUID到远程服务器：</translation>
     </message>
     <message>
         <source>Recieved remote user-data to uuid:%1,DATA:%2</source>
-        <translation type="vanished">从远端服务器收到了来自UUID:%1 的数据: %2</translation>
+        <translation>从远端服务器收到了来自UUID:%1 的数据: %2</translation>
     </message>
     <message>
         <source>Recieved %1 bytes Msg from </source>
-        <translation type="vanished">收到了 %1 字节数据,来源</translation>
+        <translation>收到了 %1 字节数据,来源</translation>
     </message>
     <message>
         <source>Recieved remote %1 client uuid(s) from svr </source>
-        <translation type="vanished">收到了远端服务器拥有的 %1 个客户端UUID. 远端服务器 </translation>
+        <translation>收到了远端服务器拥有的 %1 个客户端UUID. 远端服务器 </translation>
     </message>
     <message>
         <source>Removed remote %1 client uuid(s) from svr </source>
-        <translation type="vanished">移除了 %1 个属于远端服务器的 UUID. 远端服务器 </translation>
+        <translation>移除了 %1 个属于远端服务器的 UUID. 远端服务器 </translation>
     </message>
 </context>
 <context>
@@ -841,7 +841,7 @@
     <name>ZPMainFrame</name>
     <message>
         <source>ZPMainFrame</source>
-        <translation type="vanished">ZPMainFrame 伸缩流水线服务器框架</translation>
+        <translation>ZPMainFrame 伸缩流水线服务器框架</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="51"/>
@@ -1042,7 +1042,7 @@
     </message>
     <message>
         <source>Example Server</source>
-        <translation type="vanished">范例服务器</translation>
+        <translation>范例服务器</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="840"/>
@@ -1062,12 +1062,12 @@
     <message>
         <location filename="zpmainframe.ui" line="14"/>
         <source>ParkingLotsStatusSvr</source>
-        <translation type="unfinished"></translation>
+        <translation>停车场状态监控分系统(后台服务器集群节点)</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="758"/>
         <source>Parkinglots Status Svr</source>
-        <translation type="unfinished"></translation>
+        <translation>停车场状态监控分系统</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="805"/>
@@ -1086,11 +1086,11 @@
     </message>
     <message>
         <source>Large data root folder</source>
-        <translation type="vanished">本地大文件存储根路径</translation>
+        <translation>本地大文件存储根路径</translation>
     </message>
     <message>
         <source>...</source>
-        <translation type="vanished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="zpmainframe.ui" line="918"/>
@@ -1216,7 +1216,7 @@
     <message>
         <source>	Trans Threads %1 hold %2 Client Sockets.
 </source>
-        <translation type="vanished">	传输线程 %1 负责 %2 个节点.
+        <translation>	传输线程 %1 负责 %2 个节点.
 </translation>
     </message>
     <message>
@@ -1231,7 +1231,7 @@
     </message>
     <message>
         <source>Address</source>
-        <translation type="vanished">发布地址</translation>
+        <translation>发布地址</translation>
     </message>
     <message>
         <location filename="zpmainframe.cpp" line="169"/>
@@ -1283,13 +1283,13 @@
     <message>
         <source>Cluster Group Paras:
 </source>
-        <translation type="vanished">集群终端参数:
+        <translation>集群终端参数:
 </translation>
     </message>
     <message>
         <source>	Terminal %1 : %2, published Address: %3:%4
 </source>
-        <translation type="vanished">	终端 %1 : %2, 发布地址: %3:%4
+        <translation>	终端 %1 : %2, 发布地址: %3:%4
 </translation>
     </message>
     <message>
@@ -1487,7 +1487,7 @@
     </message>
     <message>
         <source>New Client Arriverd.</source>
-        <translation type="vanished">新的节点接入。</translation>
+        <translation>新的节点接入。</translation>
     </message>
     <message>
         <location filename="network/zp_net_threadpool.cpp" line="191"/>

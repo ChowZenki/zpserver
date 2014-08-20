@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="zh_CN">
+<TS version="2.0" language="zh_CN">
 <context>
     <name>DialogAddressInput</name>
     <message>
         <source>Dialog</source>
-        <translation type="vanished">对话框</translation>
+        <translation>对话框</translation>
     </message>
     <message>
         <location filename="dialogaddressinput.ui" line="14"/>
@@ -173,7 +173,7 @@
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="432"/>
         <source>Recieved:</source>
-        <translation>收到的数据</translation>
+        <translation>收到的数据:</translation>
     </message>
     <message>
         <location filename="../FunctionalClientTest/maindialog.ui" line="443"/>
@@ -340,31 +340,31 @@
     <name>SmartLink::st_clientNode</name>
     <message>
         <source>Client ID is invalid! Close client immediatly.</source>
-        <translation type="vanished">节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
+        <translation>节点的ID是不合标准的，立刻关闭该节点的套接字。</translation>
     </message>
     <message>
         <source>To-server Message is not currently supported.</source>
-        <translation type="vanished">发往服务器的消息尚未被支持。</translation>
+        <translation>发往服务器的消息尚未被支持。</translation>
     </message>
     <message>
         <source>Broadcast Message is not currently supported.</source>
-        <translation type="vanished">广播消息尚未被支持。</translation>
+        <translation>广播消息尚未被支持。</translation>
     </message>
     <message>
         <source>Destin ID </source>
-        <translation type="vanished">目的节点ID </translation>
+        <translation>目的节点ID </translation>
     </message>
     <message>
         <source> is not currently logged in.</source>
-        <translation type="vanished">尚未在本服务器登记。</translation>
+        <translation>尚未在本服务器登记。</translation>
     </message>
     <message>
         <source>Client </source>
-        <translation type="vanished">节点 </translation>
+        <translation>节点 </translation>
     </message>
     <message>
         <source> is dead, kick out.</source>
-        <translation type="vanished">丢失心跳，终止该节点的连接。</translation>
+        <translation>丢失心跳，终止该节点的连接。</translation>
     </message>
 </context>
 <context>
@@ -948,7 +948,7 @@
     <message>
         <source>	Trans Threads %1 hold %2 Client Sockets.
 </source>
-        <translation type="vanished">	传输线程 %1 负责 %2 个节点.
+        <translation>	传输线程 %1 负责 %2 个节点.
 </translation>
     </message>
     <message>
@@ -1197,7 +1197,7 @@
     </message>
     <message>
         <source>New Client Arriverd.</source>
-        <translation type="vanished">新的节点接入。</translation>
+        <translation>新的节点接入。</translation>
     </message>
     <message>
         <location filename="network/zp_net_threadpool.cpp" line="191"/>

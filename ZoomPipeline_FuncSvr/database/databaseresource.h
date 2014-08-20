@@ -13,9 +13,6 @@ namespace ZPDatabase{
 	 * @brief this class provide an database reource pool.In different thread, workers can get existing db connections
 	 *  immediately without re-creation operations. The working thread does not maintain db connections, instead of
 	 * maintaining, it just using db resources from DatabaseResource
-     * Important!! When Ever a thread calls DatabaseResource::databse(), a thread-owned dbconnection
-     * will be cloned from main db connection. be careful, this class does not auto remove connections
-     * unless main connection has been removed by DatabaseResource::remove_connection(s)
 	 * @class DatabaseResource databaseresource.h "ZoomPipeline_FuncSvr/database/databaseresource.h"
 	 */
 	class DatabaseResource : public QThread
@@ -71,10 +68,12 @@ namespace ZPDatabase{
 		QMutex m_mutex_reg;
 		QMap <QString,tagConnectionPara> m_dbNames;
         QMap <QString, QSet<QString> > m_ThreadsDB;
+		QMap <QThread * , QSet<QString> > m_ThreadOwnedMainDBs;
         void RemoveTreadsConnections(QString mainName);
 	signals:
 		void evt_Message(QObject *,QString );
 	public slots:
+		void on_finishedThread();
 
 	};
 };

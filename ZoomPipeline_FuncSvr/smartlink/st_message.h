@@ -61,7 +61,7 @@ namespace ParkinglotsSvr{
 
 	//0x0x180B
 	typedef struct tag_stMsg_SendDeviceListRsp{
-		//空
+		//Empty
 	}stMsg_SendDeviceListRsp;
 
 

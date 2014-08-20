@@ -1,5 +1,6 @@
 #include "zp_clusterterm.h"
 #include "zp_clusternode.h"
+#include <QStringList>
 #include <assert.h>
 namespace ZP_Cluster{
 	using namespace std::placeholders;

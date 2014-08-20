@@ -75,6 +75,9 @@ namespace ZPDatabase{
 			}
 			m_ThreadsDB[strDBName].insert(threadName);
 			m_ThreadOwnedMainDBs[pThread].insert(strDBName);
+			QString msg ="Database:"+ tr(" Connection  ")+threadName+ tr(" Established.");
+			emit evt_Message(this,msg);
+
 		}
 		//Confirm the thread-owned db is still open
 		QSqlDatabase db = QSqlDatabase::database(threadName);

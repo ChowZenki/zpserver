@@ -23,7 +23,8 @@ public:
 	explicit ZPMainFrame(QWidget *parent = 0);
 	~ZPMainFrame();
 	void timerEvent(QTimerEvent *);
-
+	//Auto start support
+	void LoadSettingsAndForkServer(const QString & configfile);
 protected:
 	void changeEvent(QEvent *e);
 	QStandardItemModel * m_pMsgModelNetwork;

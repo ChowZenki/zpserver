@@ -864,3 +864,14 @@ void  ZPMainFrame::on_pushButton_join_clicked()
 		m_pClusterTerm->JoinCluster(QHostAddress(inputdlg.addr()),inputdlg.port().toInt());
 	}
 }
+
+void ZPMainFrame::LoadSettingsAndForkServer(const QString & configfile)
+{
+	if (configfile.length()>2)
+		this->m_currentConffile = configfile;
+	LoadSettings(m_currentConffile);
+	if (ui->action_Start_Stop->isChecked()==true)
+		on_action_Start_Stop_triggered(false);
+	on_action_Start_Stop_triggered(true);
+	ui->action_Start_Stop->setChecked(true);
+}

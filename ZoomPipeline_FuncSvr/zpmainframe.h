@@ -32,7 +32,7 @@ protected:
 	QStandardItemModel * m_pMsgModelDatabase;
 	QStandardItemModel * m_pMsgModelSmartlink;
 	//Config File Name
-	QString m_currentConffile;
+	QString m_currentConfigFile;
 	//Listeners settings
 	QStandardItemModel * m_pListenerModel;
 	QSet<QString> m_set_listenerNames;

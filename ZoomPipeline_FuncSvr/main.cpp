@@ -21,37 +21,33 @@ int main(int argc, char *argv[])
 
 	ZPMainFrame w;
 
+	w.show();
+
 	//!the main program arg formats:
-	/*!  ZoomPipeline_FuncSvr [[options] <config file name> [options]]
+	/*!  ZoomPipeline_FuncSvr [<--autostart> [config file name] ]
 	  *  When start with no commandline arguments, the server will enter a dialog-controlled UI model.
 	  *  If the commandline args has been specified, this server will enter an aut-config and start model.
 	  *  Cmdline formats:
-	  *  --ui (default) 	the program will start with an UI
-	  *  --noui				the program will start without an UI
+	  *  --autostart  	specify the cluster address to join.
 	  *  config file has a same format with UI-Saved ini file. this file name should be surrounded with ""
 	  *  if there are spaces in filename.
 	*/
 	//Command Line Args, support batch auto-config and auto start.
 	if (argc>1)
 	{
-		bool bHasUI = false;
 		QString configfile;
 		for (int i=1;i < argc;++i)
 		{
 			QString strArg = argv[i];
-			if (-1!=strArg.indexOf("--ui"))
-				bHasUI = true;
-			else if (-1!=strArg.indexOf("--noui"))
-				;
-			else
+			if (-1!=strArg.indexOf("--autostart"))
 			{
-				configfile = strArg;
+				if (++i < argc)
+					configfile = argv[i];
+				w.LoadSettingsAndForkServer(configfile);
+				break;
 			}
 		}
-		w.LoadSettingsAndForkServer(configfile);
 	}
-
-	w.show();
 	int pp = app.exec();
 	return pp;
 }

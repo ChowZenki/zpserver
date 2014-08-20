@@ -23,6 +23,8 @@ public:
 	explicit ZPMainFrame(QWidget *parent = 0);
 	~ZPMainFrame();
 	void timerEvent(QTimerEvent *);
+	//Auto start support
+	void LoadSettingsAndForkServer(const QString & configfile);
 
 protected:
 	void changeEvent(QEvent *e);
@@ -31,7 +33,7 @@ protected:
 	QStandardItemModel * m_pMsgModelDatabase;
 	QStandardItemModel * m_pMsgModelSmartlink;
 	//Config File Name
-	QString m_currentConffile;
+	QString m_currentConfigFile;
 	//Listeners settings
 	QStandardItemModel * m_pListenerModel;
 	QSet<QString> m_set_listenerNames;

@@ -25,7 +25,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::ZPMainFrame)
 {
-	m_currentConffile = QCoreApplication::applicationFilePath()+".ini";
+	m_currentConfigFile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
 	//Create net engine
 	m_netEngine = new zp_net_Engine (8192);
@@ -56,7 +56,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	m_nTimerId = startTimer(2000);
 	m_nTimerCheck =  startTimer(10000);
 	initUI();
-	LoadSettings(m_currentConffile);
+	LoadSettings(m_currentConfigFile);
 }
 
 ZPMainFrame::~ZPMainFrame()
@@ -360,7 +360,7 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 {
 	if (setordel==true)
 	{
-		forkServer(m_currentConffile);
+		forkServer(m_currentConfigFile);
 	}
 	else
 	{
@@ -767,20 +767,20 @@ void ZPMainFrame::on_pushButton_delListener_clicked()
 }
 void ZPMainFrame::on_pushButton_listerner_apply_clicked()
 {
-	SaveSettings(m_currentConffile);
+	SaveSettings(m_currentConfigFile);
 }
 void ZPMainFrame::on_pushButton_threadsApply_clicked()
 {
-	SaveSettings(m_currentConffile);
+	SaveSettings(m_currentConfigFile);
 }
 void ZPMainFrame::on_pushButton_cluster_apply_clicked()
 {
-	SaveSettings(m_currentConffile);
+	SaveSettings(m_currentConfigFile);
 }
 
 void ZPMainFrame::on_pushButton_smartlink_save_clicked()
 {
-	SaveSettings(m_currentConffile);
+	SaveSettings(m_currentConfigFile);
 }
 
 void ZPMainFrame::on_actionReload_config_file_triggered()
@@ -790,9 +790,9 @@ void ZPMainFrame::on_actionReload_config_file_triggered()
 	if (filename.length()>0)
 	{
 		//SaveSettings(m_currentConffile);
-		m_currentConffile = filename;
-		LoadSettings(m_currentConffile);
-		forkServer(m_currentConffile);
+		m_currentConfigFile = filename;
+		LoadSettings(m_currentConfigFile);
+		forkServer(m_currentConfigFile);
 	}
 }
 void ZPMainFrame::on_pushButton_db_add_clicked()
@@ -841,12 +841,12 @@ void ZPMainFrame::on_pushButton_db_del_clicked()
 
 void ZPMainFrame::on_pushButton_db_apply_clicked()
 {
-	SaveSettings(m_currentConffile);
+	SaveSettings(m_currentConfigFile);
 }
 
 void  ZPMainFrame::on_pushButton_join_clicked()
 {
-	QSettings settings(this->m_currentConffile,QSettings::IniFormat);
+	QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
 	QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
 	QString strPort = settings.value("history/clusterPort","25600").toString();
 	DialogAddressInput inputdlg(this);
@@ -856,5 +856,31 @@ void  ZPMainFrame::on_pushButton_join_clicked()
 		settings.setValue("history/clusterAddr",inputdlg.addr());
 		settings.setValue("history/clusterPort",inputdlg.port());
 		m_pClusterTerm->JoinCluster(QHostAddress(inputdlg.addr()),inputdlg.port().toInt());
+	}
+}
+void ZPMainFrame::LoadSettingsAndForkServer(const QString & configfile)
+{
+	if (configfile.length()>2)
+		this->m_currentConfigFile = configfile;
+	LoadSettings(m_currentConfigFile);
+	if (ui->action_Start_Stop->isChecked()==true)
+		on_action_Start_Stop_triggered(false);
+	on_action_Start_Stop_triggered(true);
+	ui->action_Start_Stop->setChecked(true);
+	//Join the cluster immediatly,
+	//trying for 5 times, 2 seconds each.
+	QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
+	QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
+	QString strPort = settings.value("history/clusterPort","25600").toString();
+
+	for (int i=0;i<5;++i)
+	{
+		m_pClusterTerm->JoinCluster(QHostAddress(strAddr),strPort.toInt());
+		for (int j=0;j<10;++j)
+		{
+			QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+			QThread::currentThread()->msleep(200);
+		}
+
 	}
 }

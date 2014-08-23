@@ -9,6 +9,17 @@ namespace ParkinglotsSvr{
 	  ,m_pDb(db)
 	{
 	}
+	QString st_operations::hex2ascii(const quint8 ptr[], int sz)
+	{
+		QString str;
+		const char asc[] = "0123456789ABCDEF";
+		for (int i=0;i<sz;++i)
+		{
+			str += asc[(ptr[i] >> 4) & 0x0F];
+			str += asc[(ptr[i] ) & 0x0F];
+		}
+		return str;
+	}
 
 	quint8 st_operations::regisit_host(QString serialnum, quint32 * host_id )
 	{
@@ -172,46 +183,59 @@ namespace ParkinglotsSvr{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			for (int i=0;i<nItems && res == true; ++i)
+			QString sql = "select macid from maclist where macid = ? and serialnum = ?;";
+			query.prepare(sql);
+			query.addBindValue(macID);
+			query.addBindValue(macSerial);
+			if (true==query.exec())
 			{
-				QString sql = "select deviceid from sensorlist where deviceid = ?;";
-				query.prepare(sql);
-				query.addBindValue(vec_dev_ids[i]);
-				if (true==query.exec())
+				if (query.next()) //need update
 				{
-					if (query.next()) //need update
+					QSqlQuery queryUpdate(db);
+
+					sql = "update maclist set name =  ? , info = ?,  firmwareversion = ? ";
+					if (info.tail_data.IEEEAdd_Flag==1)
+						sql += ", ieeeadd = ? ";
+					if (info.tail_data.PANID_Flag==1)
+						sql += ", panid = ? ";
+					if (info.tail_data.EPANID_Flag==1)
+						sql += ", epanid = ? ";
+					sql += ", sensornum = ? , relaynum = ? , ansensornum = ? , anrelaynum = ? ";
+					sql += "where macid = ? and serialnum = ?;";
+					queryUpdate.prepare(sql);
+					queryUpdate.addBindValue(QString(info.HostName));
+					queryUpdate.addBindValue(QString(info.HostInfo));
+					queryUpdate.addBindValue(info.FirmwareVersion);
+					if (info.tail_data.IEEEAdd_Flag==1)
+						queryUpdate.addBindValue(hex2ascii(info.tail_data.IEEEAdd,8));
+					if (info.tail_data.PANID_Flag==1)
+						queryUpdate.addBindValue(hex2ascii(info.tail_data.PANID,2));
+					if (info.tail_data.EPANID_Flag==1)
+						queryUpdate.addBindValue(hex2ascii(info.tail_data.EPANID,8));
+					queryUpdate.addBindValue(info.tail_data.SensorNum);
+					queryUpdate.addBindValue(info.tail_data.RelayNum);
+					queryUpdate.addBindValue(info.tail_data.ANSensorNum);
+					queryUpdate.addBindValue(info.tail_data.ANRelayNum);
+					queryUpdate.addBindValue(macID);
+					queryUpdate.addBindValue(macSerial);
+					if (false==queryUpdate.exec())
 					{
-						sql = "update sensorlist set devicename =  ? , sensorlist.no = ?  , macid = ? where deviceid = ?;";
-						query.prepare(sql);
-						query.addBindValue(vec_dev_names[i]);
-						query.addBindValue(vec_dev_nos[i]);
-						query.addBindValue(macid);
-						query.addBindValue(vec_dev_ids[i]);
-					}
-					else //need insert
-					{
-						sql = "insert into sensorlist (devicename,sensorlist.no, deviceid ,macid) values (?,?,?,?);";
-						query.prepare(sql);
-						query.addBindValue(vec_dev_names[i]);
-						query.addBindValue(vec_dev_nos[i]);
-						query.addBindValue(vec_dev_ids[i]);
-						query.addBindValue(macid);
-					}
-					if (false==query.exec())
-					{
-						qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+						qDebug()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
 						res = false;
 					}
 				}
-				else
+				else //no such mac
 				{
-					qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qDebug()<<tr("Database Access Error : No such macid and serialnum: %1:%2").arg(macID).arg(macSerial);
 					res = false;
 				}
 
-			}// end for items
-
-
+			}
+			else
+			{
+				qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				res = false;
+			}
 		}
 		else
 		{

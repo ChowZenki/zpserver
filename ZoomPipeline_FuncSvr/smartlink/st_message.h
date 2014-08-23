@@ -91,12 +91,12 @@ namespace ParkinglotsSvr{
 		char HostInfo[64];
 		struct tag_TailData{
 			quint8 ConnetType;	//1:GPRS,2:3G,3:WAN,4:LAN
-			qint8 IEEEAdd[8];
-			qint8 IEEEAdd_Flag;
-			qint8 PANID[2];
-			qint8 PANID_Flag;
-			qint8 EPANID[8];
-			qint8 EPANID_Flag;
+			quint8 IEEEAdd[8];
+			quint8 IEEEAdd_Flag;
+			quint8 PANID[2];
+			quint8 PANID_Flag;
+			quint8 EPANID[8];
+			quint8 EPANID_Flag;
 			quint16 SensorNum;
 			quint16 RelayNum;
 			quint16 ANSensorNum;

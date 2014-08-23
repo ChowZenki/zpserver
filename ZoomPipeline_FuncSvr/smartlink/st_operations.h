@@ -16,6 +16,7 @@ namespace ParkinglotsSvr{
 		explicit st_operations(QSqlDatabase * db, QObject *parent = 0);
 	protected:
 		QSqlDatabase * m_pDb;
+		QString hex2ascii(const quint8 ptr[], int sz);
 	public:
 		quint8 regisit_host(QString serialnum, quint32 * host_id );
 		quint8 login_host(QString serialnum, quint32 host_id );

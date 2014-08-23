@@ -26,16 +26,15 @@ namespace ParkinglotsSvr{
 		bool Deal_Node2Svr_Msgs();
 		bool Box2Svr_CorrectTime();
 		bool RecieveDeviceListFromHost();
+		bool RecieveMacInfoFromHost();
 		//data items
 	protected:
 		QMutex m_mutex_equipID;
 		PKLTS_APP_HEADER m_current_app_header;
 		//log in
 		bool m_bLoggedIn;
-
-		char m_serialNum[65];
-
-
+		QString m_serialNum;
+		stMsg_SendMacInfoReq_internal m_macInfo;
 	};
 
 }

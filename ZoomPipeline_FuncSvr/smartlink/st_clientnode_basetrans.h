@@ -59,7 +59,7 @@ namespace ParkinglotsSvr{
 
 		//UUID of this equipment
 		bool m_bUUIDRecieved;
-		quint64 m_uuid;  //Client ID
+		quint32 m_uuid;  //Client ID
 		//Client socket handle of this connection
 		QObject * m_pClientSock;
 		st_client_table * m_pClientTable;

@@ -64,6 +64,49 @@ namespace ParkinglotsSvr{
 		//Empty
 	}stMsg_SendDeviceListRsp;
 
+	//0x100C
+	typedef struct tag_stMsg_SendMacInfoReq{
+		quint16 FirmwareVersion;
+		char pStart[1];
+		/*
+		char HostName[64];
+		char HostInfo[64];
+		quint8 ConnetType;	//1:GPRS,2:3G,3:WAN,4:LAN
+		qint8 IEEEAdd[8];
+		qint8 IEEEAdd_Flag;
+		qint8 PANID[2];
+		qint8 PANID_Flag;
+		qint8 EPANID[8];
+		qint8 EPANID_Flag;
+		quint16 SensorNum;
+		quint16 RelayNum;
+		quint16 ANSensorNum;
+		quint16 ANRelayNum;
+		*/
+	}stMsg_SendMacInfoReq;
+	//0x100C Internal
+	typedef struct tag_stMsg_SendMacInfoReq_internal{
+		quint16 FirmwareVersion;
+		char HostName[64];
+		char HostInfo[64];
+		struct tag_TailData{
+			quint8 ConnetType;	//1:GPRS,2:3G,3:WAN,4:LAN
+			qint8 IEEEAdd[8];
+			qint8 IEEEAdd_Flag;
+			qint8 PANID[2];
+			qint8 PANID_Flag;
+			qint8 EPANID[8];
+			qint8 EPANID_Flag;
+			quint16 SensorNum;
+			quint16 RelayNum;
+			quint16 ANSensorNum;
+			quint16 ANRelayNum;
+		} tail_data;
+	}stMsg_SendMacInfoReq_internal;
+	//0x0x180C
+	typedef struct tag_stMsg_SendMacInfoRsp{
+		//Empty
+	}stMsg_SendMacInfoRsp;
 
 
 	typedef struct tag_pklts_msg{
@@ -96,6 +139,8 @@ namespace ParkinglotsSvr{
 					stMsg_HostTimeCorrectRsp msg_HostTimeCorrectRsp;
 					stMsg_SendDeviceListReq msg_SendDeviceListReq;
 					stMsg_SendDeviceListRsp msg_SendDeviceListRsp;
+					stMsg_SendMacInfoReq msg_stMsg_SendMacInfoReq;
+					stMsg_SendMacInfoRsp msg_stMsg_SendMacInfoRsp;
 					quint8 msg[1];
 				} app_data;
 			} app_layer;

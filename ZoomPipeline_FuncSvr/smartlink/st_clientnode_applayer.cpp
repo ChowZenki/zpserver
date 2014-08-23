@@ -10,7 +10,7 @@ namespace ParkinglotsSvr{
 
 		m_bLoggedIn= false;
 		memset(&m_current_app_header,0,sizeof(PKLTS_APP_HEADER));
-		memset(m_serialNum,0,sizeof(char)*65);
+
 	}
 
 	//!deal current message
@@ -194,6 +194,17 @@ namespace ParkinglotsSvr{
 			}
 			else
 				res = this->RecieveDeviceListFromHost();
+			break;
+		case 0x100C:
+			if (m_currentMessageSize<
+					sizeof(PKLTS_TRANS_HEADER)
+					+ sizeof (PKLTS_APP_HEADER))
+			{
+				emit evt_Message(this,tr("Broken Message size not correct."));
+				res = false;
+			}
+			else
+				res = this->RecieveMacInfoFromHost();
 			break;
 		default:
 			emit evt_Message(this,tr("Unsupported Message:%1,Bytes:%2").arg(m_current_app_header.MsgType)

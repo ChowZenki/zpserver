@@ -23,7 +23,7 @@ namespace ParkinglotsSvr{
 		for (int i=0;i<nAppLen /*64*/ && pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i]!=0 ;++i)
 		{
 			strSerial+= pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i];
-			m_serialNum[i] =  pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i];
+			m_serialNum.push_back((char)(pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i]));
 		}
 
 		//form return  Msgs
@@ -230,5 +230,56 @@ namespace ParkinglotsSvr{
 		emit evt_SendDataToClient(this->sock(),array);
 		return res;
 	}
+	bool st_clientNodeAppLayer::RecieveMacInfoFromHost()
+	{
+		const PKLTS_MSG * pRawMsg =
+				(const PKLTS_MSG *)(
+					((const char *)(m_currentBlock.constData()))
+					);
+		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		//total string length
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER)- sizeof(PKLTS_APP_HEADER) - sizeof (quint16);
+		//firmwareVersion
+		this->m_macInfo.FirmwareVersion = pAppLayer->app_data.msg_stMsg_SendMacInfoReq.FirmwareVersion;
+		//the first byte of the string list
+		const char * ptr_start =  pAppLayer->app_data.msg_stMsg_SendMacInfoReq.pStart ;
+		//fill the HostName
 
+		int nSwim = 0;
+		int ct = 0;
+		while ( nSwim < nAppLen && ptr_start[nSwim]!=0 && ct<65)
+			this->m_macInfo.HostName[ct++] = ptr_start[nSwim++];
+		this->m_macInfo.HostName[ct] = 0;
+		++nSwim;
+
+		ct = 0;
+		while ( nSwim < nAppLen && ptr_start[nSwim]!=0 && ct<65)
+			this->m_macInfo.HostInfo[ct++] = ptr_start[nSwim++];
+		this->m_macInfo.HostName[ct] = 0;
+		++nSwim;
+
+		if (nSwim + sizeof (stMsg_SendMacInfoReq_internal::tag_TailData)<=nAppLen)
+			memcpy(&m_macInfo.tail_data,ptr_start+nSwim, sizeof (stMsg_SendMacInfoReq_internal::tag_TailData));
+		else
+			return false;
+
+		//form Msgs
+		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER);
+		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		char * ptr = array.data();
+		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		pMsg->trans_header.Mark = 0x55AA;
+		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+		pMsg->trans_header.DataLen = nMsgLen;
+		pApp->app_header.MsgType = 0x180C;
+
+		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
+		st_operations dboper(&db);
+		bool res = dboper.insert_mac_table(m_uuid,m_serialNum, m_macInfo);
+		//Send back
+		emit evt_SendDataToClient(this->sock(),array);
+		return res;
+	}
 }

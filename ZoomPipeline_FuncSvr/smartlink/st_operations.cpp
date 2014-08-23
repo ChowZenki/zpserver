@@ -165,5 +165,60 @@ namespace ParkinglotsSvr{
 		}
 		return res;
 	}
+	bool    st_operations::insert_mac_table(quint32 macID, const QString & macSerial,const stMsg_SendMacInfoReq_internal & info)
+	{
+		bool res = true;
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			for (int i=0;i<nItems && res == true; ++i)
+			{
+				QString sql = "select deviceid from sensorlist where deviceid = ?;";
+				query.prepare(sql);
+				query.addBindValue(vec_dev_ids[i]);
+				if (true==query.exec())
+				{
+					if (query.next()) //need update
+					{
+						sql = "update sensorlist set devicename =  ? , sensorlist.no = ?  , macid = ? where deviceid = ?;";
+						query.prepare(sql);
+						query.addBindValue(vec_dev_names[i]);
+						query.addBindValue(vec_dev_nos[i]);
+						query.addBindValue(macid);
+						query.addBindValue(vec_dev_ids[i]);
+					}
+					else //need insert
+					{
+						sql = "insert into sensorlist (devicename,sensorlist.no, deviceid ,macid) values (?,?,?,?);";
+						query.prepare(sql);
+						query.addBindValue(vec_dev_names[i]);
+						query.addBindValue(vec_dev_nos[i]);
+						query.addBindValue(vec_dev_ids[i]);
+						query.addBindValue(macid);
+					}
+					if (false==query.exec())
+					{
+						qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+						res = false;
+					}
+				}
+				else
+				{
+					qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					res = false;
+				}
+
+			}// end for items
+
+
+		}
+		else
+		{
+			qDebug()<<tr("Database is not ready.");
+			res = false;
+		}
+		return res;
+	}
 
 }

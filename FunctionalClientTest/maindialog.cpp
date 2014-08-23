@@ -89,6 +89,7 @@ void MainDialog::on_client_disconnected()
 	ui->pushButton_clientRegisit->setEnabled(false);
 	ui->pushButton_clientLogin->setEnabled(false);
 	ui->pushButton_devlist_upload->setEnabled(false);
+	ui->pushButton_UMI_Upload->setEnabled(false);
 }
 void MainDialog::displayError(QAbstractSocket::SocketError /*err*/)
 {
@@ -406,7 +407,7 @@ int MainDialog::deal_current_message_block()
 					   );
 			ui->pushButton_clientLogin->setEnabled(false);
 			ui->pushButton_devlist_upload->setEnabled(true);
-
+			ui->pushButton_UMI_Upload->setEnabled(true);
 		}
 		else if (pApp->app_data.msg_HostLogonRsp.DoneCode==1)
 		{
@@ -531,6 +532,83 @@ void MainDialog::on_pushButton_devlist_upload_clicked()
 	pMsg->trans_header.DataLen = nMsgLen + array_data.size();
 	pMsg->trans_payload.app_layer.app_header.MsgType = 0x100B;
 	pMsg->trans_payload.app_layer.app_data.msg_SendDeviceListReq.DeviceNums = nTotalItems;
+
+	array.append(array_data);
+	//3/10 possibility to send a data block to server
+	client->SendData(array);
+}
+void MainDialog::on_pushButton_UMI_Upload_clicked()
+{
+	if (m_bLogedIn==false)
+	{
+		QMessageBox::warning(this,"Need log in!","uuid has not been revieved and login.");
+		return;
+	}
+	saveIni();
+	QByteArray array_data;
+	quint16 firmwareVersion = ui->lineEdit_UMI_FirmV->text().toUInt();
+	array_data.append((char)(firmwareVersion & 0x0F));
+	array_data.append((char)((firmwareVersion>>4) & 0x0F));
+
+	QString HostName = ui->lineEdit_UMI_Hostname->text();
+	array_data.append(HostName);
+	array_data.append('\0');
+
+	QString HostInfo = ui->lineEdit_UMI_HostInfo->text();
+	array_data.append(HostInfo);
+	array_data.append('\0');
+
+	char ConnTp = 4;
+	array_data.append(ConnTp);
+
+	int rndstart = rand() % 256;
+	for (int i=0;i<8;++i)
+	{
+		char st = (rndstart + i) % 256;
+		array_data.append(st);
+	}
+	char Ava = rand() %2;
+	array_data.append(Ava);
+
+	rndstart = rand() % 256;
+	for (int i=0;i<2;++i)
+	{
+		char st = (rndstart + i) % 256;
+		array_data.append(st);
+	}
+	Ava = rand() %2;
+	array_data.append(Ava);
+
+	rndstart = rand() % 256;
+	for (int i=0;i<8;++i)
+	{
+		char st = (rndstart + i) % 256;
+		array_data.append(st);
+	}
+	Ava = rand() %2;
+	array_data.append(Ava);
+
+	rndstart =( rand() % 265) *( rand() % 256);
+	for (int i=0;i<4;++i)
+	{
+		quint16 st = (rndstart + i) % 65536;
+		array_data.append((char)(st & 0x0F));
+		array_data.append((char)((st>>4) & 0x0F));
+	}
+
+	//Get the serial Num
+	quint16 nMsgLen =sizeof(PKLTS_APP_HEADER);
+	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+	char * ptr = array.data();
+	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+
+	quint32 userID = ui->lineEdit_user_id->text().toUInt();
+
+	pMsg->trans_header.Mark = 0x55AA;
+	pMsg->trans_header.SrcID = (quint32)((quint64)(userID) & 0xffffffff );;
+	pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
+	pMsg->trans_header.DataLen = nMsgLen + array_data.size();
+	pMsg->trans_payload.app_layer.app_header.MsgType = 0x100C;
 
 	array.append(array_data);
 	//3/10 possibility to send a data block to server

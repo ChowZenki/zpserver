@@ -255,7 +255,7 @@ namespace ParkinglotsSvr{
 		ct = 0;
 		while ( nSwim < nAppLen && ptr_start[nSwim]!=0 && ct<65)
 			this->m_macInfo.HostInfo[ct++] = ptr_start[nSwim++];
-		this->m_macInfo.HostName[ct] = 0;
+		this->m_macInfo.HostInfo[ct] = 0;
 		++nSwim;
 
 		if (nSwim + sizeof (stMsg_SendMacInfoReq_internal::tag_TailData)<=nAppLen)

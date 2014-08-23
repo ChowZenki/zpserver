@@ -66,6 +66,7 @@ public slots:
 	void on_pushButton_devlist_add_clicked();
 	void on_pushButton_devlist_del_clicked();
 	void on_pushButton_devlist_upload_clicked();
+	void on_pushButton_UMI_Upload_clicked();
 };
 
 #endif // MAINDIALOG_H

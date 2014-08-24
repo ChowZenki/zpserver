@@ -12,12 +12,12 @@ namespace ParkinglotsSvr{
 	//0x0001 msg, stMsg_HostRegistReq
 	bool st_clientNodeAppLayer::RegisitNewBoxNode()
 	{
-		const PKLTS_MSG * pRawMsg =
-				(const PKLTS_MSG *)(
+		const PKLTS_Message * pRawMsg =
+				(const PKLTS_Message *)(
 					((const char *)(m_currentBlock.constData()))
 					);
-		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
-		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER) - sizeof(PKLTS_APP_HEADER);
+		const PKLTS_App_Layer * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_Trans_Header) - sizeof(PKLTS_App_Header);
 
 		QString strSerial ;
 		for (int i=0;i<nAppLen /*64*/ && pAppLayer->app_data.msg_HostRegistReq.HostSerialNum[i]!=0 ;++i)
@@ -27,12 +27,12 @@ namespace ParkinglotsSvr{
 		}
 
 		//form return  Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER)
+		quint16 nMsgLen = sizeof(PKLTS_App_Header)
 				+sizeof(stMsg_HostRegistRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+		PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
 		pMsg->trans_header.Mark = 0x55AA;
 		pMsg->trans_header.SerialNum = m_currentHeader.SerialNum;
 		pMsg->trans_header.Priority = m_currentHeader.Priority;
@@ -72,13 +72,13 @@ namespace ParkinglotsSvr{
 	}
 	bool st_clientNodeAppLayer::LoginHost()
 	{
-		const PKLTS_MSG * pRawMsg =
-				(const PKLTS_MSG *)(
+		const PKLTS_Message * pRawMsg =
+				(const PKLTS_Message *)(
 					((const char *)(m_currentBlock.constData()))
 					);
-		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		const PKLTS_App_Layer * pAppLayer = &pRawMsg->trans_payload.app_layer;
 
-		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER)- sizeof(PKLTS_APP_HEADER) - sizeof (quint32);
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_Trans_Header)- sizeof(PKLTS_App_Header) - sizeof (quint32);
 		QString strSerialNum ;
 		quint32 UserID = pAppLayer->app_data.msg_HostLogonReq.ID;
 
@@ -88,12 +88,12 @@ namespace ParkinglotsSvr{
 
 
 		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER)
+		quint16 nMsgLen = sizeof(PKLTS_App_Header)
 				+sizeof(stMsg_HostLogonRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+		PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
 		pMsg->trans_header.Mark = 0x55AA;
 		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
@@ -120,12 +120,12 @@ namespace ParkinglotsSvr{
 	bool st_clientNodeAppLayer::Box2Svr_CorrectTime()
 	{
 		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_LAYER::tag_app_layer_header)
+		quint16 nMsgLen = sizeof(PKLTS_App_Layer::tag_app_layer_header)
 				+sizeof(stMsg_HostTimeCorrectRsp);
-		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+		PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
 		pMsg->trans_header.Mark = 0x55AA;
 		pMsg->trans_header.SerialNum = m_currentHeader.SerialNum;
 		pMsg->trans_header.Priority = m_currentHeader.Priority;
@@ -157,15 +157,15 @@ namespace ParkinglotsSvr{
 	}
 	bool st_clientNodeAppLayer::RecieveDeviceListFromHost()
 	{
-		const PKLTS_MSG * pRawMsg =
-				(const PKLTS_MSG *)(
+		const PKLTS_Message * pRawMsg =
+				(const PKLTS_Message *)(
 					((const char *)(m_currentBlock.constData()))
 					);
-		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		const PKLTS_App_Layer * pAppLayer = &pRawMsg->trans_payload.app_layer;
 		//How many devices
 		unsigned int nItems = pAppLayer->app_data.msg_SendDeviceListReq.DeviceNums;
 		//total string length
-		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER)- sizeof(PKLTS_APP_HEADER) - sizeof (quint16);
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_Trans_Header)- sizeof(PKLTS_App_Header) - sizeof (quint16);
 		//the first byte of the string list
 		const char * ptr_start =  pAppLayer->app_data.msg_SendDeviceListReq.pStrings ;
 
@@ -212,11 +212,11 @@ namespace ParkinglotsSvr{
 			return false;
 
 		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER);
-		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		quint16 nMsgLen = sizeof(PKLTS_App_Header);
+		QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+		PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
 		pMsg->trans_header.Mark = 0x55AA;
 		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
@@ -232,13 +232,13 @@ namespace ParkinglotsSvr{
 	}
 	bool st_clientNodeAppLayer::RecieveMacInfoFromHost()
 	{
-		const PKLTS_MSG * pRawMsg =
-				(const PKLTS_MSG *)(
+		const PKLTS_Message * pRawMsg =
+				(const PKLTS_Message *)(
 					((const char *)(m_currentBlock.constData()))
 					);
-		const PKLTS_APP_LAYER * pAppLayer = &pRawMsg->trans_payload.app_layer;
+		const PKLTS_App_Layer * pAppLayer = &pRawMsg->trans_payload.app_layer;
 		//total string length
-		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_TRANS_HEADER)- sizeof(PKLTS_APP_HEADER) - sizeof (quint16);
+		int nAppLen = m_currentBlock.length()- sizeof(PKLTS_Trans_Header)- sizeof(PKLTS_App_Header) - sizeof (quint16);
 		//firmwareVersion
 		this->m_macInfo.FirmwareVersion = pAppLayer->app_data.msg_stMsg_SendMacInfoReq.FirmwareVersion;
 		//the first byte of the string list
@@ -264,11 +264,11 @@ namespace ParkinglotsSvr{
 			return false;
 
 		//form Msgs
-		quint16 nMsgLen = sizeof(PKLTS_APP_HEADER);
-		QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+		quint16 nMsgLen = sizeof(PKLTS_App_Header);
+		QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 		char * ptr = array.data();
-		PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
-		PKLTS_APP_LAYER * pApp = &pMsg->trans_payload.app_layer;
+		PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+		PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
 		pMsg->trans_header.Mark = 0x55AA;
 		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
 		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;

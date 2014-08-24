@@ -139,9 +139,9 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 		if (nCount % 200 == 0 && client->isOpen()==true)
 		{
 			//send heart-beating
-			QByteArray array(sizeof(PKLTS_HEARTBEATING),0);
+			QByteArray array(sizeof(PKLTS_Heartbeating),0);
 			char * ptr = array.data();
-			PKLTS_HEARTBEATING * pMsg = (PKLTS_HEARTBEATING *)ptr;
+			PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
 			pMsg->Mark = 0xBEBE;
 			pMsg->tmStamp = time(0)&0x00ffff;
 			pMsg->source_id = 0;
@@ -152,11 +152,11 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 		if (nCount % 250 == 0 && client->isOpen()==true && this->m_bLogedIn==true)
 		{
 
-			quint16 nMsgLen = sizeof(PKLTS_APP_HEADER);
+			quint16 nMsgLen = sizeof(PKLTS_App_Header);
 					/*+sizeof(stMsg_HostTimeCorrectReq)*/ ;
-			QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+			QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 			char * ptr = array.data();
-			PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+			PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
 			pMsg->trans_header.Mark = 0x55AA;
 			pMsg->trans_header.SrcID = (quint32)((quint64)(ui->lineEdit_user_id->text().toUInt()) & 0xffffffff );;
 			pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
@@ -193,11 +193,11 @@ void  MainDialog::on_pushButton_clientRegisit_clicked()
 	const char * pSrcSerialNum = str_serialNum.c_str();
 	int nMaxLenSerialNum = str_serialNum.length();
 
-	quint16 nMsgLen =sizeof(PKLTS_APP_HEADER)
+	quint16 nMsgLen =sizeof(PKLTS_App_Header)
 			+sizeof(stMsg_HostRegistReq) + nMaxLenSerialNum;
-	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+	QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 	char * ptr = array.data();
-	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+	PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
 
 	pMsg->trans_header.Mark = 0x55AA;
 	pMsg->trans_header.SrcID = (quint32)((quint64)(0xffffffff) & 0xffffffff );;
@@ -227,11 +227,11 @@ void MainDialog::on_pushButton_clientLogin_clicked()
 	const char * pSrcSerialNum = strStdSerialNum.c_str();
 	int nMaxLenSerialNum = strStdSerialNum.length();
 
-	quint16 nMsgLen = sizeof(PKLTS_APP_HEADER)
+	quint16 nMsgLen = sizeof(PKLTS_App_Header)
 			+sizeof(stMsg_HostLogonReq)+nMaxLenSerialNum;
-	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+	QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 	char * ptr = array.data();
-	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+	PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
 	pMsg->trans_header.Mark = 0x55AA;
 	pMsg->trans_header.SrcID = (quint32)((quint64)(userID) & 0xffffffff );
 	pMsg->trans_header.DstID = (quint32)((quint64)(0x00000001) & 0xffffffff );;
@@ -273,14 +273,14 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		//Heart Beating
 		if (m_currentHeader.Mark == 0xBEBE)
 		{
-			while (m_currentMessageSize< sizeof(PKLTS_HEARTBEATING) && blocklen>offset )
+			while (m_currentMessageSize< sizeof(PKLTS_Heartbeating) && blocklen>offset )
 			{
 				m_currentBlock.push_back(dataptr[offset++]);
 				m_currentMessageSize++;
 			}
-			if (m_currentMessageSize < sizeof(PKLTS_HEARTBEATING)) //Header not completed.
+			if (m_currentMessageSize < sizeof(PKLTS_Heartbeating)) //Header not completed.
 				continue;
-			const PKLTS_HEARTBEATING * ptr = (const PKLTS_HEARTBEATING *)m_currentBlock.constData();
+			const PKLTS_Heartbeating * ptr = (const PKLTS_Heartbeating *)m_currentBlock.constData();
 			displayMessage(tr("Recieved Heart-beating msg sended %1 sec(s) ago.").
 						   arg((time(0)&0x00ffff)-(ptr->tmStamp)));
 			//This Message is Over. Start a new one.
@@ -292,23 +292,23 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 		else if (m_currentHeader.Mark == 0x55AA)
 			//Trans Message
 		{
-			while (m_currentMessageSize< sizeof(PKLTS_TRANS_HEADER) && blocklen>offset)
+			while (m_currentMessageSize< sizeof(PKLTS_Trans_Header) && blocklen>offset)
 			{
 
 				m_currentBlock.push_back(dataptr[offset++]);
 				m_currentMessageSize++;
 			}
-			if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER)) //Header not completed.
+			if (m_currentMessageSize < sizeof(PKLTS_Trans_Header)) //Header not completed.
 				continue;
-			else if (m_currentMessageSize == sizeof(PKLTS_TRANS_HEADER))//Header just  completed.
+			else if (m_currentMessageSize == sizeof(PKLTS_Trans_Header))//Header just  completed.
 			{
 				const char * headerptr = m_currentBlock.constData();
-				memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_HEADER));
+				memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_Trans_Header));
 
 				//continue reading if there is data left behind
 				if (block.length()>offset)
 				{
-					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
+					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_Trans_Header)
 							-m_currentMessageSize ;
 					while (bitLeft>0 && blocklen>offset)
 					{
@@ -330,7 +330,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 			{
 				if (block.length()>offset)
 				{
-					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
+					qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_Trans_Header)
 							-m_currentMessageSize ;
 					while (bitLeft>0 && blocklen>offset)
 					{
@@ -368,7 +368,7 @@ int MainDialog::filter_message(QByteArray  block, int offset)
 int MainDialog::deal_current_message_block()
 {
 	//The bytes left to recieve.
-	qint32 bytesLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
+	qint32 bytesLeft = m_currentHeader.DataLen + sizeof(PKLTS_Trans_Header)
 			-m_currentMessageSize ;
 	if (bytesLeft)
 		return 0;
@@ -376,8 +376,8 @@ int MainDialog::deal_current_message_block()
 
 	const char * ptr = m_currentBlock.constData();
 
-	PKLTS_MSG * pMsg = (PKLTS_MSG *)((unsigned char *)ptr);
-	PKLTS_MSG::uni_trans_payload::tag_pklts_app_layer * pApp = &pMsg->trans_payload.app_layer;
+	PKLTS_Message * pMsg = (PKLTS_Message *)((unsigned char *)ptr);
+	PKLTS_Message::uni_trans_payload::tag_pklts_app_layer * pApp = &pMsg->trans_payload.app_layer;
 	if (pApp->app_header.MsgType==0x1800)
 	{
 		if (pApp->app_data.msg_HostRegistRsp.DoneCode<2 && pApp->app_data.msg_HostRegistRsp.DoneCode>=0)
@@ -518,11 +518,11 @@ void MainDialog::on_pushButton_devlist_upload_clicked()
 		}
 	}
 	//Get the serial Num
-	quint16 nMsgLen =sizeof(PKLTS_APP_HEADER)
+	quint16 nMsgLen =sizeof(PKLTS_App_Header)
 			+sizeof(stMsg_SendDeviceListReq) - 1;
-	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+	QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 	char * ptr = array.data();
-	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+	PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
 
 	quint32 userID = ui->lineEdit_user_id->text().toUInt();
 
@@ -597,10 +597,10 @@ void MainDialog::on_pushButton_UMI_Upload_clicked()
 	}
 
 	//Get the serial Num
-	quint16 nMsgLen =sizeof(PKLTS_APP_HEADER);
-	QByteArray array(sizeof(PKLTS_TRANS_HEADER) + nMsgLen,0);
+	quint16 nMsgLen =sizeof(PKLTS_App_Header);
+	QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
 	char * ptr = array.data();
-	PKLTS_MSG * pMsg = (PKLTS_MSG *)ptr;
+	PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
 
 	quint32 userID = ui->lineEdit_user_id->text().toUInt();
 

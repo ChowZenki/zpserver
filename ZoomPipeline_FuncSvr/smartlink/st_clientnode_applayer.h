@@ -30,7 +30,7 @@ namespace ParkinglotsSvr{
 		//data items
 	protected:
 		QMutex m_mutex_equipID;
-		PKLTS_APP_HEADER m_current_app_header;
+		PKLTS_App_Header m_current_app_header;
 		//log in
 		bool m_bLoggedIn;
 		QString m_serialNum;

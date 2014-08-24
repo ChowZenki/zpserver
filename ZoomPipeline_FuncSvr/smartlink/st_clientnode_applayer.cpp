@@ -9,7 +9,7 @@ namespace ParkinglotsSvr{
 	{
 
 		m_bLoggedIn= false;
-		memset(&m_current_app_header,0,sizeof(PKLTS_APP_HEADER));
+		memset(&m_current_app_header,0,sizeof(PKLTS_App_Header));
 
 	}
 
@@ -90,9 +90,9 @@ namespace ParkinglotsSvr{
 		bool res = true;
 		//qDebug()<<m_currentHeader.data_length<<"\n";
 		//qDebug()<<this->m_currentBlock.toHex()<<"\n";
-		if (m_currentHeader.DataLen < sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
+		if (m_currentHeader.DataLen < sizeof (PKLTS_App_Layer::tag_app_layer_header))
 			return false;
-		if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER) + sizeof (PKLTS_APP_HEADER))
+		if (m_currentMessageSize < sizeof(PKLTS_Trans_Header) + sizeof (PKLTS_App_Header))
 		{
 			// header is not complete, return
 			return true;
@@ -100,8 +100,8 @@ namespace ParkinglotsSvr{
 		//Catch the header
 		if (m_current_app_header.MsgType==0x00)
 			memcpy((void *)&this->m_current_app_header,
-				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_HEADER),
-				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_Trans_Header),
+				   sizeof (PKLTS_App_Layer::tag_app_layer_header)
 				   );
 		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.MsgType)
@@ -111,8 +111,8 @@ namespace ParkinglotsSvr{
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize>
-					sizeof(PKLTS_TRANS_HEADER)
-					+ sizeof (PKLTS_APP_HEADER)
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header)
 					+ sizeof (stMsg_HostRegistReq)+64)
 			{
 				emit evt_Message(this,tr("Broken Message, size not correct."));
@@ -126,8 +126,8 @@ namespace ParkinglotsSvr{
 				// message is not complete, return
 				return true;
 			if (m_currentMessageSize>
-					sizeof(PKLTS_TRANS_HEADER)
-					+ sizeof (PKLTS_APP_HEADER)
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header)
 					+ sizeof (stMsg_HostLogonReq)+66)
 			{
 				emit evt_Message(this,tr("Broken Message, size not correct."));
@@ -153,9 +153,9 @@ namespace ParkinglotsSvr{
 	{
 		bool res = true;
 
-		if (m_currentHeader.DataLen < sizeof (PKLTS_APP_LAYER::tag_app_layer_header))
+		if (m_currentHeader.DataLen < sizeof (PKLTS_App_Layer::tag_app_layer_header))
 			return false;
-		if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER) + sizeof (PKLTS_APP_HEADER))
+		if (m_currentMessageSize < sizeof(PKLTS_Trans_Header) + sizeof (PKLTS_App_Header))
 		{
 			// header is not complete, return
 			return true;
@@ -163,8 +163,8 @@ namespace ParkinglotsSvr{
 		//Catch the header
 		if (m_current_app_header.MsgType==0x00)
 			memcpy((void *)&this->m_current_app_header,
-				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_TRANS_HEADER),
-				   sizeof (PKLTS_APP_LAYER::tag_app_layer_header)
+				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_Trans_Header),
+				   sizeof (PKLTS_App_Layer::tag_app_layer_header)
 				   );
 		//do only when all messages has been recieved
 		if (bytesLeft()>0)
@@ -173,8 +173,8 @@ namespace ParkinglotsSvr{
 		{
 		case 0x1002:
 			if (m_currentMessageSize!=
-					sizeof(PKLTS_TRANS_HEADER)
-					+ sizeof (PKLTS_APP_HEADER)
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header)
 					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
 			{
 				emit evt_Message(this,tr("Broken Message size not correct."));
@@ -185,8 +185,8 @@ namespace ParkinglotsSvr{
 			break;
 		case 0x100B:
 			if (m_currentMessageSize<
-					sizeof(PKLTS_TRANS_HEADER)
-					+ sizeof (PKLTS_APP_HEADER)
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header)
 					+ sizeof (stMsg_SendDeviceListReq)-1)
 			{
 				emit evt_Message(this,tr("Broken Message size not correct."));
@@ -197,8 +197,8 @@ namespace ParkinglotsSvr{
 			break;
 		case 0x100C:
 			if (m_currentMessageSize<
-					sizeof(PKLTS_TRANS_HEADER)
-					+ sizeof (PKLTS_APP_HEADER))
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header))
 			{
 				emit evt_Message(this,tr("Broken Message size not correct."));
 				res = false;

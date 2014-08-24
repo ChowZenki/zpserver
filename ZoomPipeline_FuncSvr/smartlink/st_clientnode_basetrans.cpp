@@ -32,7 +32,7 @@ namespace ParkinglotsSvr{
 	}
 	qint32 st_clientNode_baseTrans::bytesLeft()
 	{
-		return m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
+		return m_currentHeader.DataLen + sizeof(PKLTS_Trans_Header)
 				-m_currentMessageSize ;
 	}
 	//judge whether id is valid.
@@ -137,16 +137,16 @@ namespace ParkinglotsSvr{
 				//	m_currentBlock.push_back(dataptr[offset++]);
 				//	m_currentMessageSize++;
 				//}
-				if (m_currentMessageSize< sizeof(PKLTS_HEARTBEATING) && blocklen>offset )
+				if (m_currentMessageSize< sizeof(PKLTS_Heartbeating) && blocklen>offset )
 				{
 					int nCpy = offset - blocklen;
-					if (nCpy > sizeof(PKLTS_HEARTBEATING) - m_currentMessageSize)
-						nCpy =  sizeof(PKLTS_HEARTBEATING) - m_currentMessageSize;
+					if (nCpy > sizeof(PKLTS_Heartbeating) - m_currentMessageSize)
+						nCpy =  sizeof(PKLTS_Heartbeating) - m_currentMessageSize;
 					m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
 					offset += nCpy;
 					m_currentMessageSize+=nCpy;
 				}
-				if (m_currentMessageSize < sizeof(PKLTS_HEARTBEATING)) //Header not completed.
+				if (m_currentMessageSize < sizeof(PKLTS_Heartbeating)) //Header not completed.
 					continue;
 
 				//Send back
@@ -154,7 +154,7 @@ namespace ParkinglotsSvr{
 				//Try to Get UUID Immediately
 				if (m_bUUIDRecieved==false)
 				{
-					PKLTS_HEARTBEATING * pHbMsg = (PKLTS_HEARTBEATING *)( m_currentBlock.constData());
+					PKLTS_Heartbeating * pHbMsg = (PKLTS_Heartbeating *)( m_currentBlock.constData());
 					if (bIsValidUserId(pHbMsg->source_id))
 					{
 						m_bUUIDRecieved = true;
@@ -177,26 +177,26 @@ namespace ParkinglotsSvr{
 				//	m_currentBlock.push_back(dataptr[offset++]);
 				//	m_currentMessageSize++;
 				//}
-				if (m_currentMessageSize< sizeof(PKLTS_TRANS_HEADER) && blocklen>offset)
+				if (m_currentMessageSize< sizeof(PKLTS_Trans_Header) && blocklen>offset)
 				{
 					int nCpy =  blocklen - offset;
-					if (nCpy > sizeof(PKLTS_TRANS_HEADER) - m_currentMessageSize)
-						nCpy =  sizeof(PKLTS_TRANS_HEADER) - m_currentMessageSize;
+					if (nCpy > sizeof(PKLTS_Trans_Header) - m_currentMessageSize)
+						nCpy =  sizeof(PKLTS_Trans_Header) - m_currentMessageSize;
 					m_currentBlock.push_back(QByteArray(dataptr+offset,nCpy));
 					offset += nCpy;
 					m_currentMessageSize+=nCpy;
 				}
-				if (m_currentMessageSize < sizeof(PKLTS_TRANS_HEADER)) //Header not completed.
+				if (m_currentMessageSize < sizeof(PKLTS_Trans_Header)) //Header not completed.
 					continue;
-				else if (m_currentMessageSize == sizeof(PKLTS_TRANS_HEADER))//Header just  completed.
+				else if (m_currentMessageSize == sizeof(PKLTS_Trans_Header))//Header just  completed.
 				{
 					const char * headerptr = m_currentBlock.constData();
-					memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_TRANS_HEADER));
+					memcpy((void *)&m_currentHeader,headerptr,sizeof(PKLTS_Trans_Header));
 
 					//continue reading if there is data left behind
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
+						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_Trans_Header)
 								-m_currentMessageSize ;
 						//while (bitLeft>0 && blocklen>offset)
 						//{
@@ -228,7 +228,7 @@ namespace ParkinglotsSvr{
 				{
 					if (block.length()>offset)
 					{
-						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_TRANS_HEADER)
+						qint32 bitLeft = m_currentHeader.DataLen + sizeof(PKLTS_Trans_Header)
 								-m_currentMessageSize ;
 						//while (bitLeft>0 && blocklen>offset)
 						//{

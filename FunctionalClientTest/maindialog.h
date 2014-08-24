@@ -46,7 +46,7 @@ protected:
 	//Current un-procssed message block.for large blocks,
 	QByteArray m_currentBlock;
 	//current Header
-	PKLTS_TRANS_HEADER m_currentHeader;
+	PKLTS_Trans_Header m_currentHeader;
 
 private:
 	//Device List Upload Test

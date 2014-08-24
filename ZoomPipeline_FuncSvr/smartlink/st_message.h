@@ -2,45 +2,50 @@
 #define ST_MESSAGE_H
 #include <qglobal.h>
 namespace ParkinglotsSvr{
-
+#define MAXPARAMDATALEN 256
+#define MAXPARAMNUM 8
 #pragma  pack (push,1)
 
+	//-------------------------------------------------------------------
+	/**Application Layer Message Types
+	  *0x100X Serial
+	**/
 	//stMsg_HostRegistReq , 0x1000
-	typedef struct tag_stMsg_HostRegistReq{
+	struct stMsg_HostRegistReq{
 		quint8 HostSerialNum[1];  /*max 64 bytes*/
-	}stMsg_HostRegistReq;
+	};
 
 	//stMsg_HostRegistRsp 0x1800
-	typedef struct tag_stMsg_HostRegistRsp{
+	struct stMsg_HostRegistRsp{
 		quint8 DoneCode;
 		quint32 ID;
-	}stMsg_HostRegistRsp;
+	};
 
 	//User Login request
 	//PKLTS_APP_LAYER::MsgType =  0x1001
-	typedef struct tag_stMsg_HostLogonReq{
+	struct stMsg_HostLogonReq{
 		quint32 ID;
 		char HostSerialNum[1];
-	}stMsg_HostLogonReq;
+	};
 
 	//User Log response
 	//PKLTS_APP_LAYER::MsgType =  0x1801
-	typedef struct tag_stMsg_HostLogonRsp{
+	struct stMsg_HostLogonRsp{
 		quint8 DoneCode;            //0- successful, 1-redirect, 3-failed.
 		//quint32 UserID;
 		//quint16 port_Redirect;      // and a port num.
 		//quint8 Address_Redirect[64];// for server-cluster balance, may be this login should be re-direct to another address
-	} stMsg_HostLogonRsp;
+	} ;
 
 
 	//User Log response
 	//SMARTLINK_MSG_APP::MsgType =  0x1002
-	typedef struct tag_stMsg_HostTimeCorrectReq{
+	struct stMsg_HostTimeCorrectReq{
 
-	} stMsg_HostTimeCorrectReq;
+	} ;
 
 	//Time Correct
-	typedef struct tag_stMsg_HostTimeCorrectRsp{
+	struct stMsg_HostTimeCorrectRsp{
 		quint8 DoneCode;
 		//char TextInfo[64];
 		struct tag_stDateTime{
@@ -51,21 +56,21 @@ namespace ParkinglotsSvr{
 			quint8 Minute;
 			quint8 Second;
 		} DateTime;
-	}stMsg_HostTimeCorrectRsp;
+	};
 
 	//0x100B SendDeviceListReq
-	typedef struct tag_stMsg_SendDeviceListReq{
+	struct stMsg_SendDeviceListReq{
 		quint16 DeviceNums;  //device nums
 		char pStrings[1];
-	}stMsg_SendDeviceListReq;
+	};
 
 	//0x0x180B
-	typedef struct tag_stMsg_SendDeviceListRsp{
+	struct stMsg_SendDeviceListRsp{
 		//Empty
-	}stMsg_SendDeviceListRsp;
+	};
 
 	//0x100C
-	typedef struct tag_stMsg_SendMacInfoReq{
+	struct stMsg_SendMacInfoReq{
 		quint16 FirmwareVersion;
 		char pStart[1];
 		/*
@@ -83,9 +88,9 @@ namespace ParkinglotsSvr{
 		quint16 ANSensorNum;
 		quint16 ANRelayNum;
 		*/
-	}stMsg_SendMacInfoReq;
+	};
 	//0x100C Internal
-	typedef struct tag_stMsg_SendMacInfoReq_internal{
+	struct stMsg_SendMacInfoReq_internal{
 		quint16 FirmwareVersion;
 		char HostName[64];
 		char HostInfo[64];
@@ -102,14 +107,78 @@ namespace ParkinglotsSvr{
 			quint16 ANSensorNum;
 			quint16 ANRelayNum;
 		} tail_data;
-	}stMsg_SendMacInfoReq_internal;
+	};
 	//0x0x180C
-	typedef struct tag_stMsg_SendMacInfoRsp{
+	struct stMsg_SendMacInfoRsp{
 		//Empty
-	}stMsg_SendMacInfoRsp;
+	};
 
 
-	typedef struct tag_pklts_msg{
+	//----------------------------------------------------------------
+	//DAL is a variant-length system, so ,this sturct is only for reference.
+	//struct stParam{
+	//	quint8 DataType;
+	//	quint8 Data[MAXPARAMDATALEN];
+	//}
+
+
+
+	//----------------------------------------------------------------
+	//Event system
+	//0x0000, Device Joined event
+	struct stEvent_DeviceJoined{
+		quint8 DeviceID[24];
+	};
+	//0x0001, Device Removed event
+	struct stEvent_DeviceRemoved{
+		quint8 DeviceID[24];
+	};
+	//0x0002, DAL Messages
+	struct stEvent_DeviceEvent{
+		quint8 DeviceID[24];
+		quint8 DALEventID;
+		quint8 ParamNum;
+		/*stParam ParamList[MAXPARAMNUM];
+		 * quint8 DataType;
+		 * quint8 Data[]
+		*/
+	};
+
+
+	struct stEvent{
+		quint16 EventType;
+		//Event Priority
+		enum enEventPriority {
+			PRI_LOW = 0,
+			PRI_NORMAL =1,
+			PRI_HIGH = 2
+		}  Priority;
+		union union_Event{
+			stEvent_DeviceJoined evt_DeviceJoined;
+			stEvent_DeviceRemoved evt_DeviceRemoved;
+			stEvent_DeviceEvent evt_DeviceEvent;
+		} unEvent;
+	};
+
+
+
+	//------------------------------------------------------------------
+	/**Application Layer Message Types
+	  *0x400X Serial
+	**/	//0x4000
+	struct stMsg_EventPushReq{
+		stEvent event;
+	} ;
+
+	struct stMsg_EventPushRsp{
+		quint8 DoneCode;
+	} ;
+
+	//------------------------------------------------------------------
+	/**Trans Layer Structure
+	**/
+
+	struct PKLTS_Message{
 		struct tag_trans_header{
 			quint16 Mark;    //Always be 0xAA55
 			quint16 ProtoVersion;
@@ -145,18 +214,21 @@ namespace ParkinglotsSvr{
 				} app_data;
 			} app_layer;
 		} trans_payload;
-	} PKLTS_MSG;
-
-	typedef struct tag_pklts_heartBeating
+	} ;
+	//------------------------------------------------------------------
+	/**Trans Layer Message Type
+	 * Heartbeating message
+	**/
+	struct PKLTS_Heartbeating
 	{
 		quint16 Mark;  //Always be 0xBeBe
 		quint32 source_id ; //0xffffffff means from server
 		quint16 tmStamp;
-	} PKLTS_HEARTBEATING;
+	} ;
 
 #pragma pack(pop)
-	typedef PKLTS_MSG::tag_trans_header PKLTS_TRANS_HEADER;
-	typedef PKLTS_MSG::uni_trans_payload::tag_pklts_app_layer::tag_app_layer_header PKLTS_APP_HEADER;
-	typedef PKLTS_MSG::uni_trans_payload::tag_pklts_app_layer PKLTS_APP_LAYER;
+	typedef PKLTS_Message::tag_trans_header PKLTS_Trans_Header;
+	typedef PKLTS_Message::uni_trans_payload::tag_pklts_app_layer::tag_app_layer_header PKLTS_App_Header;
+	typedef PKLTS_Message::uni_trans_payload::tag_pklts_app_layer PKLTS_App_Layer;
 }
 #endif // ST_MESSAGE_H

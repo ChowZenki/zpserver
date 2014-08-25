@@ -24,6 +24,7 @@ namespace ParkinglotsSvr{
 				//To-Server Messages does not wait for message-block completes
 				if (false==Deal_ToServer_Handshakes())
 				{
+					qWarning()<<this->peerInfo()<<tr(" Deal_ToServer_Handshakes() failed.")<<"\n";
 					m_currentBlock = QByteArray();
 					emit evt_Message(this,tr("To-server Message Failed."));
 					emit evt_close_client(this->sock());
@@ -36,6 +37,7 @@ namespace ParkinglotsSvr{
 					//Deal Client->Svr Msgs
 					if (false==Deal_Node2Svr_Msgs())
 					{
+						qWarning()<<this->peerInfo()<<tr(" Deal_Node2Svr_Msgs() failed.")<<"\n";
 						m_currentBlock = QByteArray();
 						emit evt_Message(this,tr("Client To Server Message Failed."));
 						emit evt_close_client(this->sock());
@@ -43,6 +45,7 @@ namespace ParkinglotsSvr{
 				}
 				else if (m_currentHeader.SrcID==0xFFFFFFFF)
 				{
+					qWarning()<<this->peerInfo()<<tr(" warning, UUID 0xFFFFFFFF.ignore.")<<"\n";
 					m_currentBlock = QByteArray();
 					emit evt_Message(this,tr("warning, UUID 0xFFFFFFFF.ignore"));
 
@@ -50,6 +53,7 @@ namespace ParkinglotsSvr{
 				else
 				{
 					m_currentBlock = QByteArray();
+					qWarning()<<this->peerInfo()<<tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.SrcID)<<"\n";
 					emit evt_Message(this,tr("Bad UUID %1. Client Kicked out").arg(m_currentHeader.SrcID));
 					emit evt_close_client(this->sock());
 				}
@@ -65,7 +69,12 @@ namespace ParkinglotsSvr{
 				//need server-to-server channels to re-post this message.
 				QString svr = m_pClientTable->cross_svr_find_uuid(m_currentHeader.DstID);
 				if (svr.length()<=0)
+				{
+					qWarning()<<this->peerInfo()<<
+								tr("Destin ID ") + QString("%1").arg(m_currentHeader.DstID) + tr(" is not currently logged in.")
+							 <<"\n";
 					emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.DstID) + tr(" is not currently logged in."));
+				}
 				else
 					m_pClientTable->cross_svr_send_data(svr,m_currentBlock);
 
@@ -88,8 +97,6 @@ namespace ParkinglotsSvr{
 	bool st_clientNodeAppLayer::Deal_ToServer_Handshakes()
 	{
 		bool res = true;
-		//qDebug()<<m_currentHeader.data_length<<"\n";
-		//qDebug()<<this->m_currentBlock.toHex()<<"\n";
 		if (m_currentHeader.DataLen < sizeof (PKLTS_App_Layer::tag_app_layer_header))
 			return false;
 		if (m_currentMessageSize < sizeof(PKLTS_Trans_Header) + sizeof (PKLTS_App_Header))
@@ -103,13 +110,13 @@ namespace ParkinglotsSvr{
 				   ((unsigned char *)this->m_currentBlock.constData()) + sizeof(PKLTS_Trans_Header),
 				   sizeof (PKLTS_App_Layer::tag_app_layer_header)
 				   );
-		//qDebug()<<m_current_app_header.header.MsgType<<"\n";
 		switch (m_current_app_header.MsgType)
 		{
 		case 0x1000:
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
+			qDebug()<<this->peerInfo()<<tr(" Send Regisit:")<<this->m_currentBlock.toHex()<<"\n";
 			if (m_currentMessageSize>
 					sizeof(PKLTS_Trans_Header)
 					+ sizeof (PKLTS_App_Header)
@@ -125,6 +132,7 @@ namespace ParkinglotsSvr{
 			if (bytesLeft()>0)
 				// message is not complete, return
 				return true;
+			qDebug()<<this->peerInfo()<<tr(" Send Login  :")<<this->m_currentBlock.toHex()<<"\n";
 			if (m_currentMessageSize>
 					sizeof(PKLTS_Trans_Header)
 					+ sizeof (PKLTS_App_Header)
@@ -137,6 +145,7 @@ namespace ParkinglotsSvr{
 				res = this->LoginHost();
 			break;
 		default:
+			qCritical()<<this->peerInfo()<<tr(" Fatal Handshake :")<<this->m_currentBlock.toHex()<<"\n";
 			emit evt_Message(this,tr("Unknown Message:%1").arg(m_current_app_header.MsgType));
 			res = false;
 			break;
@@ -169,6 +178,7 @@ namespace ParkinglotsSvr{
 		//do only when all messages has been recieved
 		if (bytesLeft()>0)
 			return true;
+		qDebug()<<this->peerInfo()<<tr(" Send Msg  :")<<this->m_currentBlock.toHex()<<"\n";
 		switch (m_current_app_header.MsgType)
 		{
 		case 0x1002:
@@ -177,6 +187,7 @@ namespace ParkinglotsSvr{
 					+ sizeof (PKLTS_App_Header)
 					/*+ sizeof (stMsg_HostTimeCorrectReq)*/)
 			{
+				qWarning()<<this->peerInfo()<<tr(" Broken Message size not correct  :")<<m_currentMessageSize<<"\n";
 				emit evt_Message(this,tr("Broken Message size not correct."));
 				res = false;
 			}
@@ -189,6 +200,7 @@ namespace ParkinglotsSvr{
 					+ sizeof (PKLTS_App_Header)
 					+ sizeof (stMsg_SendDeviceListReq)-1)
 			{
+				qWarning()<<this->peerInfo()<<tr(" Broken Message size not correct  :")<<m_currentMessageSize<<"\n";
 				emit evt_Message(this,tr("Broken Message size not correct."));
 				res = false;
 			}
@@ -200,6 +212,7 @@ namespace ParkinglotsSvr{
 					sizeof(PKLTS_Trans_Header)
 					+ sizeof (PKLTS_App_Header))
 			{
+				qWarning()<<this->peerInfo()<<tr(" Broken Message size not correct  :")<<m_currentMessageSize<<"\n";
 				emit evt_Message(this,tr("Broken Message size not correct."));
 				res = false;
 			}
@@ -211,6 +224,7 @@ namespace ParkinglotsSvr{
 					sizeof(PKLTS_Trans_Header)
 					+ sizeof (PKLTS_App_Header))
 			{
+				qWarning()<<this->peerInfo()<<tr(" Broken Message size not correct  :")<<m_currentMessageSize<<"\n";
 				emit evt_Message(this,tr("Broken Message size not correct."));
 				res = false;
 			}
@@ -220,6 +234,7 @@ namespace ParkinglotsSvr{
 		default:
 			emit evt_Message(this,tr("Unsupported Message:%1,Bytes:%2").arg(m_current_app_header.MsgType)
 							 .arg(QString(m_currentBlock.left(48).toHex())));
+			qWarning()<<this->peerInfo()<<tr(" Unsupported:")<<this->m_currentBlock.toHex()<<"\n";
 			res = true;
 			break;
 		}

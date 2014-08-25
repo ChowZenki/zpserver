@@ -55,27 +55,27 @@ namespace ParkinglotsSvr{
 								if (false==queryUpdate.exec())
 								{
 									DoneCode = 2;
-									qDebug()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
+									qCritical()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
 								}
 							}
 
 						}
 						else
-							qDebug()<<tr("ID is not valid : %1").arg(ncurrid)+"\n";
+							qCritical()<<tr("ID is not valid : %1").arg(ncurrid)+"\n";
 
 					}
 					else
-						qDebug()<<tr("ID is not valid : %1").arg(query.value(1).toString())+"\n";
+						qCritical()<<tr("ID is not valid : %1").arg(query.value(1).toString())+"\n";
 				}
 				else
-					qDebug()<<tr("Serial is not valid : %1").arg(serialnum)+"\n";
+					qCritical()<<tr("Serial is not valid : %1").arg(serialnum)+"\n";
 			}
 			else
-				qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
 
 		}
 		else
-			qDebug()<<tr("Database is not ready.");
+			qCritical()<<tr("Database is not ready.");
 		return DoneCode;
 	}
 
@@ -103,21 +103,21 @@ namespace ParkinglotsSvr{
 						if (ncurrid>=0x0010000 && ncurrid <=0x0FFFFFFF)
 							DoneCode = 0;
 						else
-							qDebug()<<tr("ID is not valid : %1").arg(ncurrid)+"\n";
+							qCritical()<<tr("ID is not valid : %1").arg(ncurrid)+"\n";
 
 					}
 					else
-						qDebug()<<tr("ID is not valid : %1").arg(query.value(0).toString())+"\n";
+						qCritical()<<tr("ID is not valid : %1").arg(query.value(0).toString())+"\n";
 				}
 				else
-					qDebug()<<tr("Serial/ID is not valid : %1,%2").arg(serialnum).arg(query.value(0).toString())+"\n";
+					qCritical()<<tr("Serial/ID is not valid : %1,%2").arg(serialnum).arg(query.value(0).toString())+"\n";
 			}
 			else
-				qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
 
 		}
 		else
-			qDebug()<<tr("Database is not ready.");
+			qCritical()<<tr("Database is not ready.");
 		return DoneCode;
 	}
 
@@ -155,13 +155,13 @@ namespace ParkinglotsSvr{
 					}
 					if (false==query.exec())
 					{
-						qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+						qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
 						res = false;
 					}
 				}
 				else
 				{
-					qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
 					res = false;
 				}
 
@@ -171,7 +171,7 @@ namespace ParkinglotsSvr{
 		}
 		else
 		{
-			qDebug()<<tr("Database is not ready.");
+			qCritical()<<tr("Database is not ready.");
 			res = false;
 		}
 		return res;
@@ -220,26 +220,26 @@ namespace ParkinglotsSvr{
 					queryUpdate.addBindValue(macSerial);
 					if (false==queryUpdate.exec())
 					{
-						qDebug()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
+						qCritical()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
 						res = false;
 					}
 				}
 				else //no such mac
 				{
-					qDebug()<<tr("Database Access Error : No such macid and serialnum: %1:%2").arg(macID).arg(macSerial);
+					qCritical()<<tr("Database Access Error : No such macid and serialnum: %1:%2").arg(macID).arg(macSerial);
 					res = false;
 				}
 
 			}
 			else
 			{
-				qDebug()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
 				res = false;
 			}
 		}
 		else
 		{
-			qDebug()<<tr("Database is not ready.");
+			qCritical()<<tr("Database is not ready.");
 			res = false;
 		}
 		return res;

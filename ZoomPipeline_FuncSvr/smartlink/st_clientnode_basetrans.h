@@ -69,6 +69,7 @@ namespace ParkinglotsSvr{
 
 		QString m_remoteAddress;
 		quint16 m_remotePort;
+		QString m_peerInfo;
 
 	signals:
 

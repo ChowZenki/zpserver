@@ -1,6 +1,7 @@
 #include "st_clientnode_basetrans.h"
 #include "st_client_table.h"
 #include <assert.h>
+#include <QDebug>
 namespace ParkinglotsSvr{
 	st_clientNode_baseTrans::st_clientNode_baseTrans(st_client_table * pClientTable, QObject * pClientSock ,QObject *parent) :
 		zp_plTaskBase(parent)
@@ -19,10 +20,11 @@ namespace ParkinglotsSvr{
 	{
 		m_remotePort = port;
 		m_remoteAddress = addr;
+		m_peerInfo = QString("{%1:%2}").arg( m_remoteAddress).arg(m_remotePort);
 	}
 	QString st_clientNode_baseTrans::peerInfo()
 	{
-		return m_remoteAddress + ":" + m_remotePort;
+		return m_peerInfo;
 	}
 
 	quint32 st_clientNode_baseTrans::uuid()
@@ -57,7 +59,7 @@ namespace ParkinglotsSvr{
 	{
 		if (bTermSet==true)
 		{
-			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
+			qDebug()<<peerInfo()<< QString("%1(%2) Node Martked Deleted, return.\n").arg((quint64)this).arg(ref());
 			return 0;
 		}
 		int nCurrSz = -1;
@@ -78,7 +80,10 @@ namespace ParkinglotsSvr{
 					if (m_list_RawData.empty()==false)
 						m_list_RawData.pop_front();
 					else
-						assert(false);
+					{
+						QString msg = peerInfo()+tr(" m_list_RawData should not be empty!");
+						qFatal(msg.toStdString().c_str());
+					}
 					m_currentReadOffset = 0;
 					m_mutex_rawData.unlock();
 				}
@@ -301,6 +306,7 @@ namespace ParkinglotsSvr{
 			}
 			else //Invalid
 			{
+				qWarning()<<peerInfo()<<tr("Client ID %1 is invalid! Close client immediatly.").arg(m_currentHeader.SrcID)<<"\n";
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
@@ -314,6 +320,7 @@ namespace ParkinglotsSvr{
 				  )
 					)
 			{
+				qWarning()<<peerInfo()<<tr("Client ID %1 is invalid! Close client immediatly.").arg(m_currentHeader.SrcID)<<"\n";
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
@@ -321,6 +328,7 @@ namespace ParkinglotsSvr{
 			if (bIsValidUserId(m_currentHeader.SrcID)==true &&
 					m_uuid != m_currentHeader.SrcID)
 			{
+				qWarning()<<peerInfo()<<tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID)<<"\n";
 				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
@@ -337,6 +345,7 @@ namespace ParkinglotsSvr{
 		qint64 usc = this->m_last_Report.secsTo(dtm);
 		if (usc >=m_pClientTable->heartBeatingThrd())
 		{
+			qWarning()<<peerInfo()<<tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out.")<<"\n";
 			emit evt_Message(this,tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));
 			emit evt_close_client(this->sock());
 		}

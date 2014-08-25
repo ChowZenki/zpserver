@@ -86,9 +86,10 @@ namespace STMsgLogger{
 
 		QDateTime dtmCur = QDateTime::currentDateTime().toUTC();
 
-		QString strMsg = dtmCur.toString("yyyy-MM-dd HH:mm:ss.zzz");
+		QString strMsg = "\n";
+		strMsg += dtmCur.toString("yyyy-MM-dd HH:mm:ss.zzz");
 		QString strMsgHeader = dtmCur.toString("                       ");
-		strMsg += "\n(UTC)>";
+		strMsg += "(UTC)>";
 		strMsgHeader += "      ";
 		switch (type) {
 		case QtDebugMsg:

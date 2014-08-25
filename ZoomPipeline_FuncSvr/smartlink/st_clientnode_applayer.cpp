@@ -206,6 +206,17 @@ namespace ParkinglotsSvr{
 			else
 				res = this->RecieveMacInfoFromHost();
 			break;
+		case 0x4000:
+			if (m_currentMessageSize<
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header))
+			{
+				emit evt_Message(this,tr("Broken Message size not correct."));
+				res = false;
+			}
+			else
+				res = this->RecieveEventFromHost();
+			break;
 		default:
 			emit evt_Message(this,tr("Unsupported Message:%1,Bytes:%2").arg(m_current_app_header.MsgType)
 							 .arg(QString(m_currentBlock.left(48).toHex())));

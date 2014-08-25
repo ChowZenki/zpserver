@@ -32,6 +32,8 @@ namespace ParkinglotsSvr{
 
 		void CheckHeartBeating();
 		bool bTermSet;
+		void setRemoteInfo(QString addr, quint16 port);
+		QString peerInfo();
 	protected:
 		//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader
 		//!return bytes Used.
@@ -64,6 +66,9 @@ namespace ParkinglotsSvr{
 		QObject * m_pClientSock;
 		st_client_table * m_pClientTable;
 		QDateTime m_last_Report;
+
+		QString m_remoteAddress;
+		quint16 m_remotePort;
 
 	signals:
 

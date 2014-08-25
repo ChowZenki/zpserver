@@ -27,6 +27,7 @@ namespace ParkinglotsSvr{
 		bool Box2Svr_CorrectTime();
 		bool RecieveDeviceListFromHost();
 		bool RecieveMacInfoFromHost();
+		bool RecieveEventFromHost();
 		//data items
 	protected:
 		QMutex m_mutex_equipID;

@@ -169,7 +169,7 @@ void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,QString  strMsg)
 	msg += tr(",Source=%1").arg((quint64)psource);
 	int nrows = m_pMsgModelNetwork->rowCount();
 	m_pMsgModelNetwork->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 4096)
+	while (nrows-- > 256)
 		m_pMsgModelNetwork->removeRow(m_pMsgModelNetwork->rowCount()-1);
 }
 
@@ -181,7 +181,7 @@ void  ZPMainFrame::on_evt_Message_Database(QObject * psource,QString strMsg)
 	msg += tr(",Source=%1").arg((quint64)psource);
 	int nrows = m_pMsgModelDatabase->rowCount();
 	m_pMsgModelDatabase->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 4096)
+	while (nrows-- > 256)
 		m_pMsgModelDatabase->removeRow(m_pMsgModelDatabase->rowCount()-1);
 }
 
@@ -194,7 +194,7 @@ void  ZPMainFrame::on_evt_Message_Smartlink(QObject * psource,QString strMsg)
 
 	int nrows = m_pMsgModelSmartlink->rowCount();
 	m_pMsgModelSmartlink->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 4096)
+	while (nrows-- > 256)
 		m_pMsgModelSmartlink->removeRow(m_pMsgModelSmartlink->rowCount()-1);
 
 }
@@ -208,7 +208,7 @@ void  ZPMainFrame::on_evt_SocketError(QObject * senderSock ,QAbstractSocket::Soc
 			.arg((quint64)senderSock).arg((quint32)socketError);
 	int nrows = m_pMsgModelNetwork->rowCount();
 	m_pMsgModelNetwork->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 4096)
+	while (nrows-- > 256)
 		m_pMsgModelNetwork->removeRow(m_pMsgModelNetwork->rowCount()-1);
 
 }
@@ -221,7 +221,7 @@ void  ZPMainFrame::on_evt_Message_Cluster(QObject * psource,QString  strMsg)
 	msg += tr(",Source=%1").arg((quint64)psource);
 	int nrows = m_pMsgModelCluster->rowCount();
 	m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 4096)
+	while (nrows-- > 256)
 		m_pMsgModelCluster->removeRow(m_pMsgModelCluster->rowCount()-1);
 }
 
@@ -234,7 +234,7 @@ void  ZPMainFrame::on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSoc
 			.arg((quint64)senderSock).arg((quint32)socketError);
 	int nrows = m_pMsgModelCluster->rowCount();
 	m_pMsgModelCluster->insertRow(0,new QStandardItem(msg));
-	while (nrows-- > 4096)
+	while (nrows-- > 256)
 		m_pMsgModelCluster->removeRow(m_pMsgModelCluster->rowCount()-1);
 
 }

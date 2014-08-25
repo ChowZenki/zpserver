@@ -282,4 +282,14 @@ namespace ParkinglotsSvr{
 		emit evt_SendDataToClient(this->sock(),array);
 		return res;
 	}
+	bool st_clientNodeAppLayer::RecieveEventFromHost()
+	{
+		const PKLTS_Message * pRawMsg =
+				(const PKLTS_Message *)(
+					((const char *)(m_currentBlock.constData()))
+					);
+		const PKLTS_App_Layer * pAppLayer = &pRawMsg->trans_payload.app_layer;
+
+		return true;
+	}
 }

@@ -6,6 +6,7 @@
 #include <functional>
 #include <QStringList>
 #include <QList>
+#include <QTcpSocket>
 namespace ParkinglotsSvr{
 	using namespace std::placeholders;
 	st_client_table::st_client_table(
@@ -189,6 +190,9 @@ namespace ParkinglotsSvr{
 		}
 		m_hash_mutex.unlock();
 		assert(nHashContains!=0 && pClientNode !=0);
+		QTcpSocket * pSock = qobject_cast<QTcpSocket *> (clientHandle);
+		if (pSock)
+			pClientNode->setRemoteInfo(pSock->peerAddress().toString(),pSock->peerPort());
 	}
 
 	//this event indicates a client disconnected.

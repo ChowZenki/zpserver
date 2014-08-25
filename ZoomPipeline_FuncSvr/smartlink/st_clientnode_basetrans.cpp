@@ -13,7 +13,18 @@ namespace ParkinglotsSvr{
 		m_pClientTable = pClientTable;
 		bTermSet = false;
 		m_last_Report = QDateTime::currentDateTime();
+		m_remotePort = 0;
 	}
+	void st_clientNode_baseTrans::setRemoteInfo(QString addr, quint16 port)
+	{
+		m_remotePort = port;
+		m_remoteAddress = addr;
+	}
+	QString st_clientNode_baseTrans::peerInfo()
+	{
+		return m_remoteAddress + ":" + m_remotePort;
+	}
+
 	quint32 st_clientNode_baseTrans::uuid()
 	{
 		return m_uuid;

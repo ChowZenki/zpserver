@@ -210,6 +210,8 @@ namespace ParkinglotsSvr{
 					stMsg_SendDeviceListRsp msg_SendDeviceListRsp;
 					stMsg_SendMacInfoReq msg_stMsg_SendMacInfoReq;
 					stMsg_SendMacInfoRsp msg_stMsg_SendMacInfoRsp;
+					stMsg_EventPushReq msg_stMsg_EventPushReq;
+					stMsg_EventPushRsp msg_stMsg_EventPushRsp;
 					quint8 msg[1];
 				} app_data;
 			} app_layer;

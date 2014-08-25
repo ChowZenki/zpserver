@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QSet>
 #include <QMap>
+#include "logger/st_logger.h"
 #include "network/zp_net_threadpool.h"
 #include "pipeline/zp_pipeline.h"
 #include "smartlink/st_client_table.h"
@@ -25,13 +26,14 @@ public:
 	void timerEvent(QTimerEvent *);
 	//Auto start support
 	void LoadSettingsAndForkServer(const QString & configfile);
-
+	void setLogger(STMsgLogger::st_logger * plogger);
 protected:
 	void changeEvent(QEvent *e);
 	QStandardItemModel * m_pMsgModelNetwork;
 	QStandardItemModel * m_pMsgModelCluster;
 	QStandardItemModel * m_pMsgModelDatabase;
 	QStandardItemModel * m_pMsgModelSmartlink;
+	QStandardItemModel * m_pComboModelLogLevel;
 	//Config File Name
 	QString m_currentConfigFile;
 	//Listeners settings
@@ -45,7 +47,7 @@ protected:
 	int m_nTimerCheck;
 
 	QStandardItemModel * m_pModelCluster;
-
+	STMsgLogger::st_logger * m_pLogger;
 
 
 private:

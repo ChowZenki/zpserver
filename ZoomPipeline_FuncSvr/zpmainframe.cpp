@@ -24,6 +24,7 @@ extern quint64 g_secSent;
 ZPMainFrame::ZPMainFrame(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::ZPMainFrame)
+	,m_pLogger(0)
 {
 	m_currentConfigFile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
@@ -109,6 +110,10 @@ void ZPMainFrame::changeEvent(QEvent *e)
 		break;
 	}
 }
+void ZPMainFrame::setLogger(STMsgLogger::st_logger * plogger)
+{
+	this->m_pLogger = plogger;
+}
 
 void ZPMainFrame::initUI()
 {
@@ -121,6 +126,8 @@ void ZPMainFrame::initUI()
 	ui->listView_msg_database->setModel(m_pMsgModelDatabase);
 	m_pMsgModelSmartlink = new QStandardItemModel(this);
 	ui->listView_msg_smartlink->setModel(m_pMsgModelSmartlink);
+	m_pComboModelLogLevel = new QStandardItemModel(this);
+	ui->comboBox_logLevel->setModel(m_pComboModelLogLevel);
 	//Network listeners setting model
 	m_pListenerModel = new QStandardItemModel(0,4,this);
 	m_pListenerModel->setHeaderData(0,Qt::Horizontal,tr("Name"));
@@ -159,6 +166,11 @@ void ZPMainFrame::initUI()
 	ui->tableView_activeTerms->setModel(m_pModelCluster);
 	m_pStatusLabel = new QLabel(this);
 	this->statusBar()->addWidget(m_pStatusLabel);
+
+	m_pComboModelLogLevel->appendRow(new QStandardItem(tr("0: Fatal")));
+	m_pComboModelLogLevel->appendRow(new QStandardItem(tr("1: Critical")));
+	m_pComboModelLogLevel->appendRow(new QStandardItem(tr("2: Warning")));
+	m_pComboModelLogLevel->appendRow(new QStandardItem(tr("3: Debug")));
 }
 
 void  ZPMainFrame::on_evt_MessageNetwork(QObject * psource,QString  strMsg)
@@ -393,6 +405,11 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 void ZPMainFrame::forkServer(QString  config_file)
 {
 	QSettings settings(config_file,QSettings::IniFormat);
+
+	int nLogLevel = settings.value("Smartlink/loglevel","2").toInt();
+	if (m_pLogger)
+		m_pLogger->setLogLevel(nLogLevel);
+
 	int nListeners = settings.value("settings/listeners",0).toInt();
 	if (nListeners<0)
 		nListeners = 0;
@@ -643,6 +660,8 @@ void ZPMainFrame::LoadSettings(QString  config_file)
 	int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
 	ui->horizontalSlider_cluster_workingThread->setValue(nClusterWorkingThreads);
 
+	int nLogLevel = settings.value("Smartlink/loglevel","2").toInt();
+	ui->comboBox_logLevel->setCurrentIndex(nLogLevel);
 }
 
 
@@ -726,7 +745,8 @@ void ZPMainFrame::SaveSettings(QString  config_file)
 	settings.setValue("Cluster/strClusterPubPort",ui->lineEdit_cluster_pub_Port->text());
 	settings.setValue("Cluster/nClusterTransThreads",ui->horizontalSlider_cluster_transThreads->value());
 	settings.setValue("Cluster/nClusterWorkingThreads", ui->horizontalSlider_cluster_workingThread->value());
-
+	int nLogLevel = ui->comboBox_logLevel->currentIndex();
+	settings.setValue("Smartlink/loglevel",nLogLevel);
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {

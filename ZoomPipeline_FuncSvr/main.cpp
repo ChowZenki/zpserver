@@ -2,95 +2,20 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
-#include <QDateTime>
-#include <QDir>
-#include <QByteArray>
-namespace STMsgLogger{
-	QFile * g_pLogFile = 0;
-	bool bUseLogFile = true;
-	QString logFilePrefix;
+#include "logger/st_logger.h"
 
-	bool CreateNewLogFile(QCoreApplication * app)
-	{
-		bool res = false;
-		QDateTime dtmCur = QDateTime::currentDateTime();
-		STMsgLogger::logFilePrefix = app->applicationDirPath() + "/Log/" + dtmCur.toString("yyyy-MM-dd") + "/";
-		QDir dir;
-		dir.mkpath(STMsgLogger::logFilePrefix);
-		STMsgLogger::logFilePrefix += dtmCur.toString("yyyy_MM_dd_HH_mm_ss_");
-		STMsgLogger::logFilePrefix += app->applicationName() + QString("(%1).txt").arg(app->applicationPid());
-		if (g_pLogFile)
-		{
-			if (g_pLogFile->isOpen()==true)
-				g_pLogFile->close();
-			g_pLogFile->deleteLater();
-			g_pLogFile = 0;
-		}
-		g_pLogFile = new QFile (STMsgLogger::logFilePrefix);
-		if (g_pLogFile)
-		{
-			if (g_pLogFile->open(QIODevice::WriteOnly)==false)
-			{
-				g_pLogFile->deleteLater();
-				g_pLogFile = 0;
-			}
-			else
-				res = true;
-		}
-		return res;
-	}
-	void stMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-	{
-		if (g_pLogFile==0)
-		{
-			if (bUseLogFile==true)
-				bUseLogFile = CreateNewLogFile(QCoreApplication::instance());
-			if (g_pLogFile==0)
-				return;
-		}
+STMsgLogger::st_logger g_logger;
 
-		QDateTime dtmCur = QDateTime::currentDateTime().toUTC();
-
-		QString strMsg = dtmCur.toString("yyyy-MM-dd HH:mm:ss.zzz");
-		QString strMsgHeader = dtmCur.toString("yyyy-MM-dd HH:mm:ss.zzz");
-		strMsg += "(UTC)>";
-		strMsgHeader += "(UTC)>";
-		switch (type) {
-		case QtDebugMsg:
-			strMsg += QString("Debug   :");
-			break;
-		case QtWarningMsg:
-			strMsg += QString("Warning :");
-			break;
-		case QtCriticalMsg:
-			strMsg += QString("Critical:");
-			break;
-		case QtFatalMsg:
-			strMsg += QString("Fatal   :");
-			break;
-		default:
-			strMsg += QString("Unknown :");
-			break;
-		}
-		strMsg.append(msg);
-		strMsg.append("\n");
-		strMsgHeader += QString("         From {%1:%2,%3}\n").arg(QString(context.file)).arg(QString(context.line)).arg(QString(context.function));
-		strMsg.append(strMsgHeader);
-
-		QTextStream stream(g_pLogFile);
-		stream << strMsg;
-		stream.flush();
-		if (g_pLogFile->pos()>=256*1024*1024)
-			bUseLogFile = CreateNewLogFile(QCoreApplication::instance());
-	}
-
+void stMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+	g_logger.MessageOutput(type,context,msg);
 }
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	//Install message handler
-	 qInstallMessageHandler(STMsgLogger::stMessageOutput);
+	 qInstallMessageHandler(stMessageOutput);
 
 	QTranslator qtTranslator;
 	qtTranslator.load("qt_" + QLocale::system().name(),
@@ -107,6 +32,7 @@ int main(int argc, char *argv[])
 
 
 	ZPMainFrame w;
+	w.setLogger(&g_logger);
 	w.show();
 
 	//!the main program arg formats:

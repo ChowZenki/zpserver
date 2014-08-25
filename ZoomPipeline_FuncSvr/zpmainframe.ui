@@ -17,6 +17,9 @@
    <iconset resource="resource.qrc">
     <normaloff>:/icons/Resources/Backup drive.png</normaloff>:/icons/Resources/Backup drive.png</iconset>
   </property>
+  <property name="toolTipDuration">
+   <number>-1</number>
+  </property>
   <property name="iconSize">
    <size>
     <width>16</width>
@@ -31,9 +34,6 @@
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
-  </property>
-  <property name="toolTipDuration" stdset="0">
-   <number>-1</number>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -853,6 +853,33 @@
               </item>
               <item>
                <spacer name="horizontalSpacer_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_20">
+              <item>
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>Log Level</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_logLevel"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_12">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>

@@ -30,7 +30,8 @@ SOURCES += main.cpp\
 	dialogaddressinput.cpp \
 	cluster/zp_clusternode.cpp \
 	smartlink/st_cross_svr_node.cpp \
-    smartlink/st_operations.cpp
+    smartlink/st_operations.cpp \
+    logger/st_logger.cpp
 
 HEADERS  += zpmainframe.h \
 	network/zp_tcpserver.h \
@@ -51,7 +52,8 @@ HEADERS  += zpmainframe.h \
 	cluster/zp_clusternode.h \
 	smartlink/st_cross_svr_msg.h \
 	smartlink/st_cross_svr_node.h \
-    smartlink/st_operations.h
+    smartlink/st_operations.h \
+    logger/st_logger.h
 
 FORMS    += zpmainframe.ui \
 	dialogaddressinput.ui

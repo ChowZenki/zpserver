@@ -109,7 +109,7 @@ namespace STMsgLogger{
 			break;
 		}
 		strMsg.append(msg);
-		strMsgHeader += QString("\n         From {%1:%2,%3}\n").arg(QString(context.file)).arg(QString(context.line)).arg(QString(context.function));
+		strMsgHeader += QString("\n         From {%1:%2,%3}\n").arg(QString(context.file)).arg(context.line).arg(QString(context.function));
 		strMsg.append(strMsgHeader);
 
 		QTextStream stream(m_pLogFile);

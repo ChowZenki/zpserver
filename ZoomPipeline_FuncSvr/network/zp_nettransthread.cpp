@@ -136,6 +136,8 @@ namespace ZPNetwork{
 					connect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted,Qt::QueuedConnection);
 					psslsock->startServerEncryption();
 				}
+				qDebug()<<sock_client->peerAddress().toString()<<
+						  sock_client->peerPort()  <<tr("(%1)..Accepted.\n").arg((quint64)sock_client);
 				emit evt_NewClientConnected(sock_client);
 				emit evt_Message(sock_client,"Info>" +  QString(tr("Client Accepted.")));
 			}
@@ -205,6 +207,8 @@ namespace ZPNetwork{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		emit evt_NewClientConnected(pSock);
 		emit evt_Message(pSock,"Info>" +  QString(tr("Client connected.")));
+		qDebug()<<pSock->peerAddress().toString()<<
+				  pSock->peerPort()  <<tr("(%1)..connected.\n").arg((quint64)pSock);
 	}
 
 	void zp_netTransThread::on_encrypted()
@@ -212,6 +216,8 @@ namespace ZPNetwork{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		emit evt_ClientEncrypted(pSock);
 		emit evt_Message(pSock,"Info>" +  QString(tr("Client Encrypted.")));
+		qDebug()<<pSock->peerAddress().toString()<<
+				  pSock->peerPort()  <<tr("(%1)..Encrypted.\n").arg((quint64)pSock);
 	}
 
 	void zp_netTransThread::client_closed()
@@ -239,6 +245,7 @@ namespace ZPNetwork{
 			pSock->deleteLater();
 			emit evt_ClientDisconnected(pSock);
 			emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
+			qDebug()<<tr("(%1)..Closed.\n").arg((quint64)pSock);
 		}
 	}
 	void zp_netTransThread::new_data_recieved()
@@ -297,6 +304,8 @@ namespace ZPNetwork{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		if (pSock)
 		{
+			qDebug()<<pSock->peerAddress().toString()<<
+					  pSock->peerPort()  <<tr("(%1)..Error :%2.\n").arg((quint64)pSock).arg(pSock->errorString());
 			emit evt_SocketError(pSock,socketError);
 			emit evt_Message(pSock,"Debug:" + pSock->errorString());
 			if (m_bSSLConnection)

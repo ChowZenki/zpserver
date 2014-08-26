@@ -113,11 +113,20 @@ namespace ParkinglotsSvr{
 	{
 		int res = 0;
 		m_mutex_rawData.lock();
-
-		m_list_RawData.push_back(dtarray);
+		res = m_list_RawData.size();
+		if (res>=16)
+		{
+			if (res % 10 == 0)
+				qWarning()<< peerInfo() << tr("Task Blocked. %1 tasks in queue...\n").arg(res);
+		}
+		if (res <=256)
+			m_list_RawData.push_back(dtarray);
+		else
+			qCritical()<< peerInfo() << tr("Task Blocked Too Badly. %1 tasks in queue, lost 1 package!!\n").arg(res);
 		res = m_list_RawData.size();
 		m_mutex_rawData.unlock();
 		m_last_Report = QDateTime::currentDateTime();
+
 		return res;
 	}
 	//!deal one message, affect m_currentRedOffset,m_currentMessageSize,m_currentHeader

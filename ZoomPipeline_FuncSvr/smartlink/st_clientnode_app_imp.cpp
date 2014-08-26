@@ -181,7 +181,10 @@ namespace ParkinglotsSvr{
 			strDeviceNames.push_back(strCurrentItem);
 		}
 		if ( strDeviceNames.size()<nItems)
+		{
+			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devNames, other than %2.").arg(strDeviceNames.size()).arg(nItems)<< "\n";
 			return false;
+		}
 
 		QVector<QString> strDeviceNos;
 		while (  nSwim < nAppLen && strDeviceNos.size()<nItems)
@@ -193,7 +196,10 @@ namespace ParkinglotsSvr{
 			strDeviceNos.push_back(strCurrentItem);
 		}
 		if ( strDeviceNos.size()<nItems)
+		{
+			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devNos, other than %2.").arg(strDeviceNos.size()).arg(nItems)<< "\n";
 			return false;
+		}
 
 		QVector<QString> strDeviceIDs;
 		while (  nSwim < nAppLen  && strDeviceIDs.size()<nItems )
@@ -209,7 +215,10 @@ namespace ParkinglotsSvr{
 				strDeviceIDs.push_back(strCurrentID);
 		}
 		if ( strDeviceIDs.size()<nItems)
+		{
+			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devIDs, other than %2.").arg(strDeviceIDs.size()).arg(nItems)<< "\n";
 			return false;
+		}
 
 		//form Msgs
 		quint16 nMsgLen = sizeof(PKLTS_App_Header);
@@ -261,7 +270,11 @@ namespace ParkinglotsSvr{
 		if (nSwim + sizeof (stMsg_SendMacInfoReq_internal::tag_TailData)<=nAppLen)
 			memcpy(&m_macInfo.tail_data,ptr_start+nSwim, sizeof (stMsg_SendMacInfoReq_internal::tag_TailData));
 		else
+		{
+			qWarning()<<peerInfo()<<tr("Break tag_TailData, We need  %1 bytes, larger than real data len %2.").arg(nSwim + sizeof (stMsg_SendMacInfoReq_internal::tag_TailData))
+						.arg(nAppLen)<< "\n";
 			return false;
+		}
 
 		//form Msgs
 		quint16 nMsgLen = sizeof(PKLTS_App_Header);
@@ -290,6 +303,51 @@ namespace ParkinglotsSvr{
 					);
 		const PKLTS_App_Layer * pAppLayer = &pRawMsg->trans_payload.app_layer;
 
-		return true;
+
+		//form Msgs
+		quint16 nMsgLen = sizeof(PKLTS_App_Header)
+				+sizeof(stMsg_EventPushRsp);
+		QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
+		char * ptr = array.data();
+		PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+		PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
+		pMsg->trans_header.Mark = 0x55AA;
+		pMsg->trans_header.SrcID = (quint32)((quint64)(m_currentHeader.DstID) & 0xffffffff );
+		pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+		pMsg->trans_header.DataLen = nMsgLen;
+		pApp->app_header.MsgType = 0x4800;
+		stMsg_EventPushRsp & reply = pApp->app_data.msg_stMsg_EventPushRsp;
+		reply.DoneCode = 0;
+
+		//Database Operations
+		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
+		st_operations dboper(&db);
+
+		int nEvtID = pAppLayer->app_data.msg_stMsg_EventPushReq.event.EventType;
+		switch (nEvtID)
+		{
+		//device joined
+		case 0x0000:
+			reply.DoneCode = dboper.add_new_device(this->uuid(), pAppLayer->app_data.msg_stMsg_EventPushReq.event.unEvent.evt_DeviceJoined.DeviceID);
+			break;
+			//device removed
+		case 0x0001:
+			reply.DoneCode = dboper.del_old_device(this->uuid(), pAppLayer->app_data.msg_stMsg_EventPushReq.event.unEvent.evt_DeviceRemoved.DeviceID);
+			break;
+			//Device Event
+		case 0x0002:
+		{
+			size_t nOffsetDAL = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header) + sizeof(quint8) + sizeof(quint16);
+			QByteArray array_Dal = m_currentBlock.mid(nOffsetDAL);
+			reply.DoneCode = dboper.update_DAL_event(uuid(),array_Dal);
+		}
+			break;
+		default:
+			qWarning()<<peerInfo()<<tr("Unknown Event %1").arg(nEvtID)<< "\n";
+			break;
+		}
+		//Send back
+		emit evt_SendDataToClient(this->sock(),array);
+		return reply.DoneCode==0?true:false;
 	}
 }

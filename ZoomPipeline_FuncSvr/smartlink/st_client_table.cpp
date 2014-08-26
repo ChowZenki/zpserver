@@ -316,6 +316,7 @@ namespace ParkinglotsSvr{
 		}
 		m_hash_mutex.unlock();
 		emit evt_Message(this,tr("Send Initial UUIDs to Remote Svr:") + svrHandle);
+		qDebug()<<tr("Send Initial UUIDs to Remote Svr:") + svrHandle <<"\n";
 	}
 	void st_client_table::broadcast_client_uuid(quint32 uuid, bool bActive)
 	{
@@ -358,12 +359,13 @@ namespace ParkinglotsSvr{
 		//remove all client-maps belongs to this server.
 		this->cross_svr_del_uuids(svrHandle,NULL,0);
 		emit evt_Message(this,"Svr DisConnected. " + svrHandle);
+		qDebug()<<"Svr DisConnected. " + svrHandle <<"\n";
 	}
 
 	//some data arrival
 	void st_client_table::on_evt_RemoteData_recieved(QString  svrHandle,QByteArray  array )
 	{
-		emit evt_Message(this,tr("Recieved %1 bytes Msg from ").arg(array.length()) + svrHandle);
+		//emit evt_Message(this,tr("Recieved %1 bytes Msg from ").arg(array.length()) + svrHandle);
 	}
 
 	//a block of data has been successfuly sent
@@ -389,6 +391,7 @@ namespace ParkinglotsSvr{
 			m_hash_remoteClient2SvrName[pUUIDs[i]] = svrname;
 		m_mutex_cross_svr_map.unlock();
 		emit evt_Message(this,tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
+		qDebug()<<tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname <<"\n";
 	}
 
 	//del uuids in m_hash_remoteClient2SvrName, pUUIDs =0 means del all uuids belong to svrname
@@ -417,6 +420,7 @@ namespace ParkinglotsSvr{
 		}
 		m_mutex_cross_svr_map.unlock();
 		emit evt_Message(this,tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
+		qDebug()<<tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname<<"\n";
 	}
 	void st_client_table::cross_svr_send_data(QString  svrname,QByteArray  arr)
 	{

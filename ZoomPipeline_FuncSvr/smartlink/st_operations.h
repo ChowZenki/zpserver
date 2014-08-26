@@ -9,6 +9,10 @@ namespace ParkinglotsSvr{
 
 
 
+	/**
+	 * @brief this class holds all database opertations .
+	 *
+	 */
 	class st_operations : public QObject
 	{
 		Q_OBJECT
@@ -22,6 +26,9 @@ namespace ParkinglotsSvr{
 		quint8 login_host(QString serialnum, quint32 host_id );
 		bool   insert_device_table (int nItems, QVector<QString> & vec_dev_names,QVector<QString> & vec_dev_nos,QVector<QString> & vec_dev_ids, quint32 macid);
 		bool   insert_mac_table(quint32 macID, const QString & macSerial,const stMsg_SendMacInfoReq_internal & info);
+		quint8 add_new_device(quint32 macid,const quint8 deviceID[/*24*/]);
+		quint8 del_old_device(quint32 macid,const quint8 deviceID[/*24*/]);
+		quint8 update_DAL_event(quint32 macid, const QByteArray & array_DAL);
 	};
 }
 

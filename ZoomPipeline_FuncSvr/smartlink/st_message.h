@@ -148,11 +148,7 @@ namespace ParkinglotsSvr{
 	struct stEvent{
 		quint16 EventType;
 		//Event Priority
-		enum enEventPriority {
-			PRI_LOW = 0,
-			PRI_NORMAL =1,
-			PRI_HIGH = 2
-		}  Priority;
+		quint8  Priority;
 		union union_Event{
 			stEvent_DeviceJoined evt_DeviceJoined;
 			stEvent_DeviceRemoved evt_DeviceRemoved;

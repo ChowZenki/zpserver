@@ -244,5 +244,83 @@ namespace ParkinglotsSvr{
 		}
 		return res;
 	}
+	quint8 st_operations::add_new_device(quint32 macid,const quint8 deviceID[/*24*/])
+	{
+		bool res = true;
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			QString sql = "select deviceid from sensorlist where deviceid = ?;";
+			query.prepare(sql);
+			QString devID = hex2ascii(deviceID,24);
+			query.addBindValue(devID);
 
+			if (true==query.exec())
+			{
+				if (query.next()) //need update
+				{
+					//Already has this ID
+					qWarning()<<tr("Already exists a Device :") + devID +"\n";
+					sql = "update sensorlist set  macid = ? where deviceid = ?;";
+					query.prepare(sql);
+					query.addBindValue(macid);
+					query.addBindValue(devID);
+				}
+				else //need insert
+				{
+					sql = "insert into sensorlist (deviceid ,macid) values (?,?);";
+					query.prepare(sql);
+					query.addBindValue(devID);
+					query.addBindValue(macid);
+				}
+				if (false==query.exec())
+				{
+					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					res = false;
+				}
+			}
+			else
+			{
+				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				res = false;
+			}
+		}
+		else
+		{
+			qCritical()<<tr("Database is not ready.");
+			res = false;
+		}
+		return res==true?0:1;
+	}
+
+	quint8 st_operations::del_old_device(quint32 /*macid*/,const quint8 deviceID[/*24*/])
+	{
+		bool res = true;
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			QString sql = "delete from sensorlist where deviceid = ?;";
+			query.prepare(sql);
+			QString devID = hex2ascii(deviceID,24);
+			query.addBindValue(devID);
+			if (false==query.exec())
+			{
+				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				res = false;
+			}
+		}
+		else
+		{
+			qCritical()<<tr("Database is not ready.");
+			res = false;
+		}
+		return res==true?0:1;
+	}
+
+	quint8 st_operations::update_DAL_event(quint32 macid, const QByteArray &array_DAL)
+	{
+		return 0l;
+	}
 }

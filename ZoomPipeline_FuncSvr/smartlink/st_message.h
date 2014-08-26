@@ -4,7 +4,33 @@
 namespace ParkinglotsSvr{
 #define MAXPARAMDATALEN 256
 #define MAXPARAMNUM 8
+
 #pragma  pack (push,1)
+
+	enum dal_datatype{
+		DAL_TYPE_NODATA	=0x00,
+		DAL_TYPE_BOOL	=0x10,
+		DAL_TYPE_UINT8	=0x20,
+		DAL_TYPE_UINT16	=0x21,
+		DAL_TYPE_UINT24	=0x22,
+		DAL_TYPE_UINT32	=0x23,
+		DAL_TYPE_UINT40	=0x24,
+		DAL_TYPE_UINT48	=0x25,
+		DAL_TYPE_UINT56	=0x26,
+		DAL_TYPE_UINT64	=0x27,
+		DAL_TYPE_INT8	=0x28,
+		DAL_TYPE_INT16	=0x29,
+		DAL_TYPE_INT24	=0x2A,
+		DAL_TYPE_INT32	=0x2B,
+		DAL_TYPE_INT40	=0x2C,
+		DAL_TYPE_INT48	=0x2D,
+		DAL_TYPE_INT56	=0x2E,
+		DAL_TYPE_INT64	=0x2F,
+		DAL_TYPE_ENUM8	=0x30,
+		DAL_TYPE_SINGLEFLOAT	=0x39,
+		DAL_TYPE_DOUBLEFLOAT	=0x3A,
+		DAL_TYPE_STRING	=0x42
+	};
 
 	//-------------------------------------------------------------------
 	/**Application Layer Message Types

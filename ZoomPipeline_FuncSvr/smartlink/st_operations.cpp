@@ -321,6 +321,322 @@ namespace ParkinglotsSvr{
 
 	quint8 st_operations::update_DAL_event(quint32 macid, const QByteArray &array_DAL)
 	{
-		return 0l;
+		quint8 res = 0;
+		const quint8 * ptr_rawdata = (const quint8 *)array_DAL.constData();
+		const stEvent_DeviceEvent * pEvent = (const stEvent_DeviceEvent *) ptr_rawdata;
+		const quint8 * pDalLayer = ptr_rawdata + sizeof(stEvent_DeviceEvent);
+		int nTotalDalLen = array_DAL.size() -  sizeof(stEvent_DeviceEvent);
+		//0xCBFE0001 is the sensor
+		if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x00 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
+		{
+			switch (pEvent->DALEventID)
+			{
+			case 0x00:
+				res = dal_sensor_0x00(pEvent,pDalLayer,nTotalDalLen);
+				break;
+			case 0x01:
+				res = dal_sensor_0x01(pEvent,pDalLayer,nTotalDalLen);
+				break;
+			case 0x02:
+				res = dal_sensor_0x02(pEvent,pDalLayer,nTotalDalLen);
+				break;
+			default:
+				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID)+"\n";
+				break;
+
+			}
+		}
+		//0xCBFE0101 is the sensor
+		else if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x01 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
+		{
+			if (pEvent->DALEventID == 0x00)
+			{
+				//Heartbeating
+
+			}
+			else
+				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID)+"\n";
+
+		}
+		else
+		{
+			res = 1;
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr("Send a unsupported Device Type.")<<"\n";
+		}
+
+		return res;
+	}
+	quint8 st_operations::dal_sensor_0x00(const stEvent_DeviceEvent * pEvent,const quint8 * pDalLayer, int nTotalDalLen)
+	{
+		quint8 res = 0;
+		if (pEvent->ParamNum>=1)
+		{
+			if (nTotalDalLen >=2)
+			{
+				quint8 dtp = pDalLayer[0];
+				if (dtp==dal_datatype::DAL_TYPE_BOOL)
+				{
+					quint8 value = pDalLayer[1];
+					QSqlDatabase & db = *m_pDb;
+					if (db.isValid()==true && db.isOpen()==true )
+					{
+						QSqlQuery query(db);
+						QString sql = "update sensorlist set occupied = ? where deviceid = ?;";
+						query.prepare(sql);
+						QString devID = hex2ascii(pEvent->DeviceID,24);
+						query.addBindValue(value);
+						query.addBindValue(devID);
+						if (false==query.exec())
+						{
+							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							res = 1;
+						}
+					}
+					else
+					{
+						qCritical()<<tr("Database is not ready.");
+						res = 1;
+					}
+				}
+				else
+				{
+					res = 1;
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				}
+			}
+			else
+			{
+				res = 1;
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para too short, need 2 bytes, got %2 byte(s)).").arg(pEvent->DALEventID).arg(nTotalDalLen)<<"\n";
+			}
+
+		}
+		else
+		{
+			res = 1;
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID)<<"\n";
+		}
+		return res;
+	}
+	quint8 st_operations::dal_sensor_0x01(const stEvent_DeviceEvent * pEvent,const quint8 * pDalLayer, int nTotalDalLen)
+	{
+		quint8 res = 0;
+		if (pEvent->ParamNum>=1)
+		{
+			if (nTotalDalLen >=2)
+			{
+				quint8 dtp = pDalLayer[0];
+				if (dtp==dal_datatype::DAL_TYPE_UINT8)
+				{
+					quint8 value = pDalLayer[1];
+					QSqlDatabase & db = *m_pDb;
+					if (db.isValid()==true && db.isOpen()==true )
+					{
+						QSqlQuery query(db);
+						QString sql = "update sensorlist set batteryvoltage = ? where deviceid = ?;";
+						query.prepare(sql);
+						QString devID = hex2ascii(pEvent->DeviceID,24);
+						query.addBindValue(value);
+						query.addBindValue(devID);
+						if (false==query.exec())
+						{
+							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							res = 1;
+						}
+					}
+					else
+					{
+						qCritical()<<tr("Database is not ready.");
+						res = 1;
+					}
+				}
+				else
+				{
+					res = 1;
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				}
+			}
+			else
+			{
+				res = 1;
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para too short, need 2 bytes, got %2 byte(s)).").arg(pEvent->DALEventID).arg(nTotalDalLen)<<"\n";
+			}
+
+		}
+		else
+		{
+			res = 1;
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr( "Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID)<<"\n";
+		}
+		return res;
+	}
+	quint8 st_operations::dal_sensor_0x02(const stEvent_DeviceEvent * pEvent,const quint8 * pDalLayer, int nTotalDalLen)
+	{
+		quint8 res = 0;
+		if (pEvent->ParamNum>=9)
+		{
+			int nSwim = 0;
+			quint8 dtp = 0;
+
+			//status
+			quint8 para_dal_status = 0;
+			if (nSwim >= nTotalDalLen)
+			{
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+				return 1;
+			}
+			dtp = pDalLayer[nSwim++];
+			if (dtp==dal_datatype::DAL_TYPE_BOOL)
+			{
+				if (nSwim >= nTotalDalLen)
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					return 1;
+				}
+				para_dal_status = pDalLayer[nSwim++];
+			}
+			else
+			{
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				return 1;
+			}
+
+			//Mag A
+			qint16 para_dal_cmaga[3];
+			for (int i=0;i<3;++i)
+			{
+				if (nSwim >= nTotalDalLen)
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					return 1;
+				}
+				dtp = pDalLayer[nSwim++];
+				if (dtp==dal_datatype::DAL_TYPE_INT16)
+				{
+					if (nSwim + 1 >= nTotalDalLen)
+					{
+						qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+						return 1;
+					}
+					const qint16 * ptr16 = (const qint16 *)(pDalLayer + nSwim);
+					para_dal_cmaga[i] = * ptr16;
+					nSwim += 2;
+				}
+				else
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+					return 1;
+				}
+			}
+
+			//Mag B
+			float para_dal_bmaga[3];
+			for (int i=0;i<3;++i)
+			{
+				if (nSwim >= nTotalDalLen)
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					return 1;
+				}
+				dtp = pDalLayer[nSwim++];
+				if (dtp==dal_datatype::DAL_TYPE_SINGLEFLOAT)
+				{
+					if (nSwim + 3 >= nTotalDalLen)
+					{
+						qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+						return 1;
+					}
+					const float * ptrfloat = (const float *)(pDalLayer + nSwim);
+					para_dal_bmaga[i] = * ptrfloat;
+					nSwim += 4;
+				}
+				else
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+					return 1;
+				}
+			}
+
+			//Temp
+			qint8 para_dal_tempr = 0;
+			if (nSwim >= nTotalDalLen)
+			{
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+				return 1;
+			}
+			dtp = pDalLayer[nSwim++];
+			if (dtp==dal_datatype::DAL_TYPE_INT8)
+			{
+				if (nSwim >= nTotalDalLen)
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					return 1;
+				}
+				para_dal_tempr = pDalLayer[nSwim++];
+			}
+			else
+			{
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				return 1;
+			}
+
+			//Vol
+			quint8 para_dal_vol = 0;
+			if (nSwim >= nTotalDalLen)
+			{
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+				return 1;
+			}
+			dtp = pDalLayer[nSwim++];
+			if (dtp==dal_datatype::DAL_TYPE_UINT8)
+			{
+				if (nSwim >= nTotalDalLen)
+				{
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					return 1;
+				}
+				para_dal_vol = pDalLayer[nSwim++];
+			}
+			else
+			{
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				return 1;
+			}
+			QSqlDatabase & db = *m_pDb;
+			if (db.isValid()==true && db.isOpen()==true )
+			{
+				QSqlQuery query(db);
+				QString sql = "update sensorlist set occupied = ?, cmx = ? , cmy = ? , cmz = ? , bmx = ?, bmy = ? , bmz = ? ,temperature = ?, batteryvoltage = ? where deviceid = ?;";
+				query.prepare(sql);
+				QString devID = hex2ascii(pEvent->DeviceID,24);
+				query.addBindValue(para_dal_status);
+				query.addBindValue(para_dal_cmaga[0]);
+				query.addBindValue(para_dal_cmaga[1]);
+				query.addBindValue(para_dal_cmaga[2]);
+				query.addBindValue(para_dal_bmaga[0]);
+				query.addBindValue(para_dal_bmaga[1]);
+				query.addBindValue(para_dal_bmaga[2]);
+				query.addBindValue(para_dal_tempr);
+				query.addBindValue(para_dal_vol);
+				query.addBindValue(devID);
+				if (false==query.exec())
+				{
+					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					res = 1;
+				}
+			}
+			else
+			{
+				qCritical()<<tr("Database is not ready.");
+				res = 1;
+			}
+		}
+		else
+		{
+			res = 1;
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr( "Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID)<<"\n";
+		}
+
+		return res;
 	}
 }

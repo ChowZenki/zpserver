@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <QVariant>
 #include <QDebug>
+#include <QDateTime>
 namespace ParkinglotsSvr{
 	st_operations::st_operations(QSqlDatabase * db,QObject *parent) :
 		QObject(parent)
@@ -146,12 +147,13 @@ namespace ParkinglotsSvr{
 					}
 					else //need insert
 					{
-						sql = "insert into sensorlist (devicename,sensorlist.no, deviceid ,macid) values (?,?,?,?);";
+						sql = "insert into sensorlist (devicename,sensorlist.no, deviceid ,macid,createtime ) values (?,?,?,?,?);";
 						query.prepare(sql);
 						query.addBindValue(vec_dev_names[i]);
 						query.addBindValue(vec_dev_nos[i]);
 						query.addBindValue(vec_dev_ids[i]);
 						query.addBindValue(macid);
+						query.addBindValue(QDateTime::currentDateTimeUtc());
 					}
 					if (false==query.exec())
 					{
@@ -269,10 +271,11 @@ namespace ParkinglotsSvr{
 				}
 				else //need insert
 				{
-					sql = "insert into sensorlist (deviceid ,macid) values (?,?);";
+					sql = "insert into sensorlist (deviceid ,macid, createtime) values (?,?,?);";
 					query.prepare(sql);
 					query.addBindValue(devID);
 					query.addBindValue(macid);
+					query.addBindValue(QDateTime::currentDateTimeUtc());
 				}
 				if (false==query.exec())
 				{
@@ -352,7 +355,26 @@ namespace ParkinglotsSvr{
 			if (pEvent->DALEventID == 0x00)
 			{
 				//Heartbeating
-
+				QSqlDatabase & db = *m_pDb;
+				if (db.isValid()==true && db.isOpen()==true )
+				{
+					QSqlQuery query(db);
+					QString sql = "update sensorlist set lastacttime = ? where deviceid = ?;";
+					query.prepare(sql);
+					QString devID = hex2ascii(pEvent->DeviceID,24);
+					query.addBindValue(QDateTime::currentDateTimeUtc());
+					query.addBindValue(devID);
+					if (false==query.exec())
+					{
+						qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+						res = 1;
+					}
+				}
+				else
+				{
+					qCritical()<<tr("Database is not ready.");
+					res = 1;
+				}
 			}
 			else
 				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID)+"\n";
@@ -380,12 +402,29 @@ namespace ParkinglotsSvr{
 					QSqlDatabase & db = *m_pDb;
 					if (db.isValid()==true && db.isOpen()==true )
 					{
+						//Update sensor list
 						QSqlQuery query(db);
-						QString sql = "update sensorlist set occupied = ? where deviceid = ?;";
+						QString sql = "update sensorlist set occupied = ?, lastacttime = ? where deviceid = ?;";
 						query.prepare(sql);
 						QString devID = hex2ascii(pEvent->DeviceID,24);
 						query.addBindValue(value);
+						query.addBindValue(QDateTime::currentDateTimeUtc());
 						query.addBindValue(devID);
+						if (false==query.exec())
+						{
+							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							res = 1;
+						}
+						//update sensor event
+						sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
+						query.prepare(sql);
+						query.addBindValue(devID);
+						query.addBindValue(pEvent->DALEventID);
+						query.addBindValue(0);
+						query.addBindValue((int)dal_datatype::DAL_TYPE_BOOL);
+						QString strVal = QString("%1").arg(value);
+						query.addBindValue(strVal);
+						query.addBindValue(QDateTime::currentDateTimeUtc());
 						if (false==query.exec())
 						{
 							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
@@ -433,11 +472,27 @@ namespace ParkinglotsSvr{
 					if (db.isValid()==true && db.isOpen()==true )
 					{
 						QSqlQuery query(db);
-						QString sql = "update sensorlist set batteryvoltage = ? where deviceid = ?;";
+						QString sql = "update sensorlist set batteryvoltage = ?, lastacttime = ? where deviceid = ?;";
 						query.prepare(sql);
 						QString devID = hex2ascii(pEvent->DeviceID,24);
 						query.addBindValue(value);
+						query.addBindValue(QDateTime::currentDateTimeUtc());
 						query.addBindValue(devID);
+						if (false==query.exec())
+						{
+							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							res = 1;
+						}
+						//update sensor event
+						sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
+						query.prepare(sql);
+						query.addBindValue(devID);
+						query.addBindValue(pEvent->DALEventID);
+						query.addBindValue(0);
+						query.addBindValue((int)dal_datatype::DAL_TYPE_UINT8);
+						QString strVal = QString("%1").arg(value);
+						query.addBindValue(strVal);
+						query.addBindValue(QDateTime::currentDateTimeUtc());
 						if (false==query.exec())
 						{
 							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
@@ -606,7 +661,7 @@ namespace ParkinglotsSvr{
 			if (db.isValid()==true && db.isOpen()==true )
 			{
 				QSqlQuery query(db);
-				QString sql = "update sensorlist set occupied = ?, cmx = ? , cmy = ? , cmz = ? , bmx = ?, bmy = ? , bmz = ? ,temperature = ?, batteryvoltage = ? where deviceid = ?;";
+				QString sql = "update sensorlist set occupied = ?, cmx = ? , cmy = ? , cmz = ? , bmx = ?, bmy = ? , bmz = ? ,temperature = ?, batteryvoltage = ?, lastacttime = ?  where deviceid = ?;";
 				query.prepare(sql);
 				QString devID = hex2ascii(pEvent->DeviceID,24);
 				query.addBindValue(para_dal_status);
@@ -618,7 +673,32 @@ namespace ParkinglotsSvr{
 				query.addBindValue(para_dal_bmaga[2]);
 				query.addBindValue(para_dal_tempr);
 				query.addBindValue(para_dal_vol);
+				query.addBindValue(QDateTime::currentDateTimeUtc());
 				query.addBindValue(devID);
+				if (false==query.exec())
+				{
+					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					res = 1;
+				}
+				//update sensor event
+				sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
+				query.prepare(sql);
+				query.addBindValue(devID);
+				query.addBindValue(pEvent->DALEventID);
+				query.addBindValue(9);
+				query.addBindValue((int)dal_datatype::DAL_TYPE_STRING);
+				QString strVal = QString("Occupied=%1, cm = {%2,%3,%4}, bm = {%5, %6, %7}, tempr = %8, bat = %9")
+						.arg(para_dal_status)
+						.arg(para_dal_cmaga[0])
+						.arg(para_dal_cmaga[1])
+						.arg(para_dal_cmaga[2])
+						.arg(para_dal_bmaga[0])
+						.arg(para_dal_bmaga[1])
+						.arg(para_dal_bmaga[2])
+						.arg(para_dal_tempr)
+						.arg(para_dal_vol);
+				query.addBindValue(strVal);
+				query.addBindValue(QDateTime::currentDateTimeUtc());
 				if (false==query.exec())
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";

@@ -88,7 +88,7 @@ namespace STMsgLogger{
 
 		QString strMsg = "\n";
 		strMsg += dtmCur.toString("yyyy-MM-dd HH:mm:ss.zzz");
-		QString strMsgHeader = dtmCur.toString("                       ");
+		QString strMsgHeader = dtmCur.toString("\n                       ");
 		strMsg += "(UTC)>";
 		strMsgHeader += "      ";
 		switch (type) {
@@ -109,7 +109,7 @@ namespace STMsgLogger{
 			break;
 		}
 		strMsg.append(msg);
-		strMsgHeader += QString("\n         From {%1:%2,%3}\n").arg(QString(context.file)).arg(context.line).arg(QString(context.function));
+		strMsgHeader += QString("         From {%1:%2,%3}\n").arg(QString(context.file)).arg(context.line).arg(QString(context.function));
 		strMsg.append(strMsgHeader);
 
 		QTextStream stream(m_pLogFile);

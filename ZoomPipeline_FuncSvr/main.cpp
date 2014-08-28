@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	//Install message handler
-	 qInstallMessageHandler(stMessageOutput);
+	qInstallMessageHandler(stMessageOutput);
 
 	QTranslator qtTranslator;
 	qtTranslator.load("qt_" + QLocale::system().name(),

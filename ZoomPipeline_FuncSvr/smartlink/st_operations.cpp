@@ -178,7 +178,7 @@ namespace ParkinglotsSvr{
 		}
 		return res;
 	}
-	bool    st_operations::insert_mac_table(quint32 macID, const QString & macSerial,const stMsg_SendMacInfoReq_internal & info)
+	bool    st_operations::insert_mac_table(quint32 macID, QString  macSerial,const stMsg_SendMacInfoReq_internal & info)
 	{
 		bool res = true;
 		QSqlDatabase & db = *m_pDb;
@@ -295,6 +295,7 @@ namespace ParkinglotsSvr{
 			res = false;
 		}
 		return res==true?0:1;
+		return 0;
 	}
 
 	quint8 st_operations::del_old_device(quint32 /*macid*/,const quint8 deviceID[/*24*/])

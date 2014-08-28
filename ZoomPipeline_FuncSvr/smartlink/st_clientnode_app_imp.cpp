@@ -86,6 +86,8 @@ namespace ParkinglotsSvr{
 		while (  nSwim < 65 && nSwim <nAppLen && pAppLayer->app_data.msg_HostLogonReq.HostSerialNum[nSwim]!=0 )
 			strSerialNum+= pAppLayer->app_data.msg_HostLogonReq.HostSerialNum[nSwim++];
 
+		if (m_serialNum.length()<=0)
+			m_serialNum = strSerialNum;
 
 		//form Msgs
 		quint16 nMsgLen = sizeof(PKLTS_App_Header)

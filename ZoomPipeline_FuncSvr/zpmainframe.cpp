@@ -25,6 +25,7 @@ extern quint64 g_secSent;
 ZPMainFrame::ZPMainFrame(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::ZPMainFrame)
+	,m_pLogger(0)
 {
 	m_currentConfigFile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
@@ -109,6 +110,10 @@ void ZPMainFrame::changeEvent(QEvent *e)
 	default:
 		break;
 	}
+}
+void ZPMainFrame::setLogger(STMsgLogger::st_logger * plogger)
+{
+	this->m_pLogger = plogger;
 }
 
 void ZPMainFrame::initUI()

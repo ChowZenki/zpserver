@@ -11,6 +11,7 @@
 #include "smartlink/st_client_table.h"
 #include "database/databaseresource.h"
 #include "cluster/zp_clusterterm.h"
+#include "logger/st_logger.h"
 namespace Ui {
 	class ZPMainFrame;
 }
@@ -25,6 +26,7 @@ public:
 	void timerEvent(QTimerEvent *);
 	//Auto start support
 	void LoadSettingsAndForkServer(const QString & configfile);
+	void setLogger(STMsgLogger::st_logger * plogger);
 protected:
 	void changeEvent(QEvent *e);
 	QStandardItemModel * m_pMsgModelNetwork;
@@ -45,6 +47,8 @@ protected:
 
 	QStandardItemModel * m_pModelCluster;
 
+	//Logger
+	STMsgLogger::st_logger * m_pLogger;
 
 
 private:

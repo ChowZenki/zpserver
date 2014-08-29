@@ -2,9 +2,20 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
+#include "logger/st_logger.h"
+
+STMsgLogger::st_logger g_logger;
+
+void stMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+	g_logger.MessageOutput(type,context,msg);
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
+	//Install message handler
+	qInstallMessageHandler(stMessageOutput);
 
 	QTranslator qtTranslator;
 	qtTranslator.load("qt_" + QLocale::system().name(),
@@ -20,7 +31,7 @@ int main(int argc, char *argv[])
 	app.installTranslator(&appTranslator);
 
 	ZPMainFrame w;
-
+	w.setLogger(&g_logger);
 	w.show();
 
 	//!the main program arg formats:

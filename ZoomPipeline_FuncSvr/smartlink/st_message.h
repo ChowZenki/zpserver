@@ -246,7 +246,7 @@ namespace ParkinglotsSvr{
 	struct PKLTS_Heartbeating
 	{
 		quint16 Mark;  //Always be 0xBeBe
-		quint32 source_id ; //0xffffffff means from server
+		//quint32 source_id ; //0xffffffff means from server
 		quint16 tmStamp;
 	} ;
 

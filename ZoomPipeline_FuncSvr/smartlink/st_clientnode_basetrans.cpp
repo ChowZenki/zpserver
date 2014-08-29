@@ -176,18 +176,19 @@ namespace ParkinglotsSvr{
 
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
+				qDebug() << "Send Back Heart Beating Msg to " << peerInfo() << ":"<< QString(m_currentBlock.toHex()) << "\n";
 				//Try to Get UUID Immediately
-				if (m_bUUIDRecieved==false)
-				{
-					PKLTS_Heartbeating * pHbMsg = (PKLTS_Heartbeating *)( m_currentBlock.constData());
-					if (bIsValidUserId(pHbMsg->source_id))
-					{
-						m_bUUIDRecieved = true;
-						m_uuid =  pHbMsg->source_id;
-						//regisit client node to hash-table;
-						m_pClientTable->regisitClientUUID(this);
-					}
-				}
+//				if (m_bUUIDRecieved==false)
+//				{
+//					PKLTS_Heartbeating * pHbMsg = (PKLTS_Heartbeating *)( m_currentBlock.constData());
+//					if (bIsValidUserId(pHbMsg->source_id))
+//					{
+//						m_bUUIDRecieved = true;
+//						m_uuid =  pHbMsg->source_id;
+//						//regisit client node to hash-table;
+//						m_pClientTable->regisitClientUUID(this);
+//					}
+//				}
 
 				//This Message is Over. Start a new one.
 				m_currentMessageSize = 0;

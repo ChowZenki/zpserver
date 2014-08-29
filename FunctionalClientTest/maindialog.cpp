@@ -144,7 +144,7 @@ void MainDialog::timerEvent(QTimerEvent * evt)
 			PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
 			pMsg->Mark = 0xBEBE;
 			pMsg->tmStamp = time(0)&0x00ffff;
-			pMsg->source_id = 0;
+			//pMsg->source_id = 0;
 			//3/10 possibility to send a data block to server
 			client->SendData(array);
 

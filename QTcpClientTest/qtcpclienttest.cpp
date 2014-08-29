@@ -92,7 +92,7 @@ void QTcpClientTest::on_client_connected()
 		char * ptr = array.data();
 		PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
 		pMsg->Mark = 0xBEBE;
-		pMsg->source_id = pSockSsl->uuid();
+		//pMsg->source_id = pSockSsl->uuid();
 		pMsg->tmStamp = 0;
 		(pSockSsl)->SendData(array);
 	}
@@ -109,7 +109,7 @@ void QTcpClientTest::on_client_connected()
 		char * ptr = array.data();
 		PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
 		pMsg->Mark = 0xBEBE;
-		pMsg->source_id = pSockTcp->uuid();
+//		pMsg->source_id = pSockTcp->uuid();
 		pMsg->tmStamp = 0;
 		(pSockTcp)->SendData(array);
 	}
@@ -204,7 +204,7 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 				char * ptr = array.data();
 				PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
 				pMsg->Mark = 0xBEBE;
-				pMsg->source_id = uuid;
+				//pMsg->source_id = uuid;
 				pMsg->tmStamp = 0;
 				if (pSockSsl)
 					pSockSsl->SendData(array);

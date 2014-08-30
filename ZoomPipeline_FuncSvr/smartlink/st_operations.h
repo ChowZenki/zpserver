@@ -22,6 +22,7 @@ namespace ParkinglotsSvr{
 		QSqlDatabase * m_pDb;
 		QString hex2ascii(const quint8 ptr[], int sz);
 	public:
+		bool   deleteOldEventTableRecords(qint32 evtTableLastDays);
 		quint8 regisit_host(QString serialnum, quint32 * host_id );
 		quint8 login_host(QString serialnum, quint32 host_id );
 		bool   insert_device_table (int nItems, QVector<QString> & vec_dev_names,QVector<QString> & vec_dev_nos,QVector<QString> & vec_dev_ids, quint32 macid);
@@ -29,6 +30,7 @@ namespace ParkinglotsSvr{
 		quint8 add_new_device(quint32 macid,const quint8 deviceID[/*24*/]);
 		quint8 del_old_device(quint32 macid,const quint8 deviceID[/*24*/]);
 		quint8 update_DAL_event(quint32 macid, const QByteArray & array_DAL);
+
 	protected:
 		quint8 dal_sensor_0x00(const stEvent_DeviceEvent * pEvent,const quint8 * ptrDal, int nMaxLen);
 		quint8 dal_sensor_0x01(const stEvent_DeviceEvent * pEvent,const quint8 * ptrDal, int nMaxLen);

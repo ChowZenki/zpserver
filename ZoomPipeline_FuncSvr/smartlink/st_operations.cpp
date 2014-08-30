@@ -720,4 +720,28 @@ namespace ParkinglotsSvr{
 
 		return res;
 	}
+	bool   st_operations::deleteOldEventTableRecords(qint32 evtTableLastDays)
+	{
+		bool res = true;
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			QString sql = "delete from sensorevent where eventtime <= adddate(now(),INTERVAL ? DAY);";
+			query.prepare(sql);
+			query.addBindValue(evtTableLastDays);
+
+			if (false==query.exec())
+			{
+				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				res = false;
+			}
+		}
+		else
+		{
+			qCritical()<<tr("Database is not ready.");
+			res = false;
+		}
+		return res;
+	}
 }

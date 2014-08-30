@@ -25,6 +25,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::ZPMainFrame)
 	,m_pLogger(0)
+	,m_evtTableLastDays(7)
 {
 	m_currentConfigFile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
@@ -372,6 +373,8 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		m_pClusterTerm->SendHeartBeatings();
 		m_pClusterTerm->KickDeadClients();
 		m_nTimerCheck = startTimer(5000);
+		//delete old events
+		m_clientTable->delOldevents(m_evtTableLastDays);
 	}
 }
 void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
@@ -532,11 +535,17 @@ void ZPMainFrame::forkServer(QString  config_file)
 	this->m_pClusterTerm->setPublishPort(strClusterPubPort.toInt());
 	this->m_pClusterTerm->StartListen(QHostAddress(strClusterTermAddr),strClusterTermPort.toInt());
 
+	QString str_evtKeepDays = settings.value("Smartlink/evtKeepDays","7").toString();
+	int nDaysKeep = str_evtKeepDays.toInt();
+	if (nDaysKeep >=1 && nDaysKeep<=30)
+		m_evtTableLastDays = nDaysKeep;
+	else
+		m_evtTableLastDays = 7;
+
 }
 
 void ZPMainFrame::on_action_About_triggered()
 {
-
 	QApplication::aboutQt();
 }
 void ZPMainFrame::LoadSettings(QString  config_file)
@@ -662,6 +671,9 @@ void ZPMainFrame::LoadSettings(QString  config_file)
 
 	int nLogLevel = settings.value("Smartlink/loglevel","2").toInt();
 	ui->comboBox_logLevel->setCurrentIndex(nLogLevel);
+
+	QString str_evtKeepDays = settings.value("Smartlink/evtKeepDays","7").toString();
+	ui->lineEdit_evtKeepDays->setText(str_evtKeepDays);
 }
 
 
@@ -747,6 +759,18 @@ void ZPMainFrame::SaveSettings(QString  config_file)
 	settings.setValue("Cluster/nClusterWorkingThreads", ui->horizontalSlider_cluster_workingThread->value());
 	int nLogLevel = ui->comboBox_logLevel->currentIndex();
 	settings.setValue("Smartlink/loglevel",nLogLevel);
+
+	QString str_evtKeepDays = ui->lineEdit_evtKeepDays->text();
+	int nDays = str_evtKeepDays.toInt();
+	if (nDays >=1 && nDays <=30)
+		settings.setValue("Smartlink/evtKeepDays",str_evtKeepDays);
+	else
+	{
+		ui->lineEdit_evtKeepDays->setText("7");
+		settings.setValue("Smartlink/evtKeepDays","7");
+	}
+
+
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {
@@ -911,3 +935,4 @@ void ZPMainFrame::LoadSettingsAndForkServer(const QString & configfile)
 
 	}
 }
+

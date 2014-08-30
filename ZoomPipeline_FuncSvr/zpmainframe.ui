@@ -149,12 +149,20 @@
                 <property name="text">
                  <string>Add</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/+_Sign.png</normaloff>:/icons/Resources/+_Sign.png</iconset>
+                </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_delListener">
                 <property name="text">
                  <string>Del</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/Folder Graphite-1.png</normaloff>:/icons/Resources/Folder Graphite-1.png</iconset>
                 </property>
                </widget>
               </item>
@@ -494,12 +502,20 @@
                 <property name="text">
                  <string>Add</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/+_Sign_Alt.png</normaloff>:/icons/Resources/+_Sign_Alt.png</iconset>
+                </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_db_del">
                 <property name="text">
                  <string>Remove</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/Folder Graphite-1.png</normaloff>:/icons/Resources/Folder Graphite-1.png</iconset>
                 </property>
                </widget>
               </item>
@@ -699,6 +715,10 @@
                 <property name="text">
                  <string>&amp;Save</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/3floppy_unmount-2.png</normaloff>:/icons/Resources/3floppy_unmount-2.png</iconset>
+                </property>
                </widget>
               </item>
              </layout>
@@ -742,6 +762,10 @@
                <widget class="QPushButton" name="pushButton_join">
                 <property name="text">
                  <string>Participate</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/coffee.png</normaloff>:/icons/Resources/coffee.png</iconset>
                 </property>
                </widget>
               </item>
@@ -879,6 +903,23 @@
                <widget class="QComboBox" name="comboBox_logLevel"/>
               </item>
               <item>
+               <widget class="QLabel" name="label_29">
+                <property name="text">
+                 <string>Event Table Keep Last </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_evtKeepDays"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_30">
+                <property name="text">
+                 <string>Day(s)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_12">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -925,6 +966,10 @@
                <widget class="QPushButton" name="pushButton_smartlink_save">
                 <property name="text">
                  <string>&amp;Save</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="resource.qrc">
+                  <normaloff>:/icons/Resources/+_Sign_Alt.png</normaloff>:/icons/Resources/+_Sign_Alt.png</iconset>
                 </property>
                </widget>
               </item>

@@ -47,8 +47,13 @@ protected:
 	int m_nTimerCheck;
 
 	QStandardItemModel * m_pModelCluster;
+
+	//The event debugger and logger pointer, pointed to global logger.
 	STMsgLogger::st_logger * m_pLogger;
 
+	//Keep only last m_evtTableLastDays days records in database.
+	//This method prevent the sensorevent table from growing too large;
+	int m_evtTableLastDays;
 
 private:
 	Ui::ZPMainFrame *ui;
@@ -63,6 +68,7 @@ private:
 	void LoadSettings(QString  config_file);
 	void SaveSettings(QString  config_file);
 	void forkServer(QString  config_file);
+
 protected slots:
 
 	void on_evt_MessageNetwork(QObject * psource,QString );

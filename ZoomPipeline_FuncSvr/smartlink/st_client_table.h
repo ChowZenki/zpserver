@@ -126,6 +126,8 @@ namespace ParkinglotsSvr{
 	public slots:
 		//send msg to uuid
 		bool SendToNode(quint32 uuid, QByteArray  msg);
+		//Delete old events from db;
+		void delOldevents(qint32 evtTableLastDays);
 
 	};
 }

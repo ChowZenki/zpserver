@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <QList>
 #include <QTcpSocket>
+#include "st_operations.h"
 namespace ParkinglotsSvr{
 	using namespace std::placeholders;
 	st_client_table::st_client_table(
@@ -454,6 +455,13 @@ namespace ParkinglotsSvr{
 			return false;
 		return true;
 	}
-
+	//Delete old events from db;
+	void st_client_table::delOldevents(qint32 evtTableLastDays)
+	{
+		//Check the database, find current equipment info
+		QSqlDatabase db = dbRes()->databse(Database_UserAcct());
+		st_operations dboper(&db);
+		dboper.deleteOldEventTableRecords(evtTableLastDays);
+	}
 }
 

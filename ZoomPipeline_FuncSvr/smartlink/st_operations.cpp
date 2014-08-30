@@ -727,11 +727,8 @@ namespace ParkinglotsSvr{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			QString sql = "delete from sensorevent where eventtime <= adddate(now(),INTERVAL ? DAY);";
-			query.prepare(sql);
-			query.addBindValue(evtTableLastDays);
-
-			if (false==query.exec())
+			QString sql = QString("delete from sensorevent where eventtime <= adddate(now(),INTERVAL -%1 DAY);").arg(evtTableLastDays);
+			if (false==query.exec(sql))
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
 				res = false;

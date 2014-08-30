@@ -372,9 +372,11 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		m_clientTable->KickDeadClients();
 		m_pClusterTerm->SendHeartBeatings();
 		m_pClusterTerm->KickDeadClients();
-		m_nTimerCheck = startTimer(5000);
+		if (m_pDatabases->currentDatabaseConnections().size()>0)
 		//delete old events
-		m_clientTable->delOldevents(m_evtTableLastDays);
+			m_clientTable->delOldevents(m_evtTableLastDays);
+		m_nTimerCheck = startTimer(5000);
+
 	}
 }
 void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)

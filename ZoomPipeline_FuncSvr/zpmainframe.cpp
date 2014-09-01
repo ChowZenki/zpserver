@@ -367,12 +367,13 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 	}
 	else if (e->timerId()==m_nTimerCheck)
 	{
+		static int ctt = 0;
 		killTimer(m_nTimerCheck);
 		m_nTimerCheck = -1;
 		m_clientTable->KickDeadClients();
 		m_pClusterTerm->SendHeartBeatings();
 		m_pClusterTerm->KickDeadClients();
-		if (m_pDatabases->currentDatabaseConnections().size()>0)
+		if (m_pDatabases->currentDatabaseConnections().size()>0 && (++ctt) % 75 == 0)
 		//delete old events
 			m_clientTable->delOldevents(m_evtTableLastDays);
 		m_nTimerCheck = startTimer(5000);

@@ -346,6 +346,16 @@ namespace ParkinglotsSvr{
 			reply.DoneCode = dboper.update_DAL_event(uuid(),array_Dal);
 		}
 			break;
+		case 0x0003:
+		{
+
+			//size_t nOffsetDAL = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header) + sizeof(quint8) + sizeof(quint16);
+			size_t nOffsetDAL = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header) + sizeof(quint16);//by chengm 20140829!!!
+
+			QByteArray array_Dal = m_currentBlock.mid(nOffsetDAL);
+			reply.DoneCode = dboper.update_DAL_exception(uuid(),array_Dal);
+		}
+			break;
 		default:
 			qWarning()<<peerInfo()<<tr("Unknown Event %1").arg(nEvtID)<< "\n";
 			break;

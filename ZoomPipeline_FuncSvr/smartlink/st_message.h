@@ -169,7 +169,16 @@ namespace ParkinglotsSvr{
 		 * quint8 Data[]
 		*/
 	};
-
+	//0x0003, Device Exception Report
+	struct stEvent_DeviceException{
+		quint8 DeviceID[24];
+		quint8 ExceptionID;
+		quint8 ParamNum;
+		/*stParam ParamList[MAXPARAMNUM];
+		 * quint8 DataType;
+		 * quint8 Data[]
+		*/
+	};
 
 	struct stEvent{
 		quint16 EventType;

@@ -323,7 +323,7 @@ namespace ParkinglotsSvr{
 		return res==true?0:1;
 	}
 
-	quint8 st_operations::update_DAL_event(quint32 macid, const QByteArray &array_DAL)
+	quint8 st_operations::update_DAL_event(quint32 /*macid*/, const QByteArray &array_DAL)
 	{
 		quint8 res = 0;
 		const quint8 * ptr_rawdata = (const quint8 *)array_DAL.constData();
@@ -389,6 +389,90 @@ namespace ParkinglotsSvr{
 
 		return res;
 	}
+
+	quint8 st_operations::update_DAL_exception(quint32 /*macid*/, const QByteArray & array_DAL)
+	{
+		quint8 res = 0;
+		const quint8 * ptr_rawdata = (const quint8 *)array_DAL.constData();
+		const stEvent_DeviceException * pEvent = (const stEvent_DeviceException *) ptr_rawdata;
+		//const quint8 * pDalLayer = ptr_rawdata + sizeof(stEvent_DeviceException);
+		//int nTotalDalLen = array_DAL.size() -  sizeof(stEvent_DeviceException);
+		//0xCBFE0001 is the sensor
+		if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x00 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
+		{
+			int nStatus = 0;
+			if (pEvent->ExceptionID==1)
+				nStatus = 2;
+			else if (pEvent->ExceptionID==0)
+				nStatus = 3;
+			else
+				nStatus = 3;
+			QSqlDatabase & db = *m_pDb;
+			if (db.isValid()==true && db.isOpen()==true )
+			{
+				QSqlQuery query(db);
+				QString sql = "update sensorlist set status = ? , lastacttime = ? where deviceid = ?;";
+				query.prepare(sql);
+
+				query.addBindValue(nStatus);
+				query.addBindValue(QDateTime::currentDateTimeUtc());
+				QString devID = hex2ascii(pEvent->DeviceID,24);
+				query.addBindValue(devID);
+				if (false==query.exec())
+				{
+					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					res = 1;
+				}
+			}
+			else
+			{
+				qCritical()<<tr("Database is not ready.");
+				res = 1;
+			}
+		}
+		//0xCBFE0101 is the sensor
+		else if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x01 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
+		{
+			int nStatus = 0;
+			if (pEvent->ExceptionID==1)
+				nStatus = 2;
+			else if (pEvent->ExceptionID==0)
+				nStatus = 3;
+			else
+				nStatus = 3;
+			QSqlDatabase & db = *m_pDb;
+			if (db.isValid()==true && db.isOpen()==true )
+			{
+				QSqlQuery query(db);
+				QString sql = "update sensorlist set status = ? , lastacttime = ? where deviceid = ?;";
+				query.prepare(sql);
+
+				query.addBindValue(nStatus);
+				query.addBindValue(QDateTime::currentDateTimeUtc());
+				QString devID = hex2ascii(pEvent->DeviceID,24);
+				query.addBindValue(devID);
+				if (false==query.exec())
+				{
+					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					res = 1;
+				}
+			}
+			else
+			{
+				qCritical()<<tr("Database is not ready.");
+				res = 1;
+			}
+		}
+		else
+		{
+			res = 1;
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr("Send a unsupported Device Type.")<<"\n";
+		}
+
+		return res;
+	}
+
+
 	quint8 st_operations::dal_sensor_0x00(const stEvent_DeviceEvent * pEvent,const quint8 * pDalLayer, int nTotalDalLen)
 	{
 		quint8 res = 0;
@@ -397,7 +481,7 @@ namespace ParkinglotsSvr{
 			if (nTotalDalLen >=2)
 			{
 				quint8 dtp = pDalLayer[0];
-				if (dtp==dal_datatype::DAL_TYPE_BOOL)
+				if (dtp==ParkinglotsSvr::DAL_TYPE_BOOL)
 				{
 					quint8 value = pDalLayer[1];
 					QSqlDatabase & db = *m_pDb;
@@ -422,7 +506,7 @@ namespace ParkinglotsSvr{
 						query.addBindValue(devID);
 						query.addBindValue(pEvent->DALEventID);
 						query.addBindValue(0);
-						query.addBindValue((int)dal_datatype::DAL_TYPE_BOOL);
+						query.addBindValue((int)ParkinglotsSvr::DAL_TYPE_BOOL);
 						QString strVal = QString("%1").arg(value);
 						query.addBindValue(strVal);
 						query.addBindValue(QDateTime::currentDateTimeUtc());
@@ -466,7 +550,7 @@ namespace ParkinglotsSvr{
 			if (nTotalDalLen >=2)
 			{
 				quint8 dtp = pDalLayer[0];
-				if (dtp==dal_datatype::DAL_TYPE_UINT8)
+				if (dtp==ParkinglotsSvr::DAL_TYPE_UINT8)
 				{
 					quint8 value = pDalLayer[1];
 					QSqlDatabase & db = *m_pDb;
@@ -490,7 +574,7 @@ namespace ParkinglotsSvr{
 						query.addBindValue(devID);
 						query.addBindValue(pEvent->DALEventID);
 						query.addBindValue(0);
-						query.addBindValue((int)dal_datatype::DAL_TYPE_UINT8);
+						query.addBindValue((int)ParkinglotsSvr::DAL_TYPE_UINT8);
 						QString strVal = QString("%1").arg(value);
 						query.addBindValue(strVal);
 						query.addBindValue(QDateTime::currentDateTimeUtc());
@@ -542,7 +626,7 @@ namespace ParkinglotsSvr{
 				return 1;
 			}
 			dtp = pDalLayer[nSwim++];
-			if (dtp==dal_datatype::DAL_TYPE_BOOL)
+			if (dtp==ParkinglotsSvr::DAL_TYPE_BOOL)
 			{
 				if (nSwim >= nTotalDalLen)
 				{
@@ -567,7 +651,7 @@ namespace ParkinglotsSvr{
 					return 1;
 				}
 				dtp = pDalLayer[nSwim++];
-				if (dtp==dal_datatype::DAL_TYPE_INT16)
+				if (dtp==ParkinglotsSvr::DAL_TYPE_INT16)
 				{
 					if (nSwim + 1 >= nTotalDalLen)
 					{
@@ -595,7 +679,7 @@ namespace ParkinglotsSvr{
 					return 1;
 				}
 				dtp = pDalLayer[nSwim++];
-				if (dtp==dal_datatype::DAL_TYPE_SINGLEFLOAT)
+				if (dtp==ParkinglotsSvr::DAL_TYPE_SINGLEFLOAT)
 				{
 					if (nSwim + 3 >= nTotalDalLen)
 					{
@@ -621,7 +705,7 @@ namespace ParkinglotsSvr{
 				return 1;
 			}
 			dtp = pDalLayer[nSwim++];
-			if (dtp==dal_datatype::DAL_TYPE_INT8)
+			if (dtp==ParkinglotsSvr::DAL_TYPE_INT8)
 			{
 				if (nSwim >= nTotalDalLen)
 				{
@@ -644,7 +728,7 @@ namespace ParkinglotsSvr{
 				return 1;
 			}
 			dtp = pDalLayer[nSwim++];
-			if (dtp==dal_datatype::DAL_TYPE_UINT8)
+			if (dtp==ParkinglotsSvr::DAL_TYPE_UINT8)
 			{
 				if (nSwim >= nTotalDalLen)
 				{
@@ -687,7 +771,7 @@ namespace ParkinglotsSvr{
 				query.addBindValue(devID);
 				query.addBindValue(pEvent->DALEventID);
 				query.addBindValue(9);
-				query.addBindValue((int)dal_datatype::DAL_TYPE_STRING);
+				query.addBindValue((int)ParkinglotsSvr::DAL_TYPE_STRING);
 				QString strVal = QString("Occupied=%1, cm = {%2,%3,%4}, bm = {%5, %6, %7}, tempr = %8, bat = %9")
 						.arg(para_dal_status)
 						.arg(para_dal_cmaga[0])

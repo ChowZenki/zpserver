@@ -16,6 +16,8 @@ namespace ParkinglotsSvr{
 	//!deal current message
 	int st_clientNodeAppLayer::deal_current_message_block()
 	{
+		if (st_clientNode_baseTrans::deal_current_message_block()==1)
+			return 1;
 		//then , Start deal to-server messages
 		if (m_currentHeader.DstID==0x00000001)
 		{
@@ -90,7 +92,7 @@ namespace ParkinglotsSvr{
 		}
 		if (bytesLeft()==0)
 			m_current_app_header.MsgType = 0x00;
-		return     st_clientNode_baseTrans::deal_current_message_block();
+		return    0;
 	}
 
 	//deal to-server handshakes

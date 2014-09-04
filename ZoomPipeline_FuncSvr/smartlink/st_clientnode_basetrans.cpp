@@ -300,6 +300,7 @@ namespace ParkinglotsSvr{
 	//in Trans-Level, do nothing.
 	int st_clientNode_baseTrans::deal_current_message_block()
 	{
+		int res = 0;
 		//First, get uuid as soon as possible
 		if (m_bUUIDRecieved==false)
 		{
@@ -320,6 +321,7 @@ namespace ParkinglotsSvr{
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
+				res = 1;
 			}
 		}
 		else
@@ -334,6 +336,7 @@ namespace ParkinglotsSvr{
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
+				res = 1;
 			}
 			if (bIsValidUserId(m_currentHeader.SrcID)==true &&
 					m_uuid != m_currentHeader.SrcID)
@@ -342,12 +345,13 @@ namespace ParkinglotsSvr{
 				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
+				res = 1;
 			}
 
 
 		}
 
-		return 0;
+		return res;
 	}
 	void st_clientNode_baseTrans::CheckHeartBeating()
 	{

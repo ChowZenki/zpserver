@@ -14,7 +14,7 @@ quint64 g_bytesSent = 0;
 quint64 g_secRecieved = 0;
 quint64 g_secSent = 0;
 
-namespace ZPNetwork{	
+namespace ZPNetwork{
 	int zp_netTransThread::RUBBISH_CAN_SIZE = 256;
 
 	zp_netTransThread::zp_netTransThread(zp_net_Engine *pThreadPool,int nPayLoad,QObject *parent) :
@@ -32,6 +32,7 @@ namespace ZPNetwork{
 		foreach (QObject * pDel,m_rabish_can)
 			pDel->deleteLater();
 		m_rabish_can.clear();
+		m_set_rabish.clear();
 		m_mutex_rabish_can.unlock();
 	}
 
@@ -112,7 +113,11 @@ namespace ZPNetwork{
 	void zp_netTransThread::push_to_rabish_can(QObject * deletedobj)
 	{
 		m_mutex_rabish_can.lock();
-		m_rabish_can.push_back(deletedobj);
+		if (m_set_rabish.contains(deletedobj)==false)
+		{
+			m_rabish_can.push_back(deletedobj);
+			m_set_rabish.insert(deletedobj);
+		}
 		if (RUBBISH_CAN_SIZE<16)
 			RUBBISH_CAN_SIZE = 16;
 		if (RUBBISH_CAN_SIZE > 65536)
@@ -123,6 +128,7 @@ namespace ZPNetwork{
 		while (m_rabish_can.size()>=RUBBISH_CAN_SIZE)
 		{
 			m_rabish_can.first()->deleteLater();
+			m_set_rabish.remove(m_rabish_can.first());
 			m_rabish_can.pop_front();
 		}
 		m_mutex_rabish_can.unlock();
@@ -275,9 +281,9 @@ namespace ZPNetwork{
 			m_mutex_protect.lock();
 			m_clientList.remove(pSock);
 			m_mutex_protect.unlock();
-			pSock->abort();
+			//pSock->abort();
 			emit evt_ClientDisconnected(pSock);
-			//emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
+			emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
 			qDebug()<<tr("(%1)..Closed.").arg((quint64)pSock);
 			push_to_rabish_can(pSock);
 		}
@@ -342,27 +348,28 @@ namespace ZPNetwork{
 					  pSock->peerPort()  <<tr("(%1)..Error :%2.").arg((quint64)pSock).arg(pSock->errorString());
 			emit evt_SocketError(pSock,socketError);
 			//emit evt_Message(pSock,"Debug:" + pSock->errorString());
-			if (m_bSSLConnection)
-			{
-				QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
-				if (psslsock)
-					disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
-			}
-			disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
-			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
-			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
-			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
-			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
+//			if (m_bSSLConnection)
+//			{
+//				QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
+//				if (psslsock)
+//					disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+//			}
+//			disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
+//			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
+//			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+//			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
+//			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
 
-			m_buffer_sending.erase(pSock);
-			m_buffer_sending_offset.erase(pSock);
-			m_mutex_protect.lock();
-			m_clientList.remove(pSock);
-			m_mutex_protect.unlock();
-			pSock->abort();
-			emit evt_ClientDisconnected(pSock);
-			emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
-			push_to_rabish_can(pSock);
+//			m_buffer_sending.erase(pSock);
+//			m_buffer_sending_offset.erase(pSock);
+//			m_mutex_protect.lock();
+//			m_clientList.remove(pSock);
+//			m_mutex_protect.unlock();
+//			pSock->abort();
+//			emit evt_ClientDisconnected(pSock);
+//			emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
+			pSock->disconnectFromHost();
+//			push_to_rabish_can(pSock);
 		}
 	}
 
@@ -409,25 +416,25 @@ namespace ZPNetwork{
 			QTcpSocket * pSock = qobject_cast<QTcpSocket*>(obj);
 			if (pSock)
 			{
-				if (m_bSSLConnection)
-				{
-					QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
-					if (psslsock)
-						disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
-				}
-				disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
-				disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
-				disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
-				disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
-				disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
-				m_buffer_sending.erase(pSock);
-				m_buffer_sending_offset.erase(pSock);
-				m_clientList.remove(pSock);
-				pSock->abort();
-				emit evt_ClientDisconnected(pSock);
+//				if (m_bSSLConnection)
+//				{
+//					QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
+//					if (psslsock)
+//						disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+//				}
+//				disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
+//				disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
+//				disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+//				disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
+//				disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
+//				m_buffer_sending.erase(pSock);
+//				m_buffer_sending_offset.erase(pSock);
+				pSock->disconnectFromHost();
+//				pSock->abort();
+//				emit evt_ClientDisconnected(pSock);
 				//emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
-				qDebug()<<tr("(%1)..Closed.").arg((quint64)pSock);
-				push_to_rabish_can(pSock);
+//				qDebug()<<tr("(%1)..Closed.").arg((quint64)pSock);
+//				push_to_rabish_can(pSock);
 			}
 
 		}
@@ -447,27 +454,28 @@ namespace ZPNetwork{
 
 		if (pSock)
 		{
-			if (m_bSSLConnection)
-			{
-				QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
-				if (psslsock)
-					disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
-			}
-			disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
-			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
-			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
-			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
-			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
-			m_buffer_sending.erase(pSock);
-			m_buffer_sending_offset.erase(pSock);
-			m_mutex_protect.lock();
-			m_clientList.remove(pSock);
-			m_mutex_protect.unlock();
-			pSock->abort();
-			emit evt_ClientDisconnected(pSock);
-			//emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
-			qDebug()<<tr("(%1)..Closed.").arg((quint64)pSock);
-			push_to_rabish_can(pSock);
+//			if (m_bSSLConnection)
+//			{
+//				QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
+//				if (psslsock)
+//					disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+//			}
+//			disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
+//			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
+//			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+//			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
+//			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
+//			m_buffer_sending.erase(pSock);
+//			m_buffer_sending_offset.erase(pSock);
+//			m_mutex_protect.lock();
+//			m_clientList.remove(pSock);
+//			m_mutex_protect.unlock();
+			pSock->disconnectFromHost();
+//			pSock->abort();
+//			emit evt_ClientDisconnected(pSock);
+//			//emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
+//			qDebug()<<tr("(%1)..Closed.").arg((quint64)pSock);
+//			push_to_rabish_can(pSock);
 		}
 	}
 

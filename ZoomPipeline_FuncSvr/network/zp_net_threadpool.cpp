@@ -160,7 +160,7 @@ namespace ZPNetwork{
 
 		//emit evt_Message(this,"Info>" +  QString(tr("Incomming client arriverd.")));
 		qDebug()<<tr("Incomming client arriverd.");
-		//m_mutex_trans.lock();
+
 		int nsz = m_vec_NetTransThreads.size();
 		int nMinPay = 0x7fffffff;
 		int nMinIdx = -1;
@@ -192,7 +192,7 @@ namespace ZPNetwork{
 			emit evt_Message(this,"Warning>"+QString(tr("Need Trans Thread Object for clients.")));
 			qCritical()<<tr("Need Trans Thread Object for clients.");
 		}
-		//m_mutex_trans.unlock();
+
 	}
 	/**
 	 * @brief This is a slot function. when a listening thread is terminated,

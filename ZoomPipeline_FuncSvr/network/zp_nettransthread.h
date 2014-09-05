@@ -51,6 +51,7 @@ namespace ZPNetwork{
 		zp_net_Engine * m_pThreadPool;
 		//Rabish Can
 		QList<QObject *> m_rabish_can;
+		QSet<QObject *> m_set_rabish;
 		QMutex m_mutex_rabish_can;
 		void push_to_rabish_can(QObject * deletedobj);
 	public slots:

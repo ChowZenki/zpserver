@@ -112,7 +112,11 @@ namespace ZPNetwork{
 	void zp_netTransThread::push_to_rabish_can(QObject * deletedobj)
 	{
 		m_mutex_rabish_can.lock();
-		m_rabish_can.push_back(deletedobj);
+		if (m_set_rabish.contains(deletedobj)==false)
+		{
+			m_rabish_can.push_back(deletedobj);
+			m_set_rabish.insert(deletedobj);
+		}
 		if (RUBBISH_CAN_SIZE<16)
 			RUBBISH_CAN_SIZE = 16;
 		if (RUBBISH_CAN_SIZE > 65536)
@@ -123,6 +127,7 @@ namespace ZPNetwork{
 		while (m_rabish_can.size()>=RUBBISH_CAN_SIZE)
 		{
 			m_rabish_can.first()->deleteLater();
+			m_set_rabish.remove(m_rabish_can.first());
 			m_rabish_can.pop_front();
 		}
 		m_mutex_rabish_can.unlock();
@@ -422,7 +427,7 @@ namespace ZPNetwork{
 				disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
 				m_buffer_sending.erase(pSock);
 				m_buffer_sending_offset.erase(pSock);
-				m_clientList.remove(pSock);
+				pSock->disconnectFromHost();
 				pSock->abort();
 				emit evt_ClientDisconnected(pSock);
 				//emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
@@ -431,6 +436,7 @@ namespace ZPNetwork{
 			}
 
 		}
+		m_clientList.clear();
 		m_mutex_protect.unlock();
 	}
 
@@ -463,6 +469,7 @@ namespace ZPNetwork{
 			m_mutex_protect.lock();
 			m_clientList.remove(pSock);
 			m_mutex_protect.unlock();
+			pSock->disconnectFromHost();
 			pSock->abort();
 			emit evt_ClientDisconnected(pSock);
 			//emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));

@@ -14,7 +14,7 @@ quint64 g_bytesSent = 0;
 quint64 g_secRecieved = 0;
 quint64 g_secSent = 0;
 
-namespace ZPNetwork{	
+namespace ZPNetwork{
 	int zp_netTransThread::RUBBISH_CAN_SIZE = 256;
 
 	zp_netTransThread::zp_netTransThread(zp_net_Engine *pThreadPool,int nPayLoad,QObject *parent) :
@@ -32,6 +32,7 @@ namespace ZPNetwork{
 		foreach (QObject * pDel,m_rabish_can)
 			pDel->deleteLater();
 		m_rabish_can.clear();
+		m_set_rabish.clear();
 		m_mutex_rabish_can.unlock();
 	}
 

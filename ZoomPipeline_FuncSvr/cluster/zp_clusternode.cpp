@@ -54,7 +54,7 @@ namespace ZP_Cluster{
 	{
 		if (bTermSet==true)
 		{
-			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.\n").arg((unsigned int)this).arg(ref());
+			//qDebug()<<QString("%1(%2) Node Martked Deleted, return.").arg((unsigned int)this).arg(ref());
 			return 0;
 		}
 		int nCurrSz = -1;

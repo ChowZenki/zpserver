@@ -158,7 +158,8 @@ namespace ZPNetwork{
 			return;
 		}
 
-		emit evt_Message(this,"Info>" +  QString(tr("Incomming client arriverd.")));
+		//emit evt_Message(this,"Info>" +  QString(tr("Incomming client arriverd.")));
+		qDebug()<<tr("Incomming client arriverd.");
 		//m_mutex_trans.lock();
 		int nsz = m_vec_NetTransThreads.size();
 		int nMinPay = 0x7fffffff;
@@ -189,6 +190,7 @@ namespace ZPNetwork{
 		else
 		{
 			emit evt_Message(this,"Warning>"+QString(tr("Need Trans Thread Object for clients.")));
+			qCritical()<<tr("Need Trans Thread Object for clients.");
 		}
 		//m_mutex_trans.unlock();
 	}
@@ -300,6 +302,7 @@ namespace ZPNetwork{
 
 			m_vec_netInternalTransThreads[idx]->quit();
 			m_vec_netInternalTransThreads[idx]->wait();
+			m_vec_NetTransThreads[idx]->Empty_RabishCan();
 			m_vec_netInternalTransThreads[idx]->deleteLater();
 			m_vec_NetTransThreads[idx]->deleteLater();
 			m_vec_netInternalTransThreads.remove(idx);

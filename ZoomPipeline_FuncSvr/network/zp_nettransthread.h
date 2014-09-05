@@ -10,6 +10,7 @@
 #include <QMutex>
 #include <unordered_map>
 #include <QSet>
+#include <QList>
 namespace ZPNetwork{
 	class zp_net_Engine;
 	/**
@@ -22,7 +23,6 @@ namespace ZPNetwork{
 		Q_OBJECT
 	public:
 		explicit zp_netTransThread(zp_net_Engine * pThreadPool,int nPayLoad = 4096,QObject *parent = 0);
-
 		QList <QObject *> clientsList();
 		int CurrentClients();
 		void SetPayload(int nPayload);
@@ -31,6 +31,11 @@ namespace ZPNetwork{
 		bool CanExit();
 		bool SSLConnection();
 		void SetSSLConnection(bool bssl);
+
+		//RubbishCan Functions
+		void Empty_RabishCan();
+		//Size of the RubbishCan
+		static int RUBBISH_CAN_SIZE;
 
 	private:
 		bool m_bActivated;
@@ -44,6 +49,10 @@ namespace ZPNetwork{
 		int m_nPayLoad;
 		QMutex m_mutex_protect;
 		zp_net_Engine * m_pThreadPool;
+		//Rabish Can
+		QList<QObject *> m_rabish_can;
+		QMutex m_mutex_rabish_can;
+		void push_to_rabish_can(QObject * deletedobj);
 	public slots:
 		//This slot dealing with multi-thread client socket accept.
 		void incomingConnection(QObject * threadid,qintptr socketDescriptor);

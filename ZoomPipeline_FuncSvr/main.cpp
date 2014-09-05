@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	appTranslator.load(strTransLocalFile );
 	app.installTranslator(&appTranslator);
 
+
 	ZPMainFrame w;
 	w.setLogger(&g_logger);
 	w.show();
@@ -59,6 +60,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+
+
 	int pp = app.exec();
 	return pp;
 }

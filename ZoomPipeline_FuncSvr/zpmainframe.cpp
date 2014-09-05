@@ -521,6 +521,11 @@ void ZPMainFrame::forkServer(QString  config_file)
 	this->m_pClusterTerm->setPublishPort(strClusterPubPort.toInt());
 	this->m_pClusterTerm->StartListen(QHostAddress(strClusterTermAddr),strClusterTermPort.toInt());
 
+	int nRabbishCanSize = settings.value("settings/rubbish_can_size","32").toInt();
+	ZPNetwork::zp_netTransThread::RUBBISH_CAN_SIZE = nRabbishCanSize;
+
+	if (this->windowTitle().indexOf("(")==-1)
+		this->setWindowTitle(windowTitle() + "(" + strClusterPubName +")");
 }
 
 void ZPMainFrame::on_action_About_triggered()
@@ -648,6 +653,9 @@ void ZPMainFrame::LoadSettings(QString  config_file)
 	ui->horizontalSlider_cluster_transThreads->setValue(nClusterTransThreads);
 	int nClusterWorkingThreads = settings.value("Cluster/nClusterWorkingThreads","4").toInt();
 	ui->horizontalSlider_cluster_workingThread->setValue(nClusterWorkingThreads);
+	//Rubbish Can (for Sockets)
+	int nRabbishCanSize = settings.value("settings/rubbish_can_size","32").toInt();
+	ui->horizontalSlider_rubbishCan->setValue(nRabbishCanSize);
 
 }
 
@@ -732,7 +740,9 @@ void ZPMainFrame::SaveSettings(QString  config_file)
 	settings.setValue("Cluster/strClusterPubPort",ui->lineEdit_cluster_pub_Port->text());
 	settings.setValue("Cluster/nClusterTransThreads",ui->horizontalSlider_cluster_transThreads->value());
 	settings.setValue("Cluster/nClusterWorkingThreads", ui->horizontalSlider_cluster_workingThread->value());
-
+	//Rubbish Can (for Sockets)
+	int nRabbishCanSize =ui->horizontalSlider_rubbishCan->value();
+	settings.setValue("settings/rubbish_can_size",nRabbishCanSize);
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {

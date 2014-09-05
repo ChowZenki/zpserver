@@ -59,21 +59,42 @@ namespace STMsgLogger{
 	}
 	void st_logger::MessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 	{
+		m_mutextLogger.lock();
 		switch (type) {
 		case QtDebugMsg:
-			if (m_nLogLevel < 3) return;
+			if (m_nLogLevel < 3)
+			{
+				m_mutextLogger.unlock();
+				return;
+			}
 			break;
 		case QtWarningMsg:
-			if (m_nLogLevel < 2) return;
+			if (m_nLogLevel < 2)
+			{
+				m_mutextLogger.unlock();
+				return;
+			}
 			break;
 		case QtCriticalMsg:
-			if (m_nLogLevel < 1) return;
+			if (m_nLogLevel < 1)
+			{
+				m_mutextLogger.unlock();
+				return;
+			}
 			break;
 		case QtFatalMsg:
-			if (m_nLogLevel < 0) return;
+			if (m_nLogLevel < 0)
+			{
+				m_mutextLogger.unlock();
+				return;
+			}
 			break;
 		default:
-			if (m_nLogLevel < 3) return;
+			if (m_nLogLevel < 3)
+			{
+				m_mutextLogger.unlock();
+				return;
+			}
 			break;
 		}
 		if (m_pLogFile==0)
@@ -81,12 +102,15 @@ namespace STMsgLogger{
 			if (m_bUseLogFile==true)
 				m_bUseLogFile = CreateNewLogFile(QCoreApplication::instance());
 			if (m_pLogFile==0)
+			{
+				m_mutextLogger.unlock();
 				return;
+			}
 		}
 
 		QDateTime dtmCur = QDateTime::currentDateTime().toUTC();
 
-		QString strMsg = "\n";
+		QString strMsg ;
 		strMsg += dtmCur.toString("yyyy-MM-dd HH:mm:ss.zzz");
 		QString strMsgHeader = dtmCur.toString("\n                       ");
 		strMsg += "(UTC)>";
@@ -117,6 +141,7 @@ namespace STMsgLogger{
 		stream.flush();
 		if (m_pLogFile->pos()>=m_nMaxFileSize)
 			m_bUseLogFile = CreateNewLogFile(QCoreApplication::instance());
+		m_mutextLogger.unlock();
 	}
 
 }

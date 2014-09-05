@@ -336,7 +336,7 @@ namespace ZP_Cluster{
 			m_nodeToBeDel.push_back(pClientNode);
 			if (nameCurr.length()>0)
 				emit evt_NewSvrDisconnected(nameCurr);
-			//qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
+			//qDebug()<<QString("%1(ref %2) Node Push in queue.").arg((unsigned int)pClientNode).arg(pClientNode->ref());
 		}
 		m_hash_mutex.unlock();
 
@@ -348,13 +348,13 @@ namespace ZP_Cluster{
 				toBedel.push_back(pdelobj);
 			else
 			{
-				//qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
+				//qDebug()<<QString("%1(ref %2) Waiting in del queue.").arg((unsigned int)pdelobj).arg(pdelobj->ref());
 			}
 		}
 		foreach(zp_ClusterNode * pdelobj,toBedel)
 		{
 			m_nodeToBeDel.removeAll(pdelobj);
-			//qDebug()<<QString("%1(ref %2) deleting.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
+			//qDebug()<<QString("%1(ref %2) deleting.").arg((unsigned int)pdelobj).arg(pdelobj->ref());
 			pdelobj->deleteLater();
 		}
 	}

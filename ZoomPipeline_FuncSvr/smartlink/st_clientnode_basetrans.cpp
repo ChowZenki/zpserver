@@ -59,7 +59,7 @@ namespace ParkinglotsSvr{
 	{
 		if (bTermSet==true)
 		{
-			qDebug()<<peerInfo()<< QString("%1(%2) Node Martked Deleted, return.\n").arg((quint64)this).arg(ref());
+			qDebug()<<peerInfo()<< QString("%1(%2) Node Martked Deleted, return.").arg((quint64)this).arg(ref());
 			return 0;
 		}
 		int nCurrSz = -1;
@@ -117,12 +117,12 @@ namespace ParkinglotsSvr{
 		if (res>=16)
 		{
 			if (res % 10 == 0)
-				qWarning()<< peerInfo() << tr("Task Blocked. %1 tasks in queue...\n").arg(res);
+				qWarning()<< peerInfo() << tr("Task Blocked. %1 tasks in queue...").arg(res);
 		}
 		if (res <=256)
 			m_list_RawData.push_back(dtarray);
 		else
-			qCritical()<< peerInfo() << tr("Task Blocked Too Badly. %1 tasks in queue, lost 1 package!!\n").arg(res);
+			qCritical()<< peerInfo() << tr("Task Blocked Too Badly. %1 tasks in queue, lost 1 package!!").arg(res);
 		res = m_list_RawData.size();
 		m_mutex_rawData.unlock();
 		m_last_Report = QDateTime::currentDateTime();
@@ -176,7 +176,7 @@ namespace ParkinglotsSvr{
 
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
-				qDebug() << "Send Back Heart Beating Msg to " << peerInfo() << ":"<< QString(m_currentBlock.toHex()) << "\n";
+				qDebug() << "Send Back Heart Beating Msg to " << peerInfo() << ":"<< QString(m_currentBlock.toHex()) ;
 				//Try to Get UUID Immediately
 //				if (m_bUUIDRecieved==false)
 //				{
@@ -300,7 +300,7 @@ namespace ParkinglotsSvr{
 	//in Trans-Level, do nothing.
 	int st_clientNode_baseTrans::deal_current_message_block()
 	{
-		int res = 0;
+		int nRes = 0;
 		//First, get uuid as soon as possible
 		if (m_bUUIDRecieved==false)
 		{
@@ -317,11 +317,11 @@ namespace ParkinglotsSvr{
 			}
 			else //Invalid
 			{
-				qWarning()<<peerInfo()<<tr("Client ID %1 is invalid! Close client immediatly.").arg(m_currentHeader.SrcID)<<"\n";
+				qWarning()<<peerInfo()<<tr("Client ID %1 is invalid! Close client immediatly.").arg(m_currentHeader.SrcID);
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
-				res = 1;
+				nRes = 1;
 			}
 		}
 		else
@@ -332,26 +332,26 @@ namespace ParkinglotsSvr{
 				  )
 					)
 			{
-				qWarning()<<peerInfo()<<tr("Client ID %1 is invalid! Close client immediatly.").arg(m_currentHeader.SrcID)<<"\n";
+				qWarning()<<peerInfo()<<tr("Client ID %1 is invalid! Close client immediatly.").arg(m_currentHeader.SrcID);
 				emit evt_Message(this,tr("Client ID is invalid! Close client immediatly."));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
-				res = 1;
+				nRes = 1;
 			}
 			if (bIsValidUserId(m_currentHeader.SrcID)==true &&
 					m_uuid != m_currentHeader.SrcID)
 			{
-				qWarning()<<peerInfo()<<tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID)<<"\n";
+				qWarning()<<peerInfo()<<tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID);
 				emit evt_Message(this,tr("Client ID Changed in Runtime! Close client immediatly, %1->%2.").arg(m_uuid).arg(m_currentHeader.SrcID));
 				m_currentBlock = QByteArray();
 				emit evt_close_client(this->sock());
-				res = 1;
+				nRes = 1;
 			}
 
 
 		}
 
-		return res;
+		return nRes;
 	}
 	void st_clientNode_baseTrans::CheckHeartBeating()
 	{
@@ -359,7 +359,7 @@ namespace ParkinglotsSvr{
 		qint64 usc = this->m_last_Report.secsTo(dtm);
 		if (usc >=m_pClientTable->heartBeatingThrd())
 		{
-			qWarning()<<peerInfo()<<tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out.")<<"\n";
+			qWarning()<<peerInfo()<<tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out.");
 			emit evt_Message(this,tr("Client ") + QString("%1").arg((unsigned int)((quint64)this)) + tr(" is dead, kick out."));
 			emit evt_close_client(this->sock());
 		}

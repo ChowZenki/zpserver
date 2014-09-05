@@ -56,23 +56,23 @@ namespace ParkinglotsSvr{
 								if (false==queryUpdate.exec())
 								{
 									DoneCode = 2;
-									qCritical()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
+									qCritical()<<tr("Database Access Error :")+queryUpdate.lastError().text();
 								}
 							}
 
 						}
 						else
-							qCritical()<<tr("ID is not valid : %1").arg(ncurrid)+"\n";
+							qCritical()<<tr("ID is not valid : %1").arg(ncurrid);
 
 					}
 					else
-						qCritical()<<tr("ID is not valid : %1").arg(query.value(1).toString())+"\n";
+						qCritical()<<tr("ID is not valid : %1").arg(query.value(1).toString());
 				}
 				else
-					qCritical()<<tr("Serial is not valid : %1").arg(serialnum)+"\n";
+					qCritical()<<tr("Serial is not valid : %1").arg(serialnum);
 			}
 			else
-				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 
 		}
 		else
@@ -104,17 +104,17 @@ namespace ParkinglotsSvr{
 						if (ncurrid>=0x0010000 && ncurrid <=0x0FFFFFFF)
 							DoneCode = 0;
 						else
-							qCritical()<<tr("ID is not valid : %1").arg(ncurrid)+"\n";
+							qCritical()<<tr("ID is not valid : %1").arg(ncurrid);
 
 					}
 					else
-						qCritical()<<tr("ID is not valid : %1").arg(query.value(0).toString())+"\n";
+						qCritical()<<tr("ID is not valid : %1").arg(query.value(0).toString());
 				}
 				else
-					qCritical()<<tr("Serial/ID is not valid : %1,%2").arg(serialnum).arg(query.value(0).toString())+"\n";
+					qCritical()<<tr("Serial/ID is not valid : %1,%2").arg(serialnum).arg(query.value(0).toString());
 			}
 			else
-				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 
 		}
 		else
@@ -157,13 +157,13 @@ namespace ParkinglotsSvr{
 					}
 					if (false==query.exec())
 					{
-						qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+						qCritical()<<tr("Database Access Error :")+query.lastError().text();
 						res = false;
 					}
 				}
 				else
 				{
-					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = false;
 				}
 
@@ -222,7 +222,7 @@ namespace ParkinglotsSvr{
 					queryUpdate.addBindValue(macSerial);
 					if (false==queryUpdate.exec())
 					{
-						qCritical()<<tr("Database Access Error :")+queryUpdate.lastError().text()+"\n";
+						qCritical()<<tr("Database Access Error :")+queryUpdate.lastError().text();
 						res = false;
 					}
 				}
@@ -235,7 +235,7 @@ namespace ParkinglotsSvr{
 			}
 			else
 			{
-				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
 			}
 		}
@@ -263,7 +263,7 @@ namespace ParkinglotsSvr{
 				if (query.next()) //need update
 				{
 					//Already has this ID
-					qWarning()<<tr("Already exists a Device :") + devID +"\n";
+					qWarning()<<tr("Already exists a Device :") + devID;
 					sql = "update sensorlist set  macid = ? where deviceid = ?;";
 					query.prepare(sql);
 					query.addBindValue(macid);
@@ -279,13 +279,13 @@ namespace ParkinglotsSvr{
 				}
 				if (false==query.exec())
 				{
-					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = false;
 				}
 			}
 			else
 			{
-				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
 			}
 		}
@@ -311,7 +311,7 @@ namespace ParkinglotsSvr{
 			query.addBindValue(devID);
 			if (false==query.exec())
 			{
-				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
 			}
 		}
@@ -345,7 +345,7 @@ namespace ParkinglotsSvr{
 				res = dal_sensor_0x02(pEvent,pDalLayer,nTotalDalLen);
 				break;
 			default:
-				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID)+"\n";
+				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID);
 				break;
 
 			}
@@ -367,7 +367,7 @@ namespace ParkinglotsSvr{
 					query.addBindValue(devID);
 					if (false==query.exec())
 					{
-						qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+						qCritical()<<tr("Database Access Error :")+query.lastError().text();
 						res = 1;
 					}
 				}
@@ -378,13 +378,13 @@ namespace ParkinglotsSvr{
 				}
 			}
 			else
-				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID)+"\n";
+				qCritical()<<tr("DAL EventID Error (Event ID %1 is not valid.").arg(pEvent->DALEventID);
 
 		}
 		else
 		{
 			res = 1;
-			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr("Send a unsupported Device Type.")<<"\n";
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr("Send a unsupported Device Type.");
 		}
 
 		return res;
@@ -420,7 +420,7 @@ namespace ParkinglotsSvr{
 				query.addBindValue(devID);
 				if (false==query.exec())
 				{
-					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
 				}
 			}
@@ -453,7 +453,7 @@ namespace ParkinglotsSvr{
 				query.addBindValue(devID);
 				if (false==query.exec())
 				{
-					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
 				}
 			}
@@ -466,7 +466,7 @@ namespace ParkinglotsSvr{
 		else
 		{
 			res = 1;
-			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr("Send a unsupported Device Type.")<<"\n";
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr("Send a unsupported Device Type.");
 		}
 
 		return res;
@@ -497,7 +497,7 @@ namespace ParkinglotsSvr{
 						query.addBindValue(devID);
 						if (false==query.exec())
 						{
-							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
 						}
 						//update sensor event
@@ -512,7 +512,7 @@ namespace ParkinglotsSvr{
 						query.addBindValue(QDateTime::currentDateTimeUtc());
 						if (false==query.exec())
 						{
-							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
 						}
 					}
@@ -525,20 +525,20 @@ namespace ParkinglotsSvr{
 				else
 				{
 					res = 1;
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 				}
 			}
 			else
 			{
 				res = 1;
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para too short, need 2 bytes, got %2 byte(s)).").arg(pEvent->DALEventID).arg(nTotalDalLen)<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para too short, need 2 bytes, got %2 byte(s)).").arg(pEvent->DALEventID).arg(nTotalDalLen);
 			}
 
 		}
 		else
 		{
 			res = 1;
-			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID)<<"\n";
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID);
 		}
 		return res;
 	}
@@ -565,7 +565,7 @@ namespace ParkinglotsSvr{
 						query.addBindValue(devID);
 						if (false==query.exec())
 						{
-							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
 						}
 						//update sensor event
@@ -580,7 +580,7 @@ namespace ParkinglotsSvr{
 						query.addBindValue(QDateTime::currentDateTimeUtc());
 						if (false==query.exec())
 						{
-							qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
 						}
 					}
@@ -593,20 +593,20 @@ namespace ParkinglotsSvr{
 				else
 				{
 					res = 1;
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 				}
 			}
 			else
 			{
 				res = 1;
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para too short, need 2 bytes, got %2 byte(s)).").arg(pEvent->DALEventID).arg(nTotalDalLen)<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (Para too short, need 2 bytes, got %2 byte(s)).").arg(pEvent->DALEventID).arg(nTotalDalLen);
 			}
 
 		}
 		else
 		{
 			res = 1;
-			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr( "Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID)<<"\n";
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr( "Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID);
 		}
 		return res;
 	}
@@ -622,7 +622,7 @@ namespace ParkinglotsSvr{
 			quint8 para_dal_status = 0;
 			if (nSwim >= nTotalDalLen)
 			{
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 				return 1;
 			}
 			dtp = pDalLayer[nSwim++];
@@ -630,14 +630,14 @@ namespace ParkinglotsSvr{
 			{
 				if (nSwim >= nTotalDalLen)
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 					return 1;
 				}
 				para_dal_status = pDalLayer[nSwim++];
 			}
 			else
 			{
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 				return 1;
 			}
 
@@ -647,7 +647,7 @@ namespace ParkinglotsSvr{
 			{
 				if (nSwim >= nTotalDalLen)
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 					return 1;
 				}
 				dtp = pDalLayer[nSwim++];
@@ -655,7 +655,7 @@ namespace ParkinglotsSvr{
 				{
 					if (nSwim + 1 >= nTotalDalLen)
 					{
-						qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+						qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 						return 1;
 					}
 					const qint16 * ptr16 = (const qint16 *)(pDalLayer + nSwim);
@@ -664,7 +664,7 @@ namespace ParkinglotsSvr{
 				}
 				else
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 					return 1;
 				}
 			}
@@ -675,7 +675,7 @@ namespace ParkinglotsSvr{
 			{
 				if (nSwim >= nTotalDalLen)
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 					return 1;
 				}
 				dtp = pDalLayer[nSwim++];
@@ -683,7 +683,7 @@ namespace ParkinglotsSvr{
 				{
 					if (nSwim + 3 >= nTotalDalLen)
 					{
-						qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+						qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 						return 1;
 					}
 					const float * ptrfloat = (const float *)(pDalLayer + nSwim);
@@ -692,7 +692,7 @@ namespace ParkinglotsSvr{
 				}
 				else
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 					return 1;
 				}
 			}
@@ -701,7 +701,7 @@ namespace ParkinglotsSvr{
 			qint8 para_dal_tempr = 0;
 			if (nSwim >= nTotalDalLen)
 			{
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 				return 1;
 			}
 			dtp = pDalLayer[nSwim++];
@@ -709,14 +709,14 @@ namespace ParkinglotsSvr{
 			{
 				if (nSwim >= nTotalDalLen)
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 					return 1;
 				}
 				para_dal_tempr = pDalLayer[nSwim++];
 			}
 			else
 			{
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 				return 1;
 			}
 
@@ -724,7 +724,7 @@ namespace ParkinglotsSvr{
 			quint8 para_dal_vol = 0;
 			if (nSwim >= nTotalDalLen)
 			{
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 				return 1;
 			}
 			dtp = pDalLayer[nSwim++];
@@ -732,14 +732,14 @@ namespace ParkinglotsSvr{
 			{
 				if (nSwim >= nTotalDalLen)
 				{
-					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.")<<"\n";
+					qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Need more data.");
 					return 1;
 				}
 				para_dal_vol = pDalLayer[nSwim++];
 			}
 			else
 			{
-				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp)<<"\n";
+				qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr(" Send a wrong DAL Para (%1) Value (unexpected type %2).").arg(pEvent->DALEventID).arg(dtp);
 				return 1;
 			}
 			QSqlDatabase & db = *m_pDb;
@@ -762,7 +762,7 @@ namespace ParkinglotsSvr{
 				query.addBindValue(devID);
 				if (false==query.exec())
 				{
-					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
 				}
 				//update sensor event
@@ -786,7 +786,7 @@ namespace ParkinglotsSvr{
 				query.addBindValue(QDateTime::currentDateTimeUtc());
 				if (false==query.exec())
 				{
-					qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
 				}
 			}
@@ -799,7 +799,7 @@ namespace ParkinglotsSvr{
 		else
 		{
 			res = 1;
-			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr( "Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID)<<"\n";
+			qWarning()<< tr("Device ") << hex2ascii(pEvent->DeviceID,24) << tr( "Send a wrong DAL Para (%1) Value (Para not enough, need 1 para).").arg(pEvent->DALEventID);
 		}
 
 		return res;
@@ -814,7 +814,7 @@ namespace ParkinglotsSvr{
 			QString sql = QString("delete from sensorevent where eventtime <= adddate(now(),INTERVAL -%1 DAY);").arg(evtTableLastDays);
 			if (false==query.exec(sql))
 			{
-				qCritical()<<tr("Database Access Error :")+query.lastError().text()+"\n";
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
 			}
 		}

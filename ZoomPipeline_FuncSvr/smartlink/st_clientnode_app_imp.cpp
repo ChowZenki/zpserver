@@ -184,7 +184,7 @@ namespace ParkinglotsSvr{
 		}
 		if ( strDeviceNames.size()<nItems)
 		{
-			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devNames, other than %2.").arg(strDeviceNames.size()).arg(nItems)<< "\n";
+			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devNames, other than %2.").arg(strDeviceNames.size()).arg(nItems);
 			return false;
 		}
 
@@ -199,7 +199,7 @@ namespace ParkinglotsSvr{
 		}
 		if ( strDeviceNos.size()<nItems)
 		{
-			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devNos, other than %2.").arg(strDeviceNos.size()).arg(nItems)<< "\n";
+			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devNos, other than %2.").arg(strDeviceNos.size()).arg(nItems);
 			return false;
 		}
 
@@ -218,7 +218,7 @@ namespace ParkinglotsSvr{
 		}
 		if ( strDeviceIDs.size()<nItems)
 		{
-			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devIDs, other than %2.").arg(strDeviceIDs.size()).arg(nItems)<< "\n";
+			qWarning()<<peerInfo()<<tr("Break Device List, There are  %1 devIDs, other than %2.").arg(strDeviceIDs.size()).arg(nItems);
 			return false;
 		}
 
@@ -274,7 +274,7 @@ namespace ParkinglotsSvr{
 		else
 		{
 			qWarning()<<peerInfo()<<tr("Break tag_TailData, We need  %1 bytes, larger than real data len %2.").arg(nSwim + sizeof (stMsg_SendMacInfoReq_internal::tag_TailData))
-						.arg(nAppLen)<< "\n";
+						.arg(nAppLen);
 			return false;
 		}
 
@@ -357,7 +357,7 @@ namespace ParkinglotsSvr{
 		}
 			break;
 		default:
-			qWarning()<<peerInfo()<<tr("Unknown Event %1").arg(nEvtID)<< "\n";
+			qWarning()<<peerInfo()<<tr("Unknown Event %1").arg(nEvtID);
 			break;
 		}
 		//Send back

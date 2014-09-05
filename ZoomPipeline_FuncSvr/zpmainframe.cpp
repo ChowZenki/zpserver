@@ -545,6 +545,11 @@ void ZPMainFrame::forkServer(QString  config_file)
 	else
 		m_evtTableLastDays = 7;
 
+	int nRabbishCanSize = settings.value("settings/rubbish_can_size","32").toInt();
+	ZPNetwork::zp_netTransThread::RUBBISH_CAN_SIZE = nRabbishCanSize;
+
+	if (this->windowTitle().indexOf("(")==-1)
+		this->setWindowTitle(windowTitle() + "(" + strClusterPubName +")");
 }
 
 void ZPMainFrame::on_action_About_triggered()
@@ -677,6 +682,11 @@ void ZPMainFrame::LoadSettings(QString  config_file)
 
 	QString str_evtKeepDays = settings.value("Smartlink/evtKeepDays","7").toString();
 	ui->lineEdit_evtKeepDays->setText(str_evtKeepDays);
+
+	//Rubbish Can (for Sockets)
+	int nRabbishCanSize = settings.value("settings/rubbish_can_size","32").toInt();
+	ui->horizontalSlider_rubbishCan->setValue(nRabbishCanSize);
+
 }
 
 
@@ -773,7 +783,9 @@ void ZPMainFrame::SaveSettings(QString  config_file)
 		settings.setValue("Smartlink/evtKeepDays","7");
 	}
 
-
+	//Rubbish Can (for Sockets)
+	int nRabbishCanSize =ui->horizontalSlider_rubbishCan->value();
+	settings.setValue("settings/rubbish_can_size",nRabbishCanSize);
 }
 void ZPMainFrame::on_pushButton_addListener_clicked()
 {

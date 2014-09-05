@@ -105,13 +105,28 @@ void QTcpClientTest::on_client_connected()
 			m_minUUID = pSockTcp->uuid();
 
 		displayMessage(QString("client %1 connected.").arg(pSockTcp->uuid()));
-		QByteArray array(sizeof(PKLTS_Heartbeating),0);
-		char * ptr = array.data();
-		PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
-		pMsg->Mark = 0xBEBE;
-//		pMsg->source_id = pSockTcp->uuid();
-		pMsg->tmStamp = 0;
-		(pSockTcp)->SendData(array);
+		{
+			QByteArray array(sizeof(PKLTS_Heartbeating),0);
+			char * ptr = array.data();
+			PKLTS_Heartbeating * pMsg = (PKLTS_Heartbeating *)ptr;
+			pMsg->Mark = 0xBEBE;
+	//		pMsg->source_id = pSockTcp->uuid();
+			pMsg->tmStamp = 0;
+			(pSockTcp)->SendData(array);
+		}
+		{
+			quint16 nMsgLen = 1;
+			QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
+			char * ptr = array.data();
+			PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+			pMsg->trans_header.Mark = 0x55AA;
+			pMsg->trans_header.SrcID =  pSockTcp->uuid();
+			pMsg->trans_header.DstID =  pSockTcp->uuid();
+			pMsg->trans_header.DataLen = nMsgLen;
+			for (int i=0;i<nMsgLen;i++)
+				pMsg->trans_payload.data[i] = '0' + i%10;
+			(pSockTcp)->SendData(array);
+		}
 	}
 
 }
@@ -128,6 +143,7 @@ void QTcpClientTest::on_client_disconnected()
 		disconnect(pSockSsl, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
 		disconnect(pSockSsl, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
 		disconnect(pSockSsl, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+		pSockSsl->abort();
 		m_clients.remove(pSockSsl);
 		pSockSsl->deleteLater();
 	}
@@ -140,6 +156,7 @@ void QTcpClientTest::on_client_disconnected()
 		disconnect(pSockTcp, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
 		disconnect(pSockTcp, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
 		disconnect(pSockTcp, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+		pSockTcp->abort();
 		m_clients.remove(pSockTcp);
 		pSockTcp->deleteLater();
 	}
@@ -152,9 +169,29 @@ void QTcpClientTest::displayError(QAbstractSocket::SocketError /*err*/)
 		QGHSslClient * pSockSsl = qobject_cast<QGHSslClient*>(sock);
 		QGHTcpClient * pSockTcp = qobject_cast<QGHTcpClient*>(sock);
 		if (pSockSsl)
+		{
 			displayMessage(QString("client %1 error msg:").arg(pSockSsl->uuid())+sock->errorString());
+			disconnect(pSockSsl, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
+			disconnect(pSockSsl, SIGNAL(encrypted()),this, SLOT(on_client_connected()));
+			disconnect(pSockSsl, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
+			disconnect(pSockSsl, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+			disconnect(pSockSsl, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+			m_clients.remove(pSockSsl);
+			pSockSsl->abort();
+			pSockSsl->deleteLater();
+		}
 		else if (pSockTcp)
+		{
 			displayMessage(QString("client %1 error msg:").arg(pSockTcp->uuid())+sock->errorString());
+			disconnect(pSockTcp, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
+			disconnect(pSockTcp, SIGNAL(connected()),this, SLOT(on_client_connected()));
+			disconnect(pSockTcp, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
+			disconnect(pSockTcp, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+			disconnect(pSockTcp, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+			pSockTcp->abort();
+			m_clients.remove(pSockTcp);
+			pSockTcp->deleteLater();
+		}
 	}
 }
 void QTcpClientTest::new_data_recieved()
@@ -253,7 +290,34 @@ void QTcpClientTest::timerEvent(QTimerEvent * evt)
 				QList<QTcpSocket*> listObj = m_clients.keys();
 				for (int i=0;i<nDel;i++)
 				{
-					listObj.at(i)->abort();
+					QGHSslClient * pSockSsl = qobject_cast<QGHSslClient*>(listObj.at(i));
+					QGHTcpClient * pSockTcp = qobject_cast<QGHTcpClient*>(listObj.at(i));
+					if (pSockSsl)
+					{
+						displayMessage(QString("client %1 disconnected.").arg(pSockSsl->uuid()));
+						//disconnect the signal immediately so that the system resource could be freed.
+						disconnect(pSockSsl, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
+						disconnect(pSockSsl, SIGNAL(encrypted()),this, SLOT(on_client_connected()));
+						disconnect(pSockSsl, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
+						disconnect(pSockSsl, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+						disconnect(pSockSsl, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+						m_clients.remove(pSockSsl);
+						pSockSsl->abort();
+						pSockSsl->deleteLater();
+					}
+					else if (pSockTcp)
+					{
+						displayMessage(QString("client %1 disconnected.").arg(pSockTcp->uuid()));
+						//disconnect the signal immediately so that the system resource could be freed.
+						disconnect(pSockTcp, SIGNAL(readyRead()),this, SLOT(new_data_recieved()));
+						disconnect(pSockTcp, SIGNAL(connected()),this, SLOT(on_client_connected()));
+						disconnect(pSockTcp, SIGNAL(disconnected()),this,SLOT(on_client_disconnected()));
+						disconnect(pSockTcp, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+						disconnect(pSockTcp, SIGNAL(bytesWritten(qint64)), this, SLOT(on_client_trasferred(qint64)));
+						m_clients.remove(pSockTcp);
+						pSockTcp->abort();
+						pSockTcp->deleteLater();
+					}
 				}
 			}
 			if (ui.checkBox_SSL->isChecked()==true)

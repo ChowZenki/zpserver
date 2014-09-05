@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QByteArray>
+#include <QMutex>
 #include <QCoreApplication>
 namespace STMsgLogger{
 	class st_logger : public QObject
@@ -22,6 +23,7 @@ namespace STMsgLogger{
 		QString m_currLogFileName;
 		int m_nLogLevel;
 		int m_nMaxFileSize;
+		QMutex m_mutextLogger;
 	signals:
 
 	public slots:

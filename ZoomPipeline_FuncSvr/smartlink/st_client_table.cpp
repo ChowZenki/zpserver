@@ -225,7 +225,7 @@ namespace ParkinglotsSvr{
 			disconnect (pClientNode,&st_clientNode_baseTrans::evt_Message,this,&st_client_table::evt_Message);
 
 			m_nodeToBeDel.push_back(pClientNode);
-			//qDebug()<<QString("%1(ref %2) Node Push in queue.\n").arg((unsigned int)pClientNode).arg(pClientNode->ref());
+			//qDebug()<<QString("%1(ref %2) Node Push in queue.").arg((unsigned int)pClientNode).arg(pClientNode->ref());
 		}
 		m_hash_mutex.unlock();
 
@@ -237,14 +237,14 @@ namespace ParkinglotsSvr{
 				toBedel.push_back(pdelobj);
 			else
 			{
-				//qDebug()<<QString("%1(ref %2) Waiting in del queue.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
+				//qDebug()<<QString("%1(ref %2) Waiting in del queue.").arg((unsigned int)pdelobj).arg(pdelobj->ref());
 			}
 		}
 		foreach(st_clientNode_baseTrans * pdelobj,toBedel)
 		{
 			m_nodeToBeDel.removeAll(pdelobj);
 
-			//qDebug()<<QString("%1(ref %2) deleting.\n").arg((unsigned int)pdelobj).arg(pdelobj->ref());
+			//qDebug()<<QString("%1(ref %2) deleting.").arg((unsigned int)pdelobj).arg(pdelobj->ref());
 			pdelobj->deleteLater();
 
 		}
@@ -316,8 +316,8 @@ namespace ParkinglotsSvr{
 			m_pCluster->SendDataToRemoteServer(svrHandle,array);
 		}
 		m_hash_mutex.unlock();
-		emit evt_Message(this,tr("Send Initial UUIDs to Remote Svr:") + svrHandle);
-		qDebug()<<tr("Send Initial UUIDs to Remote Svr:") + svrHandle <<"\n";
+		//emit evt_Message(this,tr("Send Initial UUIDs to Remote Svr:") + svrHandle);
+		qDebug()<<tr("Send Initial UUIDs to Remote Svr:") + svrHandle;
 	}
 	void st_client_table::broadcast_client_uuid(quint32 uuid, bool bActive)
 	{
@@ -360,7 +360,7 @@ namespace ParkinglotsSvr{
 		//remove all client-maps belongs to this server.
 		this->cross_svr_del_uuids(svrHandle,NULL,0);
 		emit evt_Message(this,"Svr DisConnected. " + svrHandle);
-		qDebug()<<"Svr DisConnected. " + svrHandle <<"\n";
+		qDebug()<<"Svr DisConnected. " + svrHandle;
 	}
 
 	//some data arrival
@@ -391,8 +391,8 @@ namespace ParkinglotsSvr{
 		for (int i=0;i<nUUIDs;i++)
 			m_hash_remoteClient2SvrName[pUUIDs[i]] = svrname;
 		m_mutex_cross_svr_map.unlock();
-		emit evt_Message(this,tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
-		qDebug()<<tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname <<"\n";
+		//emit evt_Message(this,tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
+		qDebug()<<tr("Recieved remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname;
 	}
 
 	//del uuids in m_hash_remoteClient2SvrName, pUUIDs =0 means del all uuids belong to svrname
@@ -420,8 +420,8 @@ namespace ParkinglotsSvr{
 				m_hash_remoteClient2SvrName.erase(pUUIDs[i]);
 		}
 		m_mutex_cross_svr_map.unlock();
-		emit evt_Message(this,tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
-		qDebug()<<tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname<<"\n";
+		//emit evt_Message(this,tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname);
+		qDebug()<<tr("Removed remote %1 client uuid(s) from svr ").arg(nUUIDs) + svrname;
 	}
 	void st_client_table::cross_svr_send_data(QString  svrname,QByteArray  arr)
 	{

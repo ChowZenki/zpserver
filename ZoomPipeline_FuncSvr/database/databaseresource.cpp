@@ -30,8 +30,8 @@ namespace ZPDatabase{
 					db.close();
 				QSqlDatabase::removeDatabase(threadName);
 				QString msg = "Database:"+tr(" Connection removed ")+threadName+ tr(" .");
-				qDebug()<<msg<<"\n";
-				emit evt_Message(this,msg);
+				qDebug()<<msg;
+				//emit evt_Message(this,msg);
 				//Remove the key map
 				m_ThreadsDB[mainName].remove(threadName);
 			}
@@ -54,7 +54,7 @@ namespace ZPDatabase{
 		if (false==QSqlDatabase::contains(strDBName))
 		{
 			QString msg =  "Database:"+tr(" Connection name ")+strDBName+ tr(" does not exist.");
-			qWarning()<<msg<<"\n";
+			qWarning()<<msg;
 			emit evt_Message(this,msg);
 			return QSqlDatabase();
 		}
@@ -73,7 +73,7 @@ namespace ZPDatabase{
 				QString msg =  "Database:"+tr(" Connection name ")+threadName+
 						tr(" Can not be cloned from database %1.").arg(strDBName)+
 						tr(" Err String:") + db.lastError().text();
-				qCritical()<<msg<<"\n";
+				qCritical()<<msg;
 				emit evt_Message(this,msg);
 				return QSqlDatabase();
 			}
@@ -81,8 +81,8 @@ namespace ZPDatabase{
 			{
 				QString msg =  "Database:"+tr(" Connection name ")+threadName+
 						tr(" has been cloned from database %1.").arg(strDBName);
-				qDebug()<<msg<<"\n";
-				emit evt_Message(this,msg);
+				qDebug()<<msg;
+				//emit evt_Message(this,msg);
 			}
 			m_ThreadsDB[strDBName].insert(threadName);
 			m_ThreadOwnedMainDBs[pThread].insert(strDBName);
@@ -101,7 +101,7 @@ namespace ZPDatabase{
 				{
 					QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" confirm failed. MSG=");
 					msg += query.lastError().text();
-					qWarning()<<msg<<"\n";
+					qWarning()<<msg;
 					emit evt_Message(this,msg);
 					bNeedReconnect = true;
 				}
@@ -123,7 +123,7 @@ namespace ZPDatabase{
 			{
 				QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" Re-Established.");
 				emit evt_Message(this,msg);
-				qDebug()<<msg<<"\n";
+				qDebug()<<msg;
 				m_ThreadsDB[strDBName].insert(threadName);
 				m_ThreadOwnedMainDBs[pThread].insert(strDBName);
 			}
@@ -132,7 +132,7 @@ namespace ZPDatabase{
 				QString msg =  "Database:"+tr(" Connection name ")+threadName+
 						tr(" Can not be cloned from database %1.").arg(strDBName)+
 						tr(" Err String:") + db.lastError().text();
-				qDebug()<<msg<<"\n";
+				qWarning()<<msg;
 				emit evt_Message(this,msg);
 				m_ThreadsDB[strDBName].remove(threadName);
 				m_ThreadOwnedMainDBs[pThread].remove(strDBName);
@@ -166,15 +166,15 @@ namespace ZPDatabase{
 				db.close();
 			QSqlDatabase::removeDatabase(strDBName);
 			QString msg = "Database:"+tr(" Connection removed ")+strDBName+ tr(" .");
-			emit evt_Message(this,msg);
-			qDebug()<<msg<<"\n";
+			//emit evt_Message(this,msg);
+			qDebug()<<msg;
 			RemoveTreadsConnections(strDBName);
 			m_ThreadsDB[strDBName].clear();
 		}
 		else
 		{
 			QString msg = "Database:"+tr(" Connection name ")+strDBName+ tr(" does not exist.");
-			qWarning()<<msg<<"\n";
+			qWarning()<<msg;
 			emit evt_Message(this,msg);
 		}
 		m_dbNames.remove(strDBName) ;
@@ -192,8 +192,8 @@ namespace ZPDatabase{
 					db.close();
 				QSqlDatabase::removeDatabase(str);
 				QString msg = "Database:"+tr(" Connection removed ")+str+ tr(" .");
-				qDebug()<<msg<<"\n";
-				emit evt_Message(this,msg);
+				qDebug()<<msg;
+				//emit evt_Message(this,msg);
 			}
 			//Remove thread map.
 			foreach (QThread * ptr, m_ThreadOwnedMainDBs.keys())
@@ -252,8 +252,8 @@ namespace ZPDatabase{
 				db.close();
 			QSqlDatabase::removeDatabase(connName);
 			QString msg = "Database:"+tr(" Connection removed ")+connName+ tr(" .");
-			qDebug()<<msg<<"\n";
-			emit evt_Message(this,msg);
+			qDebug()<<msg;
+			//emit evt_Message(this,msg);
 		}
 
 		m_dbNames[connName] = para;
@@ -267,12 +267,12 @@ namespace ZPDatabase{
 		if (db.open()==true)
 		{
 			QString msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Established.");
-			qDebug()<<msg<<"\n";
-			emit evt_Message(this,msg);
+			qDebug()<<msg;
+			//emit evt_Message(this,msg);
 			return true;
 		}
 		QString msg = "Database:"+tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
-		qCritical()<<msg<<"\n";
+		qCritical()<<msg;
 		msg += db.lastError().text();
 		emit evt_Message(this,msg);
 		QSqlDatabase::removeDatabase(connName);
@@ -311,7 +311,7 @@ namespace ZPDatabase{
 					{
 						QString msg = "Database:"+tr(" Connection  ")+connName+ tr(" confirm failed. MSG=");
 						msg += query.lastError().text();
-						qCritical()<<msg<<"\n";
+						qCritical()<<msg;
 						emit evt_Message(this,msg);
 						bNeedDisconnect = true;
 					}
@@ -326,7 +326,7 @@ namespace ZPDatabase{
 					return true;
 			}
 			QString msg = "Database:"+tr(" Connection ")+connName+ tr(" has not been opened.");
-			qWarning()<<msg<<"\n";
+			qWarning()<<msg;
 			emit evt_Message(this,msg);
 			db = QSqlDatabase::addDatabase(para.type,para.connName);
 			db.setHostName(para.HostAddr);
@@ -340,14 +340,14 @@ namespace ZPDatabase{
 				para.status = true;
 				para.lastError = "";
 				msg = "Database:"+tr(" Connection  ")+connName+ tr(" Re-Established.");
-				qDebug()<<msg<<"\n";
+				qDebug()<<msg;
 				emit evt_Message(this,msg);
 				return true;
 			}
 			QSqlDatabase::removeDatabase(connName);
 			msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
 			msg += db.lastError().text();
-			qCritical()<<msg<<"\n";
+			qCritical()<<msg;
 			emit evt_Message(this,msg);
 			para.status = false;
 			para.lastError = db.lastError().text();
@@ -367,12 +367,12 @@ namespace ZPDatabase{
 			para.lastError = "";
 			QString msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Re-Established.");
 			emit evt_Message(this,msg);
-			qDebug()<<msg<<"\n";
+			qDebug()<<msg;
 			return true;
 		}
 		QString msg ="Database:"+ tr(" Connection  ")+connName+ tr(" Can't be opened. MSG=");
 		msg += db.lastError().text();
-		qCritical()<<msg<<"\n";
+		qCritical()<<msg;
 		emit evt_Message(this,msg);
 		QSqlDatabase::removeDatabase(connName);
 		para.status = false;

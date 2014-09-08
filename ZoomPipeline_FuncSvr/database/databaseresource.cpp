@@ -89,30 +89,30 @@ namespace ZPDatabase{
 		}
 		//Confirm the thread-owned db is still open
 		QSqlDatabase db = QSqlDatabase::database(threadName);
-		tagConnectionPara & para = m_dbNames[strDBName];
+//		tagConnectionPara & para = m_dbNames[strDBName];
 		bool bNeedReconnect = false;
 		if (db.isOpen()==true)
 		{
-			if (para.testSQL.length())
-			{
-				QSqlQuery query(db);
-				query.exec(para.testSQL);
-				if (query.lastError().type()!=QSqlError::NoError)
-				{
-					QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" confirm failed. MSG=");
-					msg += query.lastError().text();
-					qWarning()<<msg;
-					emit evt_Message(this,msg);
-					bNeedReconnect = true;
-				}
-			}
-			if (bNeedReconnect==true)
-			{
-				db.close();
-				QSqlDatabase::removeDatabase(threadName);
-				m_ThreadsDB[strDBName].remove(threadName);
-				m_ThreadOwnedMainDBs[pThread].remove(strDBName);
-			}
+//			if (para.testSQL.length())
+//			{
+//				QSqlQuery query(db);
+//				query.exec(para.testSQL);
+//				if (query.lastError().type()!=QSqlError::NoError)
+//				{
+//					QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" confirm failed. MSG=");
+//					msg += query.lastError().text();
+//					qWarning()<<msg;
+//					emit evt_Message(this,msg);
+//					bNeedReconnect = true;
+//				}
+//			}
+//			if (bNeedReconnect==true)
+//			{
+//				db.close();
+//				QSqlDatabase::removeDatabase(threadName);
+//				m_ThreadsDB[strDBName].remove(threadName);
+//				m_ThreadOwnedMainDBs[pThread].remove(strDBName);
+//			}
 		}
 		else
 			bNeedReconnect = true;
@@ -140,6 +140,7 @@ namespace ZPDatabase{
 
 			}
 		}
+
 		return  db;
 	}
 	void DatabaseResource::remove_connections()

@@ -245,7 +245,7 @@ namespace ZPNetwork{
 	{
 		QTcpSocket * pSock = qobject_cast<QTcpSocket*>(sender());
 		emit evt_NewClientConnected(pSock);
-		//emit evt_Message(pSock,"Info>" +  QString(tr("Client connected.")));
+		emit evt_Message(pSock,"Info>" +  QString(tr("Client connected.")));
 		qDebug()<<pSock->peerAddress().toString()<<
 				  pSock->peerPort()  <<tr("(%1)..connected.").arg((quint64)pSock);
 	}
@@ -410,7 +410,7 @@ namespace ZPNetwork{
 			return;
 		m_mutex_protect.lock();
 		QList<QObject *> clientList = m_clientList.values();
-
+		m_mutex_protect.unlock();
 		foreach(QObject * obj,clientList)
 		{
 			QTcpSocket * pSock = qobject_cast<QTcpSocket*>(obj);
@@ -438,7 +438,8 @@ namespace ZPNetwork{
 			}
 
 		}
-		m_mutex_protect.unlock();
+		//m_clientList.clear();
+//		m_mutex_protect.unlock();
 	}
 
 	void zp_netTransThread::KickClient(QObject * objClient)

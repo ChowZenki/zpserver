@@ -25,6 +25,7 @@ namespace ExampleServer{
 			if (false== query.exec())
 			{
 				emit evt_Message(this,tr("try to get relations Failed! ")+ query.lastError().text());
+				db.close();
 				return false;
 			}
 
@@ -57,6 +58,7 @@ namespace ExampleServer{
 			if (false== query.exec())
 			{
 				emit evt_Message(this,tr("try to del old relations Failed! ")+ query.lastError().text());
+				db.close();
 				return false;
 			}
 
@@ -77,6 +79,7 @@ namespace ExampleServer{
 				if (false== query.exec())
 				{
 					emit evt_Message(this,tr("try to insert new relations Failed! ")+ query.lastError().text());
+					db.close();
 					return false;
 				}
 			}

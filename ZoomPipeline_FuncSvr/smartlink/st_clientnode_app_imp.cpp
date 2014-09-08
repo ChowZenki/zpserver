@@ -102,6 +102,7 @@ namespace ExampleServer{
 			{
 				//strcpy(reply.TextInfo,"Server Access Error.");
 				emit evt_Message(this,tr("Database Access Error :")+query.lastError().text());
+				db.close();
 			}
 		}
 		else

@@ -111,6 +111,8 @@ namespace ZPDatabase{
 					emit evt_Message(this,msg);
 					bNeedReconnect = true;
 				}
+				else
+					m_ThreadOwnedMainDBs[pThread][strDBName] = QDateTime::currentDateTime();
 			}
 			if (bNeedReconnect==true)
 			{
@@ -151,9 +153,6 @@ namespace ZPDatabase{
 
 			}
 		}
-		else
-			m_ThreadOwnedMainDBs[pThread][strDBName] = QDateTime::currentDateTime();
-
 		return  db;
 	}
 	void DatabaseResource::remove_connections()

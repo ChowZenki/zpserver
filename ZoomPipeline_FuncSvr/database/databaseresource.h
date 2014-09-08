@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QSet>
+#include <QDateTime>
 namespace ZPDatabase{
 	/**
 	 * @brief this class provide an database reource pool.In different thread, workers can get existing db connections

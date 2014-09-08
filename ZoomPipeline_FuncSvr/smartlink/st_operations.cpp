@@ -72,7 +72,10 @@ namespace ParkinglotsSvr{
 					qCritical()<<tr("Serial is not valid : %1").arg(serialnum);
 			}
 			else
+			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
+				db.close();
+			}
 
 		}
 		else
@@ -114,7 +117,10 @@ namespace ParkinglotsSvr{
 					qCritical()<<tr("Serial/ID is not valid : %1,%2").arg(serialnum).arg(query.value(0).toString());
 			}
 			else
+			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
+				db.close();
+			}
 
 		}
 		else
@@ -159,12 +165,14 @@ namespace ParkinglotsSvr{
 					{
 						qCritical()<<tr("Database Access Error :")+query.lastError().text();
 						res = false;
+						db.close();
 					}
 				}
 				else
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = false;
+					db.close();
 				}
 
 			}// end for items
@@ -237,6 +245,7 @@ namespace ParkinglotsSvr{
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
+				db.close();
 			}
 		}
 		else
@@ -281,12 +290,14 @@ namespace ParkinglotsSvr{
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = false;
+					db.close();
 				}
 			}
 			else
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
+				db.close();
 			}
 		}
 		else
@@ -313,6 +324,7 @@ namespace ParkinglotsSvr{
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
+				db.close();
 			}
 		}
 		else
@@ -369,6 +381,7 @@ namespace ParkinglotsSvr{
 					{
 						qCritical()<<tr("Database Access Error :")+query.lastError().text();
 						res = 1;
+						db.close();
 					}
 				}
 				else
@@ -422,6 +435,7 @@ namespace ParkinglotsSvr{
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
+					db.close();
 				}
 			}
 			else
@@ -455,6 +469,7 @@ namespace ParkinglotsSvr{
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
+					db.close();
 				}
 			}
 			else
@@ -499,6 +514,7 @@ namespace ParkinglotsSvr{
 						{
 							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
+							db.close();
 						}
 						//update sensor event
 						sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
@@ -514,6 +530,7 @@ namespace ParkinglotsSvr{
 						{
 							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
+							db.close();
 						}
 					}
 					else
@@ -567,6 +584,7 @@ namespace ParkinglotsSvr{
 						{
 							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
+							db.close();
 						}
 						//update sensor event
 						sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
@@ -582,6 +600,7 @@ namespace ParkinglotsSvr{
 						{
 							qCritical()<<tr("Database Access Error :")+query.lastError().text();
 							res = 1;
+							db.close();
 						}
 					}
 					else
@@ -764,6 +783,7 @@ namespace ParkinglotsSvr{
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
+					db.close();
 				}
 				//update sensor event
 				sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
@@ -788,6 +808,7 @@ namespace ParkinglotsSvr{
 				{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
+					db.close();
 				}
 			}
 			else
@@ -816,6 +837,7 @@ namespace ParkinglotsSvr{
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				res = false;
+				db.close();
 			}
 		}
 		else

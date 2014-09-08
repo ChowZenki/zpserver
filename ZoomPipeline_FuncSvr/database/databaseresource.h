@@ -39,7 +39,7 @@ namespace ZPDatabase{
 
 		//!Get an database connection belong to current thread.
 		//!if database does not exist, it will be added using dbtype
-		QSqlDatabase  databse(QString  strDBName);
+		QSqlDatabase  databse(QString  strDBName,bool checkConn = false);
 
 		//!add connection connName, return true if ok.
 		bool addConnection(
@@ -67,9 +67,9 @@ namespace ZPDatabase{
 		bool bTerm;
 		QMutex m_mutex_reg;
 		QMap <QString,tagConnectionPara> m_dbNames;
-        QMap <QString, QSet<QString> > m_ThreadsDB;
+		QMap <QString, QSet<QString> > m_ThreadsDB;
 		QMap <QThread * , QSet<QString> > m_ThreadOwnedMainDBs;
-        void RemoveTreadsConnections(QString mainName);
+		void RemoveTreadsConnections(QString mainName);
 	signals:
 		void evt_Message(QObject *,QString );
 	public slots:

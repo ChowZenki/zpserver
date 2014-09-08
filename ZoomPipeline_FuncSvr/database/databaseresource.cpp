@@ -115,7 +115,12 @@ namespace ZPDatabase{
 			}
 		}
 		else
+		{
+			QSqlDatabase::removeDatabase(threadName);
+			m_ThreadsDB[strDBName].remove(threadName);
+			m_ThreadOwnedMainDBs[pThread].remove(strDBName);
 			bNeedReconnect = true;
+		}
 		if (bNeedReconnect==true)
 		{
 			db = QSqlDatabase::cloneDatabase(QSqlDatabase::database(strDBName),threadName);

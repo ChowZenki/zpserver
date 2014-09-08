@@ -4,6 +4,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDebug>
+#include <QDateTime>
 namespace ZPDatabase{
 
 
@@ -20,9 +21,9 @@ namespace ZPDatabase{
 		//Get The quiting thread
 		if (pThread && m_ThreadOwnedMainDBs.contains(pThread) )
 		{
-			QSet<QString> mainNames = m_ThreadOwnedMainDBs[pThread];
+			QMap<QString, QDateTime> mainNames = m_ThreadOwnedMainDBs[pThread];
 			//Remove every thread-owned db names for this thread.
-			foreach (QString mainName, mainNames)
+			foreach (QString mainName, mainNames.keys())
 			{
 				QString threadName = QString("%1_%2").arg(mainName).arg((quint64)pThread);
 				QSqlDatabase db = QSqlDatabase::database(threadName);
@@ -85,13 +86,18 @@ namespace ZPDatabase{
 				//emit evt_Message(this,msg);
 			}
 			m_ThreadsDB[strDBName].insert(threadName);
-			m_ThreadOwnedMainDBs[pThread].insert(strDBName);
+			m_ThreadOwnedMainDBs[pThread][strDBName] = QDateTime::currentDateTime();
 		}
 		//Confirm the thread-owned db is still open
 		QSqlDatabase db = QSqlDatabase::database(threadName);
+
+
 		bool bNeedReconnect = false;
 		if (db.isOpen()==true)
 		{
+			QDateTime dtmLatsAct = m_ThreadOwnedMainDBs[pThread][strDBName];
+			if (dtmLatsAct.addSecs(5) < QDateTime::currentDateTime())
+				checkConn = true;
 			tagConnectionPara & para = m_dbNames[strDBName];
 			if (checkConn==true && para.testSQL.length())
 			{
@@ -99,7 +105,7 @@ namespace ZPDatabase{
 				query.exec(para.testSQL);
 				if (query.lastError().type()!=QSqlError::NoError)
 				{
-					QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" confirm failed. MSG=");
+					QString msg = "Database:"+tr(" Connection  ")+threadName+ tr(" Need re-connect. MSG=");
 					msg += query.lastError().text();
 					qWarning()<<msg;
 					emit evt_Message(this,msg);
@@ -130,7 +136,7 @@ namespace ZPDatabase{
 				emit evt_Message(this,msg);
 				qDebug()<<msg;
 				m_ThreadsDB[strDBName].insert(threadName);
-				m_ThreadOwnedMainDBs[pThread].insert(strDBName);
+				m_ThreadOwnedMainDBs[pThread][strDBName] = QDateTime::currentDateTime();
 			}
 			else
 			{
@@ -145,6 +151,8 @@ namespace ZPDatabase{
 
 			}
 		}
+		else
+			m_ThreadOwnedMainDBs[pThread][strDBName] = QDateTime::currentDateTime();
 
 		return  db;
 	}
@@ -204,7 +212,7 @@ namespace ZPDatabase{
 			//Remove thread map.
 			foreach (QThread * ptr, m_ThreadOwnedMainDBs.keys())
 			{
-				QSet<QString> & threadOwnedMainDB = m_ThreadOwnedMainDBs[ptr];
+				QMap<QString, QDateTime> & threadOwnedMainDB = m_ThreadOwnedMainDBs[ptr];
 				threadOwnedMainDB.remove(mainName);
 			}
 		}

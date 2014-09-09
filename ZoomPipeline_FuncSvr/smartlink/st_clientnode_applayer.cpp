@@ -182,7 +182,38 @@ namespace ParkinglotsSvr{
 		qDebug()<<this->peerInfo()<<tr(" Send Msg  :")<<this->m_currentBlock.toHex();
 		switch (m_current_app_header.MsgType)
 		{
-		case 0x1002:
+		case 0x1000:
+			if (bytesLeft()>0)
+				// message is not complete, return
+				return true;
+			qDebug()<<this->peerInfo()<<tr(" Send Regisit:")<<this->m_currentBlock.toHex();
+			if (m_currentMessageSize>
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header)
+					+ sizeof (stMsg_HostRegistReq)+64)
+			{
+				emit evt_Message(this,tr("Broken Message, size not correct."));
+				res = false;
+			}
+			else
+				res = this->RegisitNewBoxNode();
+			break;
+		case 0x1001:
+			if (bytesLeft()>0)
+				// message is not complete, return
+				return true;
+			qDebug()<<this->peerInfo()<<tr(" Send Login  :")<<this->m_currentBlock.toHex();
+			if (m_currentMessageSize>
+					sizeof(PKLTS_Trans_Header)
+					+ sizeof (PKLTS_App_Header)
+					+ sizeof (stMsg_HostLogonReq)+66)
+			{
+				emit evt_Message(this,tr("Broken Message, size not correct."));
+				res = false;
+			}
+			else
+				res = this->LoginHost();
+			break;		case 0x1002:
 			if (m_currentMessageSize!=
 					sizeof(PKLTS_Trans_Header)
 					+ sizeof (PKLTS_App_Header)

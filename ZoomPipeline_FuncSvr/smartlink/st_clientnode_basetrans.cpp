@@ -283,6 +283,15 @@ namespace ParkinglotsSvr{
 					}
 				} // end if there is more bytes to append
 			} //end deal trans message
+			//The client want server close its connection from remote.
+			else if (m_currentHeader.Mark == 0x0000)
+			{
+				qDebug()<<tr("Client Send Immediatlly Disconnection Cmd Header 0x0000.");
+				m_currentMessageSize = 0;
+				m_currentBlock = QByteArray();
+				offset = blocklen;
+				emit evt_close_client(this->sock());
+			}
 			else
 			{
 				const char * ptrCurrData =  m_currentBlock.constData();

@@ -3,7 +3,25 @@
 #include <windows.h>
 #include <tchar.h>
 #pragma  pack (push,1)
+
 namespace ParkinglotsSvr{
+	enum ErrMessage{
+		ALL_SUCCEED          = 0,
+		//Net Errors, 4Bit
+		ERRNET_WSAStartupFailed = 1,
+		ERRNET_GetAddrInfoError = 2,
+		ERRNET_SocketFailedErr  = 3,
+		ERRNET_ConnectionFailed = 4,
+		ERRNET_SendDataFailed   = 5,
+		ERRNET_RecvDataFailed   = 6,
+		ERRNET_ShutDownFailed   = 7,
+		//TransLayer Errors, 4Bit
+		ERRTRANS_ERROR_MARK				 =0x10,
+		ERRTRANS_LESS_DATA				 =0x11,
+		ERRTRANS_DST_NOT_REACHABLE		 =0x12,
+		ERRTRANS_ERROR_MSG_TYPE			 =0x13,
+	};
+
 	//0x2000
 	struct stMsg_GetHostDetailsReq{
 		//Ä¿Ç°Îª¿Õ

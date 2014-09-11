@@ -78,7 +78,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="libpklts_ctrl.def" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />

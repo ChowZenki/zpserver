@@ -1,0 +1,3 @@
+LIBRARY   "libpklts_ctrl"
+EXPORTS
+st_getMACInfo @1

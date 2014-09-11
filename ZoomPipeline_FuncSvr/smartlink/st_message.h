@@ -32,6 +32,12 @@ namespace ParkinglotsSvr{
 		DAL_TYPE_STRING	=0x42
 	};
 
+	//	//User Log response
+	//SMARTLINK_MSG_APP::MsgType =  0x0000
+	struct stMsg_DestinNotReached{
+
+	} ;
+
 	//-------------------------------------------------------------------
 	/**Application Layer Message Types
 	  *0x100X Serial

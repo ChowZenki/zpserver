@@ -74,7 +74,26 @@ namespace ParkinglotsSvr{
 				{
 					qWarning()<<this->peerInfo()<<
 								tr("Destin ID ") + QString("%1").arg(m_currentHeader.DstID) + tr(" is not currently logged in.");
-					emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.DstID) + tr(" is not currently logged in."));
+					//emit evt_Message(this,tr("Destin ID ") + QString("%1").arg(m_currentHeader.DstID) + tr(" is not currently logged in."));
+					//Tell the client, that this destin is not reachable
+					//form return  Msgs
+					quint16 nMsgLen = sizeof(PKLTS_App_Header) ;
+					QByteArray array(sizeof(PKLTS_Trans_Header) + nMsgLen,0);
+					char * ptr = array.data();
+					PKLTS_Message * pMsg = (PKLTS_Message *)ptr;
+					PKLTS_App_Layer * pApp = &pMsg->trans_payload.app_layer;
+					pMsg->trans_header.Mark = 0x55AA;
+					pMsg->trans_header.SerialNum = m_currentHeader.SerialNum;
+					pMsg->trans_header.Priority = m_currentHeader.Priority;
+					pMsg->trans_header.Reserved1 = 0;
+					pMsg->trans_header.SrcID = (quint32)((quint64)(0x00000001) & 0xffffffff );
+					pMsg->trans_header.DstID = (quint32)((quint64)(m_currentHeader.SrcID) & 0xffffffff );;
+					pMsg->trans_header.DataLen = nMsgLen;
+					pMsg->trans_header.Reserved2 = 0;
+					pApp->app_header.AskID = 0;
+					pApp->app_header.MsgType = 0x0000;
+					pApp->app_header.MsgFmtVersion = 0;
+					emit evt_SendDataToClient(this->sock(),array);
 				}
 				else
 					m_pClientTable->cross_svr_send_data(svr,m_currentBlock);

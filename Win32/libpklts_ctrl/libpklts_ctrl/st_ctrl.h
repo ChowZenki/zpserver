@@ -20,43 +20,69 @@ namespace ParkinglotsSvr{
 		ERRTRANS_LESS_DATA				 =0x11,
 		ERRTRANS_DST_NOT_REACHABLE		 =0x12,
 		ERRTRANS_ERROR_MSG_TYPE			 =0x13,
+		ERRTRANS_ERROR_DATA              =0x14
 	};
 
 	//0x2000
 	struct stMsg_GetHostDetailsReq{
-		//目前为空
+		
 	};
 
 	//0x2800
 	struct stMsg_GetHostDetailsRsp{
-		unsigned __int8 DoneCode;//执行结果代码
-		unsigned __int16 HostType;//网关类型
-		unsigned __int16 FirmwareVersion;//网关固件版本号
-		char HostName[64];//网关名称，长度不超过64字节
-		char HostInfo[64];//网关描述，长度不超过64字节
-		unsigned __int8 ConnetType;// 与数据中心连接方式：
+		unsigned __int8 DoneCode;
+		unsigned __int16 HostType;
+		unsigned __int16 FirmwareVersion;
+		char HostName[64];
+		char HostInfo[64];
+		unsigned __int8 ConnetType;
 		//1：GPRS，2：3G，3：WAN，4：LAN
-		unsigned __int8 IEEEAdd[8];// 协调器IEEE地址，8字节十六进制数
-		unsigned __int8 IEEEAdd_Flag;// 协调器IEEE地址使能：0未使能，1使能
-		unsigned __int8 PANID[2];// PANID，2字节十六进制数
-		unsigned __int8 PANID_Flag;// PANID使能：0未使能，1使能
-		unsigned __int8 EPANID[8];// 扩展PANID，8字节十六进制数
-		unsigned __int8 EPANID_Flag;// 扩展PANID使能：0未使能，1使能
-		unsigned __int16 SensorNum;// 传感器数量
-		unsigned __int16 RelayNum;// 中继数量
-		unsigned __int16 ANSensorNum;// 异常传感器数量
-		unsigned __int16 ANRelayNum;// 异常中继数量
+		unsigned __int8 IEEEAdd[8];
+		unsigned __int8 IEEEAdd_Flag;
+		unsigned __int8 PANID[2];
+		unsigned __int8 PANID_Flag;
+		unsigned __int8 EPANID[8];
+		unsigned __int8 EPANID_Flag;
+		unsigned __int16 SensorNum;
+		unsigned __int16 RelayNum;
+		unsigned __int16 ANSensorNum;
+		unsigned __int16 ANRelayNum;
 	};
 	//0x2001
 	struct stMsg_SetHostDetailsReq
 	{
-		char HostName[64];//网关名称，长度不超过64字节
-		char HostInfo[64];//网关描述，长度不超过64字节
+		char HostName[64];
+		char HostInfo[64];
 	};
 	//0x2801
 	struct stMsg_SetHostDetailsRsp{
-		unsigned __int8 DoneCode;// 系统管理平台后台服务返回的执行结果代码
+		unsigned __int8 DoneCode;
 	};
+	//0x200A
+	struct stMsg_RemoveDeviceReq {
+		unsigned __int8 DeviceID[24];
+	};
+	//0x280A
+	struct stMsg_RemoveDeviceRsp{
+		unsigned __int8 DoneCode;
+	};
+	//0x200B
+	struct stMsg_GetDeviceListReq{
+
+	};
+	//0x280B
+	struct stMsg_GetDeviceListRsp
+	{
+		unsigned __int8   DoneCode;
+		unsigned __int16  nDevCount;
+		struct   stCall_DeviceNode
+		{
+			char DeviceName [32];
+			char No[64];
+			unsigned char DeviceID[24];
+		} devicetable[1];
+	};
+
 
 
 }
@@ -64,14 +90,21 @@ namespace ParkinglotsSvr{
 
 typedef unsigned __int32 (__stdcall * fp_st_getMACInfo)(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetHostDetailsRsp * pOutputBuf);
 typedef unsigned __int32 (__stdcall * fp_st_setHostDetails)(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_SetHostDetailsReq * pInData,ParkinglotsSvr::stMsg_SetHostDetailsRsp * pOutputBuf);
+typedef unsigned __int32 (__stdcall * fp_st_removeDevice)(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_RemoveDeviceReq * pInData,ParkinglotsSvr::stMsg_RemoveDeviceRsp * pOutputBuf);
+typedef unsigned __int32 (__stdcall * fp_st_getDeviceList)(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetDeviceListRsp ** ppOutputBuf);
+typedef void (__stdcall * fp_st_freeDeviceList)(ParkinglotsSvr::stMsg_GetDeviceListRsp * pOutputBuf);
+
 
 
 //This class help client app to get dll method easily
 class pklts_ctrl{
 private:
 	HMODULE m_dllMod;
-	fp_st_getMACInfo m_fn_st_getMACInfo;
-	fp_st_setHostDetails m_fn_st_setHostDetails;
+	fp_st_getMACInfo		m_fn_st_getMACInfo;
+	fp_st_setHostDetails	m_fn_st_setHostDetails;
+	fp_st_removeDevice		m_fn_st_removeDevice;
+	fp_st_getDeviceList		m_fn_st_getDeviceList;
+	fp_st_freeDeviceList	m_fn_st_freeDeviceList;
 public:
 	inline pklts_ctrl(const _TCHAR * dllFilePath)
 	{
@@ -80,11 +113,17 @@ public:
 		{
 			m_fn_st_getMACInfo = (fp_st_getMACInfo )::GetProcAddress(m_dllMod,"st_getMACInfo");
 			m_fn_st_setHostDetails = (fp_st_setHostDetails )::GetProcAddress(m_dllMod,"st_setHostDetails");
+			m_fn_st_removeDevice = (fp_st_removeDevice )::GetProcAddress(m_dllMod,"st_removeDevice");
+			m_fn_st_getDeviceList = (fp_st_getDeviceList )::GetProcAddress(m_dllMod,"st_getDeviceList");
+			m_fn_st_freeDeviceList = (fp_st_freeDeviceList )::GetProcAddress(m_dllMod,"st_freeDeviceList");
 		}
 		else
 		{
 			m_fn_st_getMACInfo = NULL;
 			m_fn_st_setHostDetails = NULL;
+			m_fn_st_removeDevice = NULL;
+			m_fn_st_getDeviceList = NULL;
+			m_fn_st_freeDeviceList = NULL;
 		}
 	}
 
@@ -102,6 +141,9 @@ public:
 		if (m_dllMod==0) return false;
 		if (m_fn_st_getMACInfo == 0) return false;
 		if (m_fn_st_setHostDetails == 0) return false;
+		if (m_fn_st_removeDevice == 0) return false;
+		if (m_fn_st_getDeviceList == 0) return false;
+		if (m_fn_st_freeDeviceList == 0) return false;
 		return true;
 	}
 
@@ -113,6 +155,18 @@ public:
 	inline unsigned __int32  st_setHostDetails(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_SetHostDetailsReq * pInData,ParkinglotsSvr::stMsg_SetHostDetailsRsp * pOutputBuf)
 	{
 		return m_fn_st_setHostDetails(address,port,macID,pInData,pOutputBuf);
+	}
+	inline unsigned __int32  st_removeDevice(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_RemoveDeviceReq * pInData,ParkinglotsSvr::stMsg_RemoveDeviceRsp * pOutputBuf)
+	{
+		return m_fn_st_removeDevice(address,port,macID,pInData,pOutputBuf);
+	}
+	inline unsigned __int32  st_getDeviceList(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetDeviceListRsp ** ppOutputBuf)
+	{
+		return m_fn_st_getDeviceList(address,port,macID,ppOutputBuf);
+	}
+	inline void  st_freeDeviceList(ParkinglotsSvr::stMsg_GetDeviceListRsp * pOutputBuf)
+	{
+		return m_fn_st_freeDeviceList(pOutputBuf);
 	}
 };
 

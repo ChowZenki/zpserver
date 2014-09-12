@@ -8,6 +8,9 @@ void printMenu();
 
 void test_st_getMACInfo(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
 void test_st_setHostDetails(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
+void test_st_removeDevice(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
+void test_st_getDeviceList(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
+
 int main(int argc, char * argv [])
 {
 	//First, Load the DLL interface.
@@ -37,6 +40,12 @@ int main(int argc, char * argv [])
 		case 2:
 			test_st_setHostDetails(&ctrl,buffer_address,nPort);
 			break;
+		case 3:
+			test_st_removeDevice(&ctrl,buffer_address,nPort);
+			break;
+		case 4:
+			test_st_getDeviceList(&ctrl,buffer_address,nPort);
+			break;		
 		default:
 			break;
 		};
@@ -51,6 +60,8 @@ void printMenu()
 	printf ("\n\n-----------------------------------------\n");
 	printf ("1. st_getMACInfo\n");
 	printf ("2. st_setHostDetails\n");
+	printf ("3. st_removeDevice\n");
+	printf ("4. st_getDeviceList\n");
 	printf ("0. Exit\n");
 	printf ("-----------------------------------------\n");
 	printf ("Input method:");
@@ -123,4 +134,76 @@ void test_st_setHostDetails(pklts_ctrl * ctrl,const char * address, unsigned __i
 		printf ("rsp.DoneCode = %d\n",(unsigned int)rsp.DoneCode);
 	}
 
+}
+
+void test_st_removeDevice(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
+{
+	//This function test st_getMACInfo.
+
+	//First, Get The Mac ID you want to ask.
+	char inbuf[256];
+	printf ("input MacID:");
+	gets_s(inbuf);
+
+	//Then, define a stMsg_GetHostDetailsRsp structure, to hold result.
+	stMsg_RemoveDeviceReq DataIn;
+	stMsg_RemoveDeviceRsp rsp;
+	for (int i=0;i<24;++i)
+	{
+		char buf[256];
+		printf ("input DEVID(%2d HEX Byte):",i);
+		gets_s(buf);
+		sscanf_s(buf,"%x",DataIn.DeviceID+i);
+	}
+	unsigned __int32 nMacID = atoi(inbuf);
+
+	//And then, Call the method directly, just like a native method.
+	//Inside the function, a remote call will be executed.
+	int res = ctrl->st_removeDevice(address,port,nMacID, &DataIn, &rsp);
+
+	//Check the result, and print the result.
+	printf ("Res = %d\n",res);
+	if (res == ALL_SUCCEED)
+	{
+		printf ("rsp.DoneCode = %d\n",(unsigned int)rsp.DoneCode);
+	}
+
+}
+
+void test_st_getDeviceList(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
+{
+	//This function test st_getMACInfo.
+
+	//First, Get The Mac ID you want to ask.
+	char inbuf[256];
+	printf ("input MacID:");
+	gets_s(inbuf);
+
+	//Then, define a stMsg_GetHostDetailsRsp structure, to hold result.
+	stMsg_GetDeviceListRsp * rsp = 0;
+
+	unsigned __int32 nMacID = atoi(inbuf);
+
+	//And then, Call the method directly, just like a native method.
+	//Inside the function, a remote call will be executed.
+	int res = ctrl->st_getDeviceList(address,port,nMacID, &rsp);
+
+	//Check the result, and print the result.
+	printf ("Res = %d\n",res);
+	if (res == ALL_SUCCEED)
+	{
+		printf ("rsp.DoneCode = %d\n",(unsigned int)rsp->DoneCode);
+		printf ("rsp.nDevCount = %d\n",(unsigned int)rsp->nDevCount);
+		for (int i=0;i<rsp->nDevCount;++i)
+		{
+			printf ("DeviceName[%5d] = %s\n",i,rsp->devicetable[i].DeviceName);
+			printf ("DeviceNO  [%5d] = %s\n",i,rsp->devicetable[i].No);
+			printf ("DeviceID  [%5d] = ",i);
+			for (int j=0;j<24;++j)	printf ("%02x",rsp->devicetable[i].DeviceID[j]);
+			printf ("\n");
+		}
+
+	}
+	if (rsp)
+		ctrl->st_freeDeviceList(rsp);
 }

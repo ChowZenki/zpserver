@@ -2,3 +2,6 @@ LIBRARY   "libpklts_ctrl"
 EXPORTS
 st_getMACInfo @1
 st_setHostDetails @2
+st_removeDevice @3
+st_getDeviceList @4
+st_freeDeviceList @5

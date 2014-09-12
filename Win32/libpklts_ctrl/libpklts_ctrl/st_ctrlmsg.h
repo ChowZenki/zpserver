@@ -248,6 +248,8 @@ namespace ParkinglotsSvr{
 
 					stMsg_GetHostDetailsReq msg_GetHostDetailsReq;
 					stMsg_GetHostDetailsRsp msg_GetHostDetailsRsp;
+					stMsg_SetHostDetailsReq msg_SetHostDetailsReq;
+					stMsg_SetHostDetailsRsp msg_SetHostDetailsRsp;
 					unsigned __int8 msg[1];
 				} app_data;
 			} app_layer;

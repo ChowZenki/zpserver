@@ -256,3 +256,76 @@ extern "C"  unsigned __int32 __stdcall st_getMACInfo(
 	}
 	return nRes;
 }
+
+extern "C"  unsigned __int32 __stdcall st_setHostDetails(
+	const char * address, 
+	unsigned __int16 port,
+	unsigned __int32 macID, 
+	const stMsg_SetHostDetailsReq * pInData,
+	stMsg_SetHostDetailsRsp * pOutputBuf)
+{
+	//Calc the string length
+	int nSendLen = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header)+ sizeof (stMsg_SetHostDetailsReq);
+	unsigned char * messageSend = new unsigned char [nSendLen+2];
+	nSendLen = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header);
+
+	PKLTS_Message * pMessageSend = (PKLTS_Message *) messageSend;
+	pMessageSend->trans_header.Mark = 0x55AA;
+	pMessageSend->trans_header.SrcID = (unsigned __int32)((unsigned __int64)(getUniqueSrcID()) & 0xffffffff );
+	pMessageSend->trans_header.DstID = (unsigned __int32)((unsigned __int64)(macID) & 0xffffffff );;
+	//pMessageSend->trans_header.DataLen =  sizeof(PKLTS_App_Header);
+	pMessageSend->trans_payload.app_layer.app_header.MsgType = 0x2001;
+
+	for (int i=0;i<sizeof(pInData->HostName) && pInData->HostName[i]!=0;++i)
+		messageSend[nSendLen++] = pInData->HostName[i];
+	messageSend[nSendLen++] = 0;
+	for (int i=0;i<sizeof(pInData->HostInfo) && pInData->HostInfo[i]!=0;++i)
+		messageSend[nSendLen++] = pInData->HostName[i];
+	messageSend[nSendLen++] = 0;
+	
+	std::vector<unsigned __int8> vec_response;
+	int nRes = RemoteFunctionCall(address,port,
+		messageSend,nSendLen,
+		vec_response
+		);
+	delete [] messageSend;
+	messageSend = 0;
+	//Dealing with result
+	if (nRes==ALL_SUCCEED )
+	{
+		if ( vec_response.size()>=sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header))
+		{
+			PKLTS_Message * pMessageSend = (PKLTS_Message *) vec_response.data();
+			if (pMessageSend->trans_header.Mark!=0x55AA)
+				nRes = ERRTRANS_ERROR_MARK;
+			else
+			{
+				if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x2801)
+				{
+					unsigned char * pSwim =(unsigned char *) &(pMessageSend->trans_payload.app_layer.app_data);
+					size_t nTotalLen = vec_response.size() - sizeof(PKLTS_Trans_Header) - sizeof(PKLTS_App_Header);
+					size_t nCurrStart = 0;
+					//Done Code
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(pOutputBuf->DoneCode) < nTotalLen)
+						{
+							memcpy_s(&(pOutputBuf->DoneCode),sizeof(pOutputBuf->DoneCode),pSwim+nCurrStart,sizeof(pOutputBuf->DoneCode));
+							nCurrStart += sizeof(pOutputBuf->DoneCode);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}			
+
+				}
+				else if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x0000)
+					nRes = ERRTRANS_DST_NOT_REACHABLE;
+				else
+					nRes = ERRTRANS_ERROR_MSG_TYPE;
+			}
+		}
+		else
+			nRes = ERRTRANS_LESS_DATA;			
+	}
+	return nRes;
+}

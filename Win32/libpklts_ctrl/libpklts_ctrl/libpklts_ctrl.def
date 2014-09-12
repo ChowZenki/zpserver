@@ -1,3 +1,4 @@
 LIBRARY   "libpklts_ctrl"
 EXPORTS
 st_getMACInfo @1
+st_setHostDetails @2

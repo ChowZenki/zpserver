@@ -47,21 +47,31 @@ namespace ParkinglotsSvr{
 		unsigned __int16 ANSensorNum;// 异常传感器数量
 		unsigned __int16 ANRelayNum;// 异常中继数量
 	};
+	//0x2001
+	struct stMsg_SetHostDetailsReq
+	{
+		char HostName[64];//网关名称，长度不超过64字节
+		char HostInfo[64];//网关描述，长度不超过64字节
+	};
+	//0x2801
+	struct stMsg_SetHostDetailsRsp{
+		unsigned __int8 DoneCode;// 系统管理平台后台服务返回的执行结果代码
+	};
+
 
 }
 #pragma  pack (pop)
 
-typedef unsigned __int32 (__stdcall * fp_st_getMACInfo)(
-	const char * address, 
-	unsigned __int16 port,
-	unsigned __int32 macID, 
-	ParkinglotsSvr::stMsg_GetHostDetailsRsp * pOutputBuf);
+typedef unsigned __int32 (__stdcall * fp_st_getMACInfo)(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetHostDetailsRsp * pOutputBuf);
+typedef unsigned __int32 (__stdcall * fp_st_setHostDetails)(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_SetHostDetailsReq * pInData,ParkinglotsSvr::stMsg_SetHostDetailsRsp * pOutputBuf);
+
 
 //This class help client app to get dll method easily
 class pklts_ctrl{
 private:
 	HMODULE m_dllMod;
 	fp_st_getMACInfo m_fn_st_getMACInfo;
+	fp_st_setHostDetails m_fn_st_setHostDetails;
 public:
 	inline pklts_ctrl(const _TCHAR * dllFilePath)
 	{
@@ -69,10 +79,12 @@ public:
 		if (m_dllMod !=NULL)
 		{
 			m_fn_st_getMACInfo = (fp_st_getMACInfo )::GetProcAddress(m_dllMod,"st_getMACInfo");
+			m_fn_st_setHostDetails = (fp_st_setHostDetails )::GetProcAddress(m_dllMod,"st_setHostDetails");
 		}
 		else
 		{
 			m_fn_st_getMACInfo = NULL;
+			m_fn_st_setHostDetails = NULL;
 		}
 	}
 
@@ -89,6 +101,7 @@ public:
 	{
 		if (m_dllMod==0) return false;
 		if (m_fn_st_getMACInfo == 0) return false;
+		if (m_fn_st_setHostDetails == 0) return false;
 		return true;
 	}
 
@@ -97,7 +110,10 @@ public:
 	{
 		return m_fn_st_getMACInfo(address,port,macID,pOutputBuf);
 	}
-
+	inline unsigned __int32  st_setHostDetails(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_SetHostDetailsReq * pInData,ParkinglotsSvr::stMsg_SetHostDetailsRsp * pOutputBuf)
+	{
+		return m_fn_st_setHostDetails(address,port,macID,pInData,pOutputBuf);
+	}
 };
 
 

@@ -82,93 +82,53 @@ namespace ParkinglotsSvr{
 			unsigned char DeviceID[24];
 		} devicetable[1];
 	};
+	//0x200C
+	struct stMsg_GetDeviceParamReq
+	{
+		unsigned __int8 DeviceID[24];
+		unsigned __int8 Opt_DeviceName;
+		unsigned __int8 Opt_DeviceInfo;
+		unsigned __int8 Opt_DALStatus;
+	};
+	//0x280C
+	struct stMsg_GetDeviceParamRsp
+	{
+		unsigned __int8 DoneCode;
+		unsigned char DeviceID[24];
+		unsigned __int8 Opt_DeviceName;
+		unsigned __int8 Opt_DeviceInfo;
+		unsigned __int8 Opt_DALStatus;
+		char DeviceName[32];
+		char DeviceInfo[64];
+		unsigned __int16 DALStatusBytesLen;
+		unsigned char DALStatusBytes[1];
+	};
 
-
-
+	//0x200D
+	struct stMsg_setDeviceParamReq
+	{
+		unsigned char DeviceID[24];
+		unsigned __int8 Opt_DeviceName;
+		unsigned __int8 Opt_DeviceInfo;
+		char DeviceName[32];
+		char DeviceInfo[64];
+	};
+	//0x280D
+	struct stMsg_setDeviceParamRsp
+	{
+		unsigned __int8 DoneCode;
+	};
+	//0x280E
+	struct stMsg_DeviceCtrlReq
+	{
+		unsigned char DeviceID[24];
+		unsigned __int16 DALArrayLength;
+	};
+	//0x280E
+	struct stMsg_DeviceCtrlRsp
+	{
+		unsigned __int8 DoneCode;
+	};
 }
 #pragma  pack (pop)
-
-typedef unsigned __int32 (__stdcall * fp_st_getMACInfo)(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetHostDetailsRsp * pOutputBuf);
-typedef unsigned __int32 (__stdcall * fp_st_setHostDetails)(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_SetHostDetailsReq * pInData,ParkinglotsSvr::stMsg_SetHostDetailsRsp * pOutputBuf);
-typedef unsigned __int32 (__stdcall * fp_st_removeDevice)(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_RemoveDeviceReq * pInData,ParkinglotsSvr::stMsg_RemoveDeviceRsp * pOutputBuf);
-typedef unsigned __int32 (__stdcall * fp_st_getDeviceList)(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetDeviceListRsp ** ppOutputBuf);
-typedef void (__stdcall * fp_st_freeDeviceList)(ParkinglotsSvr::stMsg_GetDeviceListRsp * pOutputBuf);
-
-
-
-//This class help client app to get dll method easily
-class pklts_ctrl{
-private:
-	HMODULE m_dllMod;
-	fp_st_getMACInfo		m_fn_st_getMACInfo;
-	fp_st_setHostDetails	m_fn_st_setHostDetails;
-	fp_st_removeDevice		m_fn_st_removeDevice;
-	fp_st_getDeviceList		m_fn_st_getDeviceList;
-	fp_st_freeDeviceList	m_fn_st_freeDeviceList;
-public:
-	inline pklts_ctrl(const _TCHAR * dllFilePath)
-	{
-		m_dllMod = ::LoadLibrary(dllFilePath);
-		if (m_dllMod !=NULL)
-		{
-			m_fn_st_getMACInfo = (fp_st_getMACInfo )::GetProcAddress(m_dllMod,"st_getMACInfo");
-			m_fn_st_setHostDetails = (fp_st_setHostDetails )::GetProcAddress(m_dllMod,"st_setHostDetails");
-			m_fn_st_removeDevice = (fp_st_removeDevice )::GetProcAddress(m_dllMod,"st_removeDevice");
-			m_fn_st_getDeviceList = (fp_st_getDeviceList )::GetProcAddress(m_dllMod,"st_getDeviceList");
-			m_fn_st_freeDeviceList = (fp_st_freeDeviceList )::GetProcAddress(m_dllMod,"st_freeDeviceList");
-		}
-		else
-		{
-			m_fn_st_getMACInfo = NULL;
-			m_fn_st_setHostDetails = NULL;
-			m_fn_st_removeDevice = NULL;
-			m_fn_st_getDeviceList = NULL;
-			m_fn_st_freeDeviceList = NULL;
-		}
-	}
-
-	inline ~pklts_ctrl()
-	{
-		if (m_dllMod)
-		{
-			::FreeLibrary(m_dllMod);
-			m_dllMod = 0;
-		}
-	}
-
-	inline bool valid()
-	{
-		if (m_dllMod==0) return false;
-		if (m_fn_st_getMACInfo == 0) return false;
-		if (m_fn_st_setHostDetails == 0) return false;
-		if (m_fn_st_removeDevice == 0) return false;
-		if (m_fn_st_getDeviceList == 0) return false;
-		if (m_fn_st_freeDeviceList == 0) return false;
-		return true;
-	}
-
-public:
-	inline unsigned __int32  st_getMACInfo(const char * address, unsigned __int16 port,unsigned __int32 macID, ParkinglotsSvr::stMsg_GetHostDetailsRsp * pOutputBuf)
-	{
-		return m_fn_st_getMACInfo(address,port,macID,pOutputBuf);
-	}
-	inline unsigned __int32  st_setHostDetails(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_SetHostDetailsReq * pInData,ParkinglotsSvr::stMsg_SetHostDetailsRsp * pOutputBuf)
-	{
-		return m_fn_st_setHostDetails(address,port,macID,pInData,pOutputBuf);
-	}
-	inline unsigned __int32  st_removeDevice(const char * address, unsigned __int16 port,unsigned __int32 macID, const ParkinglotsSvr::stMsg_RemoveDeviceReq * pInData,ParkinglotsSvr::stMsg_RemoveDeviceRsp * pOutputBuf)
-	{
-		return m_fn_st_removeDevice(address,port,macID,pInData,pOutputBuf);
-	}
-	inline unsigned __int32  st_getDeviceList(const char * address, unsigned __int16 port,unsigned __int32 macID,ParkinglotsSvr::stMsg_GetDeviceListRsp ** ppOutputBuf)
-	{
-		return m_fn_st_getDeviceList(address,port,macID,ppOutputBuf);
-	}
-	inline void  st_freeDeviceList(ParkinglotsSvr::stMsg_GetDeviceListRsp * pOutputBuf)
-	{
-		return m_fn_st_freeDeviceList(pOutputBuf);
-	}
-};
-
-
 #endif

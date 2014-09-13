@@ -1,7 +1,8 @@
 #include <Windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../libpklts_ctrl/st_ctrl.h"
+#include <vector>
+#include "st_ctrloader.h"
 
 using namespace ParkinglotsSvr;
 void printMenu();
@@ -10,6 +11,9 @@ void test_st_getMACInfo(pklts_ctrl * ctrl,const char * address, unsigned __int16
 void test_st_setHostDetails(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
 void test_st_removeDevice(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
 void test_st_getDeviceList(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
+void test_st_getDeviceParam(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
+void test_st_setDeviceParam(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
+void test_st_deviceCtrl(pklts_ctrl * ctrl,const char * address, unsigned __int16 port);
 
 int main(int argc, char * argv [])
 {
@@ -46,6 +50,15 @@ int main(int argc, char * argv [])
 		case 4:
 			test_st_getDeviceList(&ctrl,buffer_address,nPort);
 			break;		
+		case 5:
+			test_st_getDeviceParam(&ctrl,buffer_address,nPort);
+			break;
+		case 6:
+			test_st_setDeviceParam(&ctrl,buffer_address,nPort);
+			break;
+		case 7:
+			test_st_deviceCtrl(&ctrl,buffer_address,nPort);
+			break;
 		default:
 			break;
 		};
@@ -62,6 +75,9 @@ void printMenu()
 	printf ("2. st_setHostDetails\n");
 	printf ("3. st_removeDevice\n");
 	printf ("4. st_getDeviceList\n");
+	printf ("5. st_getDeviceParam\n");
+	printf ("6. st_setDeviceParam\n");
+	printf ("7. st_deviceCtrl\n");
 	printf ("0. Exit\n");
 	printf ("-----------------------------------------\n");
 	printf ("Input method:");
@@ -69,14 +85,12 @@ void printMenu()
 
 void test_st_getMACInfo(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
 {
-	//This function test st_getMACInfo.
-
 	//First, Get The Mac ID you want to ask.
 	char inbuf[256];
 	printf ("input MacID:");
 	gets_s(inbuf);
 
-	//Then, define a stMsg_GetHostDetailsRsp structure, to hold result.
+	//Then, define a structure, to hold result.
 	stMsg_GetHostDetailsRsp rsp;
 
 	unsigned __int32 nMacID = atoi(inbuf);
@@ -106,14 +120,12 @@ void test_st_getMACInfo(pklts_ctrl * ctrl,const char * address, unsigned __int16
 
 void test_st_setHostDetails(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
 {
-	//This function test st_getMACInfo.
-
 	//First, Get The Mac ID you want to ask.
 	char inbuf[256];
 	printf ("input MacID:");
 	gets_s(inbuf);
 
-	//Then, define a stMsg_GetHostDetailsRsp structure, to hold result.
+	//Then, define a structure, to hold result.
 	stMsg_SetHostDetailsReq DataIn;
 	stMsg_SetHostDetailsRsp rsp;
 	printf ("input HostName:");
@@ -138,22 +150,31 @@ void test_st_setHostDetails(pklts_ctrl * ctrl,const char * address, unsigned __i
 
 void test_st_removeDevice(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
 {
-	//This function test st_getMACInfo.
 
 	//First, Get The Mac ID you want to ask.
 	char inbuf[256];
 	printf ("input MacID:");
 	gets_s(inbuf);
 
-	//Then, define a stMsg_GetHostDetailsRsp structure, to hold result.
+	//Then, define a structure, to hold result.
 	stMsg_RemoveDeviceReq DataIn;
 	stMsg_RemoveDeviceRsp rsp;
+	printf ("input DEVID(24 HEX Bytes):");
+	char buf[256];
+	gets_s(buf);
 	for (int i=0;i<24;++i)
 	{
-		char buf[256];
-		printf ("input DEVID(%2d HEX Byte):",i);
-		gets_s(buf);
-		sscanf_s(buf,"%x",DataIn.DeviceID+i);
+		unsigned __int8 cv = 0;
+		if (buf[i*2] >='0' &&  buf[i*2] <='9')	cv += buf[i*2]-'0';
+		else if (buf[i*2] >='a' &&  buf[i*2] <='f') cv += buf[i*2]-'a' + 10;
+		else if (buf[i*2] >='A' &&  buf[i*2] <='F') cv += buf[i*2]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		cv <<= 4;
+		if (buf[i*2+1] >='0' &&  buf[i*2+1] <='9')	cv += buf[i*2+1]-'0';
+		else if (buf[i*2+1] >='a' &&  buf[i*2+1] <='f') cv += buf[i*2+1]-'a' + 10;
+		else if (buf[i*2+1] >='A' &&  buf[i*2+1] <='F') cv += buf[i*2+1]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		DataIn.DeviceID[i] = cv;
 	}
 	unsigned __int32 nMacID = atoi(inbuf);
 
@@ -172,22 +193,16 @@ void test_st_removeDevice(pklts_ctrl * ctrl,const char * address, unsigned __int
 
 void test_st_getDeviceList(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
 {
-	//This function test st_getMACInfo.
-
 	//First, Get The Mac ID you want to ask.
 	char inbuf[256];
 	printf ("input MacID:");
 	gets_s(inbuf);
-
-	//Then, define a stMsg_GetHostDetailsRsp structure, to hold result.
+	unsigned __int32 nMacID = atoi(inbuf);	
+	//Then, define a structure, to hold result.
 	stMsg_GetDeviceListRsp * rsp = 0;
-
-	unsigned __int32 nMacID = atoi(inbuf);
-
 	//And then, Call the method directly, just like a native method.
 	//Inside the function, a remote call will be executed.
 	int res = ctrl->st_getDeviceList(address,port,nMacID, &rsp);
-
 	//Check the result, and print the result.
 	printf ("Res = %d\n",res);
 	if (res == ALL_SUCCEED)
@@ -202,8 +217,169 @@ void test_st_getDeviceList(pklts_ctrl * ctrl,const char * address, unsigned __in
 			for (int j=0;j<24;++j)	printf ("%02x",rsp->devicetable[i].DeviceID[j]);
 			printf ("\n");
 		}
-
 	}
 	if (rsp)
 		ctrl->st_freeDeviceList(rsp);
+}
+
+void test_st_getDeviceParam(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
+{
+		//First, Get The Mac ID you want to ask.
+	char inbuf[256];
+	printf ("input MacID:");
+	gets_s(inbuf);
+
+	stMsg_GetDeviceParamReq req;
+	printf ("input DEVID(24 HEX Bytes):");
+	char buf[256];
+	gets_s(buf);
+	for (int i=0;i<24;++i)
+	{
+		unsigned __int8 cv = 0;
+		if (buf[i*2] >='0' &&  buf[i*2] <='9')	cv += buf[i*2]-'0';
+		else if (buf[i*2] >='a' &&  buf[i*2] <='f') cv += buf[i*2]-'a' + 10;
+		else if (buf[i*2] >='A' &&  buf[i*2] <='F') cv += buf[i*2]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		cv <<= 4;
+		if (buf[i*2+1] >='0' &&  buf[i*2+1] <='9')	cv += buf[i*2+1]-'0';
+		else if (buf[i*2+1] >='a' &&  buf[i*2+1] <='f') cv += buf[i*2+1]-'a' + 10;
+		else if (buf[i*2+1] >='A' &&  buf[i*2+1] <='F') cv += buf[i*2+1]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		req.DeviceID[i] = cv;
+	}
+	req.Opt_DALStatus = 1;
+	req.Opt_DeviceInfo = 1;
+	req.Opt_DeviceName = 1;
+
+	unsigned __int32 nMacID = atoi(inbuf);
+
+	//Then, define a structure, to hold result.
+	stMsg_GetDeviceParamRsp  * rsp;	//And then, Call the method directly, just like a native method.
+	//Inside the function, a remote call will be executed.
+	int res = ctrl->st_getDeviceParam(address,port,nMacID, &req,&rsp);
+
+	//Check the result, and print the result.
+	printf ("Res = %d\n",res);
+	if (res == ALL_SUCCEED)
+	{
+		printf ("rsp.DoneCode = %d\n",(unsigned int)rsp->DoneCode);
+		if (rsp->Opt_DeviceName) printf ("rsp.DeviceName = %s\n",rsp->DeviceName);
+		if (rsp->Opt_DeviceInfo) printf ("rsp.DeviceName = %s\n",rsp->DeviceInfo);
+		if (rsp->Opt_DALStatus)
+		{
+			printf ("rsp.DALLen = %d\n",(unsigned int)rsp->DALStatusBytesLen);
+			for (size_t i=0;i<(unsigned int)rsp->DALStatusBytesLen;++i)
+				printf ("%02X",rsp->DALStatusBytes[i]);
+			printf ("\n");
+		}
+	}
+	ctrl->st_freeDeviceParam(rsp);
+
+}
+void test_st_setDeviceParam(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
+{
+	char inbuf[256];
+	printf ("input MacID:");
+	gets_s(inbuf);
+
+	stMsg_setDeviceParamReq req;
+
+	printf ("input DEVID(24 HEX Bytes):");
+	char buf[256];
+	gets_s(buf);
+	for (int i=0;i<24;++i)
+	{
+		unsigned __int8 cv = 0;
+		if (buf[i*2] >='0' &&  buf[i*2] <='9')	cv += buf[i*2]-'0';
+		else if (buf[i*2] >='a' &&  buf[i*2] <='f') cv += buf[i*2]-'a' + 10;
+		else if (buf[i*2] >='A' &&  buf[i*2] <='F') cv += buf[i*2]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		cv <<= 4;
+		if (buf[i*2+1] >='0' &&  buf[i*2+1] <='9')	cv += buf[i*2+1]-'0';
+		else if (buf[i*2+1] >='a' &&  buf[i*2+1] <='f') cv += buf[i*2+1]-'a' + 10;
+		else if (buf[i*2+1] >='A' &&  buf[i*2+1] <='F') cv += buf[i*2+1]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		req.DeviceID[i] = cv;
+	}
+	
+	printf ("Input Device Name:");
+	gets_s(req.DeviceName);
+	printf ("Input Device Info:");
+	gets_s(req.DeviceInfo);
+	req.Opt_DeviceInfo = 1;
+	req.Opt_DeviceName = 1;
+
+	unsigned __int32 nMacID = atoi(inbuf);
+
+	stMsg_setDeviceParamRsp rsp;
+	//Inside the function, a remote call will be executed.
+	int res = ctrl->st_setDeviceParam(address,port,nMacID, &req,&rsp);
+
+	//Check the result, and print the result.
+	printf ("Res = %d\n",res);
+	if (res == ALL_SUCCEED)
+	{
+		printf ("rsp.DoneCode = %d\n",(unsigned int)rsp.DoneCode);
+	}
+}
+void test_st_deviceCtrl(pklts_ctrl * ctrl,const char * address, unsigned __int16 port)
+{
+	char inbuf[256];
+	printf ("input MacID:");
+	gets_s(inbuf);
+
+	stMsg_DeviceCtrlReq req;
+
+	printf ("input DEVID(24 HEX Bytes, NO spaces):");
+	char buf[256];
+	gets_s(buf);
+	for (int i=0;i<24;++i)
+	{
+		unsigned __int8 cv = 0;
+		if (buf[i*2] >='0' &&  buf[i*2] <='9')	cv += buf[i*2]-'0';
+		else if (buf[i*2] >='a' &&  buf[i*2] <='f') cv += buf[i*2]-'a' + 10;
+		else if (buf[i*2] >='A' &&  buf[i*2] <='F') cv += buf[i*2]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		cv <<= 4;
+		if (buf[i*2+1] >='0' &&  buf[i*2+1] <='9')	cv += buf[i*2+1]-'0';
+		else if (buf[i*2+1] >='a' &&  buf[i*2+1] <='f') cv += buf[i*2+1]-'a' + 10;
+		else if (buf[i*2+1] >='A' &&  buf[i*2+1] <='F') cv += buf[i*2+1]-'A' + 10;
+		else {printf ("Error Reading Hex Data! "); return;};
+		req.DeviceID[i] = cv;
+	}
+	
+	std::vector <unsigned char> vec_DAL;
+	printf ("input DAL HEX Bytes, NO spaces:");
+	char *buffer_dal = new char [65536];
+	gets_s(buffer_dal,65536);
+	unsigned __int16 nSwim = 0;
+	while (buffer_dal[nSwim] && nSwim < 65536)
+	{
+		unsigned __int8 cv = 0;
+		if (buffer_dal[nSwim] >='0' &&  buffer_dal[nSwim] <='9')	cv += buffer_dal[nSwim]-'0';
+		else if (buffer_dal[nSwim] >='a' &&  buffer_dal[nSwim] <='f') cv += buffer_dal[nSwim]-'a' + 10;
+		else if (buffer_dal[nSwim] >='A' &&  buffer_dal[nSwim] <='F') cv += buffer_dal[nSwim]-'A' + 10;
+		else break;
+		cv <<= 4;
+		++nSwim;
+		if (buffer_dal[nSwim] >='0' &&  buffer_dal[nSwim] <='9')	cv += buffer_dal[nSwim]-'0';
+		else if (buffer_dal[nSwim] >='a' &&  buffer_dal[nSwim] <='f') cv += buffer_dal[nSwim]-'a' + 10;
+		else if (buffer_dal[nSwim] >='A' &&  buffer_dal[nSwim] <='F') cv += buffer_dal[nSwim]-'A' + 10;
+		else break;
+		vec_DAL.push_back(cv);
+	}
+	req.DALArrayLength = vec_DAL.size();
+
+	unsigned __int32 nMacID = atoi(inbuf);
+
+	stMsg_DeviceCtrlRsp rsp;
+	//Inside the function, a remote call will be executed.
+	int res = ctrl->st_deviceCtrl(address,port,nMacID, &req,vec_DAL.data(), &rsp);
+
+	//Check the result, and print the result.
+	printf ("Res = %d\n",res);
+	if (res == ALL_SUCCEED)
+	{
+		printf ("rsp.DoneCode = %d\n",(unsigned int)rsp.DoneCode);
+	}	
 }

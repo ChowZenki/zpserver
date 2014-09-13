@@ -5,3 +5,7 @@ st_setHostDetails @2
 st_removeDevice @3
 st_getDeviceList @4
 st_freeDeviceList @5
+st_getDeviceParam @6
+st_freeDeviceParam @7
+st_setDeviceParam @8
+st_deviceCtrl @9

@@ -557,3 +557,383 @@ extern "C"  void __stdcall st_freeDeviceList(
 		delete [] ptr;	
 }
 
+extern "C"  unsigned __int32 __stdcall st_getDeviceParam(
+	const char * address, 
+	unsigned __int16 port,
+	unsigned __int32 macID, 
+	const stMsg_GetDeviceParamReq * pInBuf,
+	stMsg_GetDeviceParamRsp ** ppOutputBuf)
+{
+	int nSendLen = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header) + sizeof(stMsg_GetDeviceParamReq);
+	unsigned char * messageSend = new unsigned char [nSendLen];
+
+	PKLTS_Message * pMessageSend = (PKLTS_Message *) messageSend;
+	pMessageSend->trans_header.Mark = 0x55AA;
+	pMessageSend->trans_header.SrcID = (unsigned __int32)((unsigned __int64)(getUniqueSrcID()) & 0xffffffff );
+	pMessageSend->trans_header.DstID = (unsigned __int32)((unsigned __int64)(macID) & 0xffffffff );;
+	pMessageSend->trans_header.DataLen =  sizeof(PKLTS_App_Header) + sizeof(stMsg_GetDeviceParamReq);
+	pMessageSend->trans_payload.app_layer.app_header.MsgType = 0x200C;
+	memcpy_s(&(pMessageSend->trans_payload.app_layer.app_data.msg_GetDeviceParamReq),
+		sizeof(stMsg_GetDeviceParamReq),
+		pInBuf,
+		sizeof(stMsg_GetDeviceParamReq));
+	
+	std::vector<unsigned __int8> vec_response;
+	int nRes = RemoteFunctionCall(address,port,
+		messageSend,nSendLen,
+		vec_response
+		);
+	delete [] messageSend;
+	messageSend = 0;
+	stMsg_GetDeviceParamRsp * resu = 0;
+	//Dealing with result
+	if (nRes==ALL_SUCCEED )
+	{
+		if ( vec_response.size()>=sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header))
+		{
+			PKLTS_Message * pMessageSend = (PKLTS_Message *) vec_response.data();
+			if (pMessageSend->trans_header.Mark!=0x55AA)
+				nRes = ERRTRANS_ERROR_MARK;
+			else
+			{
+				if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x280C)
+				{
+					unsigned char * pSwim =(unsigned char *) &(pMessageSend->trans_payload.app_layer.app_data);
+					size_t nTotalLen = vec_response.size() - sizeof(PKLTS_Trans_Header) - sizeof(PKLTS_App_Header);
+					size_t nCurrStart = 0;
+					unsigned __int8 DoneCode = 0;
+					//Done Code
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(DoneCode) < nTotalLen)
+						{
+							memcpy_s(&DoneCode,sizeof(DoneCode),pSwim+nCurrStart,sizeof(DoneCode));
+							nCurrStart += sizeof(DoneCode);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+					//Device ID
+					unsigned __int8 DevID [24];
+					memset(DevID,0,sizeof(DevID));
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(DevID) < nTotalLen)
+						{
+							memcpy_s(DevID,sizeof(DevID),pSwim+nCurrStart,sizeof(DevID));
+							nCurrStart += sizeof(DevID);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+					unsigned __int8  Opt_DeviceName = 0;
+					//Opt_DeviceName
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(Opt_DeviceName) < nTotalLen)
+						{
+							memcpy_s(& Opt_DeviceName,sizeof( Opt_DeviceName),pSwim+nCurrStart,sizeof( Opt_DeviceName));
+							nCurrStart += sizeof( Opt_DeviceName);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+					unsigned __int8  Opt_DeviceInfo = 0;
+					//Opt_DeviceInfo
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(Opt_DeviceInfo) < nTotalLen)
+						{
+							memcpy_s(& Opt_DeviceInfo,sizeof( Opt_DeviceInfo),pSwim+nCurrStart,sizeof( Opt_DeviceInfo));
+							nCurrStart += sizeof( Opt_DeviceInfo);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+					unsigned __int8  Opt_DALStatus = 0;
+					//Opt_DALStatus
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(Opt_DALStatus) < nTotalLen)
+						{
+							memcpy_s(& Opt_DALStatus,sizeof( Opt_DALStatus),pSwim+nCurrStart,sizeof( Opt_DALStatus));
+							nCurrStart += sizeof( Opt_DALStatus);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+
+					//Dev Name
+					char DeviceName[32];
+					memset(DeviceName,0,sizeof(DeviceName));
+					if (Opt_DeviceName && nRes == ALL_SUCCEED)
+					{
+						if (nCurrStart < nTotalLen)
+						{
+							int currSp = 0;
+							do
+							{
+								DeviceName[currSp++] = pSwim[nCurrStart];
+								if (pSwim[nCurrStart]==0)
+									break;
+								++nCurrStart;
+							}while (nCurrStart < nTotalLen  && currSp < sizeof(DeviceName));
+							++nCurrStart;
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+
+					//Dev Info
+					char DeviceInfo[64];
+					memset(DeviceInfo,0,sizeof(DeviceInfo));
+					if (Opt_DeviceInfo&& nRes == ALL_SUCCEED)
+					{
+						if (nCurrStart < nTotalLen)
+						{
+							int currSp = 0;
+							do
+							{
+								DeviceInfo[currSp++] = pSwim[nCurrStart];
+								if (pSwim[nCurrStart]==0)
+									break;
+								++nCurrStart;
+							}while (nCurrStart < nTotalLen  && currSp < sizeof(DeviceInfo));
+							++nCurrStart;
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+					//DAL Buf
+					int nDALBytes = 1;
+					unsigned __int8 * DALBuf = 0;
+					if (Opt_DALStatus&& nRes == ALL_SUCCEED)
+					{
+						if (nCurrStart < nTotalLen)
+						{
+							nDALBytes = nTotalLen - nCurrStart;
+							DALBuf = new unsigned __int8 [nDALBytes];
+							memcpy_s(DALBuf,nDALBytes,pSwim+nCurrStart,nDALBytes);
+							nCurrStart += nDALBytes;
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}
+					if (nCurrStart < nTotalLen)
+						nRes = ERRTRANS_ERROR_DATA;
+
+					if (nRes == ALL_SUCCEED)
+					{
+						size_t AllocLen = sizeof(stMsg_GetDeviceParamRsp) + nDALBytes - 1;
+						resu = (stMsg_GetDeviceParamRsp * ) new char [AllocLen]; 
+						memset(resu,0,AllocLen);
+						resu->DoneCode = DoneCode;
+						resu->Opt_DeviceName = Opt_DeviceName;
+						resu->Opt_DeviceInfo = Opt_DeviceInfo;
+						resu->Opt_DALStatus = Opt_DALStatus;
+						memcpy_s(resu->DeviceName,sizeof(resu->DeviceName),DeviceName,sizeof(	DeviceName));			
+						memcpy_s(resu->DeviceInfo,sizeof(resu->DeviceInfo),DeviceInfo,sizeof(	DeviceInfo));
+						if (DALBuf)
+						{
+							resu->DALStatusBytesLen = nDALBytes;
+							memcpy_s(resu->DALStatusBytes,nDALBytes,DALBuf,nDALBytes);
+							delete [] DALBuf;
+							DALBuf = 0;
+						}
+						else
+							resu->DALStatusBytesLen = 0;						
+					}
+					if (DALBuf)
+					{
+						delete [] DALBuf;
+							DALBuf = 0;
+					}
+
+				}
+				else if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x0000)
+					nRes = ERRTRANS_DST_NOT_REACHABLE;
+				else
+					nRes = ERRTRANS_ERROR_MSG_TYPE;
+			}
+		}
+		else
+			nRes = ERRTRANS_LESS_DATA;			
+	}
+	if (nRes == ALL_SUCCEED)
+		*ppOutputBuf = resu;
+	else if (resu)
+	{
+		char * ptr = (char *) resu;
+		delete [] ptr;
+	}
+	return nRes;
+}
+extern "C"  void __stdcall st_freeDeviceParam(
+	stMsg_GetDeviceParamRsp * pOutputBuf)
+{
+		char * ptr = (char *) pOutputBuf;
+		delete [] ptr;	
+}
+
+extern "C"  unsigned __int32 __stdcall st_setDeviceParam(
+	const char * address, 
+	unsigned __int16 port,
+	unsigned __int32 macID, 
+	const stMsg_setDeviceParamReq * pInData,
+	stMsg_setDeviceParamRsp * pOutputBuf)
+{
+	//Calc the string length
+	int nSendLen = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header)+ sizeof (stMsg_setDeviceParamReq);
+	unsigned char * messageSend = new unsigned char [nSendLen+2];
+	nSendLen = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header);
+
+	PKLTS_Message * pMessageSend = (PKLTS_Message *) messageSend;
+	pMessageSend->trans_header.Mark = 0x55AA;
+	pMessageSend->trans_header.SrcID = (unsigned __int32)((unsigned __int64)(getUniqueSrcID()) & 0xffffffff );
+	pMessageSend->trans_header.DstID = (unsigned __int32)((unsigned __int64)(macID) & 0xffffffff );;
+	pMessageSend->trans_header.DataLen =  sizeof(PKLTS_App_Header);
+	pMessageSend->trans_payload.app_layer.app_header.MsgType = 0x200D;
+
+	pMessageSend->trans_payload.app_layer.app_data.msg_setDeviceParamReq.Opt_DeviceInfo = pInData->Opt_DeviceInfo;
+	++nSendLen;++pMessageSend->trans_header.DataLen;
+	pMessageSend->trans_payload.app_layer.app_data.msg_setDeviceParamReq.Opt_DeviceName = pInData->Opt_DeviceName;
+	++nSendLen;++pMessageSend->trans_header.DataLen;
+
+	if (pInData->Opt_DeviceName)
+	{
+		for (int i=0;i<sizeof(pInData->DeviceName) && pInData->DeviceName[i]!=0;++i)
+		{
+			++pMessageSend->trans_header.DataLen;
+			messageSend[nSendLen++] = pInData->DeviceName[i];
+		}
+		messageSend[nSendLen++] = 0;
+		++pMessageSend->trans_header.DataLen;
+	}
+	
+	if (pInData->Opt_DeviceInfo)
+	{
+		for (int i=0;i<sizeof(pInData->DeviceInfo) && pInData->DeviceInfo[i]!=0;++i)
+		{
+			++pMessageSend->trans_header.DataLen;
+			messageSend[nSendLen++] = pInData->DeviceInfo[i];
+		}
+		messageSend[nSendLen++] = 0;
+		++pMessageSend->trans_header.DataLen;
+	}
+
+	std::vector<unsigned __int8> vec_response;
+	int nRes = RemoteFunctionCall(address,port,
+		messageSend,nSendLen,
+		vec_response
+		);
+	delete [] messageSend;
+	messageSend = 0;
+	//Dealing with result
+	if (nRes==ALL_SUCCEED )
+	{
+		if ( vec_response.size()>=sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header))
+		{
+			PKLTS_Message * pMessageSend = (PKLTS_Message *) vec_response.data();
+			if (pMessageSend->trans_header.Mark!=0x55AA)
+				nRes = ERRTRANS_ERROR_MARK;
+			else
+			{
+				if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x280D)
+				{
+					unsigned char * pSwim =(unsigned char *) &(pMessageSend->trans_payload.app_layer.app_data);
+					size_t nTotalLen = vec_response.size() - sizeof(PKLTS_Trans_Header) - sizeof(PKLTS_App_Header);
+					size_t nCurrStart = 0;
+					//Done Code
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(pOutputBuf->DoneCode) < nTotalLen)
+						{
+							memcpy_s(&(pOutputBuf->DoneCode),sizeof(pOutputBuf->DoneCode),pSwim+nCurrStart,sizeof(pOutputBuf->DoneCode));
+							nCurrStart += sizeof(pOutputBuf->DoneCode);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}			
+
+				}
+				else if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x0000)
+					nRes = ERRTRANS_DST_NOT_REACHABLE;
+				else
+					nRes = ERRTRANS_ERROR_MSG_TYPE;
+			}
+		}
+		else
+			nRes = ERRTRANS_LESS_DATA;			
+	}
+	return nRes;
+}
+
+
+extern "C"  unsigned __int32 __stdcall st_deviceCtrl(
+	const char * address, 
+	unsigned __int16 port,
+	unsigned __int32 macID, 
+	const stMsg_DeviceCtrlReq * pInData,
+	const unsigned __int8 * pDAL,
+	stMsg_DeviceCtrlRsp * pOutputBuf)
+{
+	//Calc the string length
+	int nSendLen = sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header)+ sizeof (pInData->DeviceID) + pInData->DALArrayLength;
+	unsigned char * messageSend = new unsigned char [nSendLen];
+	PKLTS_Message * pMessageSend = (PKLTS_Message *) messageSend;
+	pMessageSend->trans_header.Mark = 0x55AA;
+	pMessageSend->trans_header.SrcID = (unsigned __int32)((unsigned __int64)(getUniqueSrcID()) & 0xffffffff );
+	pMessageSend->trans_header.DstID = (unsigned __int32)((unsigned __int64)(macID) & 0xffffffff );;
+	pMessageSend->trans_header.DataLen =  sizeof(PKLTS_App_Header);
+	pMessageSend->trans_payload.app_layer.app_header.MsgType = 0x200E;
+	for (int i=0;i<24;++i)
+		pMessageSend->trans_payload.app_layer.app_data.msg[i] = pInData->DeviceID[i];
+	for (int i=0;i<pInData->DALArrayLength;++i)
+		pMessageSend->trans_payload.app_layer.app_data.msg[i+24] = pDAL[i];
+
+	std::vector<unsigned __int8> vec_response;
+	int nRes = RemoteFunctionCall(address,port,
+		messageSend,nSendLen,
+		vec_response
+		);
+	delete [] messageSend;
+	messageSend = 0;
+	//Dealing with result
+	if (nRes==ALL_SUCCEED )
+	{
+		if ( vec_response.size()>=sizeof(PKLTS_Trans_Header) + sizeof(PKLTS_App_Header))
+		{
+			PKLTS_Message * pMessageSend = (PKLTS_Message *) vec_response.data();
+			if (pMessageSend->trans_header.Mark!=0x55AA)
+				nRes = ERRTRANS_ERROR_MARK;
+			else
+			{
+				if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x280E)
+				{
+					unsigned char * pSwim =(unsigned char *) &(pMessageSend->trans_payload.app_layer.app_data);
+					size_t nTotalLen = vec_response.size() - sizeof(PKLTS_Trans_Header) - sizeof(PKLTS_App_Header);
+					size_t nCurrStart = 0;
+					//Done Code
+					if (nRes == ALL_SUCCEED)
+					{
+						if ( nCurrStart - 1 + sizeof(pOutputBuf->DoneCode) < nTotalLen)
+						{
+							memcpy_s(&(pOutputBuf->DoneCode),sizeof(pOutputBuf->DoneCode),pSwim+nCurrStart,sizeof(pOutputBuf->DoneCode));
+							nCurrStart += sizeof(pOutputBuf->DoneCode);
+						}
+						else
+							nRes = ERRTRANS_LESS_DATA;
+					}			
+
+				}
+				else if (pMessageSend->trans_payload.app_layer.app_header.MsgType == 0x0000)
+					nRes = ERRTRANS_DST_NOT_REACHABLE;
+				else
+					nRes = ERRTRANS_ERROR_MSG_TYPE;
+			}
+		}
+		else
+			nRes = ERRTRANS_LESS_DATA;			
+	}
+	return nRes;
+}

@@ -252,6 +252,12 @@ namespace ParkinglotsSvr{
 					stMsg_SetHostDetailsRsp msg_SetHostDetailsRsp;
 					stMsg_RemoveDeviceReq   msg_RemoveDeviceReq;
 					stMsg_RemoveDeviceRsp   msg_RemoveDeviceRsp;
+					stMsg_GetDeviceParamReq	msg_GetDeviceParamReq;
+					stMsg_GetDeviceParamRsp	msg_GetDeviceParamRsp;
+					stMsg_setDeviceParamReq msg_setDeviceParamReq;
+					stMsg_setDeviceParamRsp msg_setDeviceParamRsp;
+					stMsg_DeviceCtrlReq msg_DeviceCtrlReq;
+					stMsg_DeviceCtrlRsp msg_DeviceCtrlRsp;
 					unsigned __int8 msg[1];
 				} app_data;
 			} app_layer;

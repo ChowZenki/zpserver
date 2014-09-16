@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QSet>
+#include <QDateTime>
 namespace ZPDatabase{
 	/**
 	 * @brief this class provide an database reource pool.In different thread, workers can get existing db connections
@@ -39,7 +40,7 @@ namespace ZPDatabase{
 
 		//!Get an database connection belong to current thread.
 		//!if database does not exist, it will be added using dbtype
-		QSqlDatabase  databse(QString  strDBName);
+		QSqlDatabase  databse(QString  strDBName,bool checkConn = false);
 
 		//!add connection connName, return true if ok.
 		bool addConnection(
@@ -66,10 +67,10 @@ namespace ZPDatabase{
 	protected:
 		bool bTerm;
 		QMutex m_mutex_reg;
-		QMap <QString,tagConnectionPara> m_dbNames;
-        QMap <QString, QSet<QString> > m_ThreadsDB;
-		QMap <QThread * , QSet<QString> > m_ThreadOwnedMainDBs;
-        void RemoveTreadsConnections(QString mainName);
+		QMap <QString,tagConnectionPara> m_dbNames;					//Each Main connection Name, and their connection para
+		QMap <QString, QSet<QString> > m_ThreadsDB;					//Each Main connection Name, and theri thread-owned names
+		QMap <QThread * , QMap<QString,QDateTime> > m_ThreadOwnedMainDBs;		//Each Thread owns Main connection Names.
+		void RemoveTreadsConnections(QString mainName);
 	signals:
 		void evt_Message(QObject *,QString );
 	public slots:

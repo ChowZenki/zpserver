@@ -63,6 +63,8 @@ private:
 	ParkinglotsSvr::st_client_table * m_clientTable;
 	ZPDatabase::DatabaseResource * m_pDatabases;
 	ZP_Cluster::zp_ClusterTerm * m_pClusterTerm;
+	//Cluster Reconnection
+	QDateTime m_dtmLastClusterJoin;
 	int m_nTimerId;
 	void initUI();
 	void LoadSettings(QString  config_file);

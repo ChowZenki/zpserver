@@ -376,6 +376,22 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 		if (m_pDatabases->currentDatabaseConnections().size()>0 && (++ctt) % 75 == 0)
 		//delete old events
 			m_clientTable->delOldevents(m_evtTableLastDays);
+
+
+		if (ui->action_Start_Stop->isChecked()==true)
+		{
+			//Cluster re-connection Test
+			QStringList lstCluster = m_pClusterTerm->SvrNames();
+			if (lstCluster.size()==0 && m_dtmLastClusterJoin.secsTo(QDateTime::currentDateTime())>=120)
+			{
+				QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
+				QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
+				QString strPort = settings.value("history/clusterPort","25600").toString();
+				m_pClusterTerm->JoinCluster(QHostAddress(strAddr),strPort.toInt());
+				m_dtmLastClusterJoin = QDateTime::currentDateTime();
+				qDebug()<<tr("Trying to establish cluster connection from node ")<<strAddr<<":"<<strPort;
+			}
+		}
 		m_nTimerCheck = startTimer(5000);
 
 	}
@@ -385,6 +401,8 @@ void ZPMainFrame::on_action_Start_Stop_triggered(bool setordel)
 	if (setordel==true)
 	{
 		forkServer(m_currentConfigFile);
+		//Cluster Reconnection Dtm Protect
+		m_dtmLastClusterJoin = QDateTime::currentDateTime();
 	}
 	else
 	{
@@ -858,6 +876,8 @@ void ZPMainFrame::on_actionReload_config_file_triggered()
 		m_currentConfigFile = filename;
 		LoadSettings(m_currentConfigFile);
 		forkServer(m_currentConfigFile);
+		//Cluster Reconnection Dtm Protect
+		m_dtmLastClusterJoin = QDateTime::currentDateTime();
 	}
 }
 void ZPMainFrame::on_pushButton_db_add_clicked()

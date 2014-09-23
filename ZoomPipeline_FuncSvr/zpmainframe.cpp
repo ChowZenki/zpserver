@@ -371,6 +371,7 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 			QStringList lstCluster = m_pClusterTerm->SvrNames();
 			if (lstCluster.size()==0 && m_dtmLastClusterJoin.secsTo(QDateTime::currentDateTime())>=120)
 			{
+				m_pClusterTerm->netEng()->KickAllClients();
 				QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
 				QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
 				QString strPort = settings.value("history/clusterPort","25600").toString();

@@ -348,28 +348,28 @@ namespace ZPNetwork{
 					  pSock->peerPort()  <<tr("(%1)..Error :%2.").arg((quint64)pSock).arg(pSock->errorString());
 			emit evt_SocketError(pSock,socketError);
 			//emit evt_Message(pSock,"Debug:" + pSock->errorString());
-//			if (m_bSSLConnection)
-//			{
-//				QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
-//				if (psslsock)
-//					disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
-//			}
-//			disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
-//			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
-//			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
-//			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
-//			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
+			if (m_bSSLConnection)
+			{
+				QSslSocket * psslsock = qobject_cast<QSslSocket *>(pSock);
+				if (psslsock)
+				disconnect(psslsock, &QSslSocket::encrypted,this, &zp_netTransThread::on_encrypted);
+			}
+			disconnect(pSock, &QTcpSocket::readyRead,this, &zp_netTransThread::new_data_recieved);
+			disconnect(pSock, &QTcpSocket::disconnected,this,&zp_netTransThread::client_closed);
+			disconnect(pSock, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(displayError(QAbstractSocket::SocketError)));
+			disconnect(pSock, &QTcpSocket::bytesWritten, this, &zp_netTransThread::some_data_sended);
+			disconnect(pSock, &QTcpSocket::connected,this, &zp_netTransThread::on_connected);
 
-//			m_buffer_sending.erase(pSock);
-//			m_buffer_sending_offset.erase(pSock);
-//			m_mutex_protect.lock();
-//			m_clientList.remove(pSock);
-//			m_mutex_protect.unlock();
-//			pSock->abort();
-//			emit evt_ClientDisconnected(pSock);
-//			emit evt_Message(pSock,"Info>" +  QString(tr("Client Closed.")));
-			pSock->disconnectFromHost();
-//			push_to_rabish_can(pSock);
+			m_buffer_sending.erase(pSock);
+			m_buffer_sending_offset.erase(pSock);
+			m_mutex_protect.lock();
+			m_clientList.remove(pSock);
+			m_mutex_protect.unlock();
+			pSock->abort();
+			emit evt_ClientDisconnected(pSock);
+			emit evt_Message(pSock,"Info>" +  QString(tr("Client Error, Closed.")));
+			//pSock->disconnectFromHost();
+			push_to_rabish_can(pSock);
 		}
 	}
 

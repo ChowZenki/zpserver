@@ -386,9 +386,10 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 			{
 				m_pClusterTerm->netEng()->KickAllClients();
 				QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
-				QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
-				QString strPort = settings.value("history/clusterPort","25600").toString();
-				m_pClusterTerm->JoinCluster(QHostAddress(strAddr),strPort.toInt());
+				QString strAddr = settings.value("history/clusterAddr","0").toString();
+				QString strPort = settings.value("history/clusterPort","0").toString();
+				if (strPort.toInt()>0)
+					m_pClusterTerm->JoinCluster(QHostAddress(strAddr),strPort.toInt());
 				m_dtmLastClusterJoin = QDateTime::currentDateTime();
 				qDebug()<<tr("Trying to establish cluster connection from node ")<<strAddr<<":"<<strPort;
 			}
@@ -933,15 +934,16 @@ void ZPMainFrame::on_pushButton_db_apply_clicked()
 void  ZPMainFrame::on_pushButton_join_clicked()
 {
 	QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
-	QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
-	QString strPort = settings.value("history/clusterPort","25600").toString();
+	QString strAddr = settings.value("history/clusterAddr","0").toString();
+	QString strPort = settings.value("history/clusterPort","0").toString();
 	DialogAddressInput inputdlg(this);
 	inputdlg.SetAddr(strAddr,strPort);
 	if (inputdlg.exec()==QDialog::Accepted)
 	{
 		settings.setValue("history/clusterAddr",inputdlg.addr());
 		settings.setValue("history/clusterPort",inputdlg.port());
-		m_pClusterTerm->JoinCluster(QHostAddress(inputdlg.addr()),inputdlg.port().toInt());
+		if (strPort.toInt()>0)
+			m_pClusterTerm->JoinCluster(QHostAddress(inputdlg.addr()),inputdlg.port().toInt());
 	}
 }
 
@@ -957,18 +959,18 @@ void ZPMainFrame::LoadSettingsAndForkServer(const QString & configfile)
 	//Join the cluster immediatly,
 	//trying for 5 times, 2 seconds each.
 	QSettings settings(this->m_currentConfigFile,QSettings::IniFormat);
-	QString strAddr = settings.value("history/clusterAddr","192.168.1.118").toString();
-	QString strPort = settings.value("history/clusterPort","25600").toString();
-
-	for (int i=0;i<5;++i)
-	{
-		m_pClusterTerm->JoinCluster(QHostAddress(strAddr),strPort.toInt());
-		for (int j=0;j<10;++j)
+	QString strAddr = settings.value("history/clusterAddr","0").toString();
+	QString strPort = settings.value("history/clusterPort","0").toString();
+	if (strPort.toInt()>0)
+		for (int i=0;i<5;++i)
 		{
-			QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-			QThread::currentThread()->msleep(200);
-		}
+			m_pClusterTerm->JoinCluster(QHostAddress(strAddr),strPort.toInt());
+			for (int j=0;j<10;++j)
+			{
+				QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+				QThread::currentThread()->msleep(200);
+			}
 
-	}
+		}
 }
 

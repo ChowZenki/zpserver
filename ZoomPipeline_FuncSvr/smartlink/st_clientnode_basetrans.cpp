@@ -176,7 +176,7 @@ namespace ParkinglotsSvr{
 
 				//Send back
 				emit evt_SendDataToClient(this->sock(),m_currentBlock);
-				qDebug() << "Send Back Heart Beating Msg to " << peerInfo() << ":"<< QString(m_currentBlock.toHex()) ;
+				//qDebug() << "Send Back Heart Beating Msg to " << peerInfo() << ":"<< QString(m_currentBlock.toHex()) ;
 				//Try to Get UUID Immediately
 //				if (m_bUUIDRecieved==false)
 //				{

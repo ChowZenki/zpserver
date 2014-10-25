@@ -36,8 +36,9 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-int ns__deviceCtrl(struct soap *,struct ns__DeviceCtrlReq *,struct ns__DeviceCtrlRsp *)
+int ns__deviceCtrl(struct soap * sp,struct ns__DeviceCtrlReq * req,struct ns__DeviceCtrlRsp * rsp)
 {
+
 	return 0;
 }
 

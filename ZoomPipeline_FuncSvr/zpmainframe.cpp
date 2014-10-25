@@ -10,6 +10,7 @@
 #include <QTcpSocket>
 #include <QThread>
 #include <QSslSocket>
+#include <QSystemTrayIcon>
 #include "smartlink/st_clientnode_basetrans.h"
 #include "dialogaddressinput.h"
 using namespace ZPNetwork;
@@ -26,6 +27,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::ZPMainFrame)
 	,m_pLogger(0)
+	,m_IconTray(0)
 {
 	m_currentConfigFile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
@@ -59,6 +61,13 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	m_nTimerCheck =  startTimer(10000);
 	initUI();
 	LoadSettings(m_currentConfigFile);
+	m_pTrayMenu = new QMenu (this);
+	m_pTrayMenu->addAction(ui->actionShow_Window);
+	m_pTrayMenu->addAction(ui->actionExit);
+
+	m_IconTray = new QSystemTrayIcon(QIcon(":/icons/Resources/Backup drive.png"),this);
+	m_IconTray->setContextMenu(m_pTrayMenu);
+	m_IconTray->show();
 }
 
 ZPMainFrame::~ZPMainFrame()
@@ -106,6 +115,14 @@ void ZPMainFrame::changeEvent(QEvent *e)
 	switch (e->type()) {
 	case QEvent::LanguageChange:
 		ui->retranslateUi(this);
+		break;
+	case QEvent::WindowStateChange:
+		if (this->isMinimized()==true)
+		{
+			this->hide();
+			this->m_IconTray->showMessage(tr("Server still running"),
+										  tr("If you want to terminate server, just using exit Toolbar button."));
+		}
 		break;
 	default:
 		break;
@@ -924,4 +941,32 @@ void ZPMainFrame::LoadSettingsAndForkServer(const QString & configfile)
 		}
 
 	}
+}
+
+void ZPMainFrame::on_actionShow_Window_triggered()
+{
+	this->showNormal();
+}
+void  ZPMainFrame::closeEvent(QCloseEvent * e)
+{
+	if (this->isVisible()==true)
+	{
+		this->hide();
+		this->m_IconTray->showMessage(tr("Server still running"),
+									  tr("If you want to terminate server, just using exit Toolbar button."));
+		e->ignore();
+	}
+	else
+	{
+		e->accept();
+		this->m_IconTray->showMessage(tr("Server is  going to closed"),
+									  tr("Waiting for all unfinished progress..."));
+	}
+}
+
+void ZPMainFrame::on_actionExit_triggered()
+{
+	this->hide();
+	this->m_IconTray->setContextMenu(0);
+	this->close();
 }

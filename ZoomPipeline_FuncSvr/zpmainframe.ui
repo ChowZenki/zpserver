@@ -1121,28 +1121,24 @@
     <string>Reload Config file</string>
    </property>
   </action>
+  <action name="actionShow_Window">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/Resources/Color, Bondi.png</normaloff>:/icons/Resources/Color, Bondi.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show&amp;Window</string>
+   </property>
+   <property name="toolTip">
+    <string>Show main window</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="resource.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>dial_plain_trans_threads</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>progressBar_plain_threads</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>266</x>
-     <y>145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>421</x>
-     <y>144</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>dial_ssl_trans_threads</sender>
    <signal>valueChanged(int)</signal>
@@ -1172,22 +1168,6 @@
     <hint type="destinationlabel">
      <x>421</x>
      <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionExit</sender>
-   <signal>triggered()</signal>
-   <receiver>ZPMainFrame</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>277</x>
-     <y>206</y>
     </hint>
    </hints>
   </connection>

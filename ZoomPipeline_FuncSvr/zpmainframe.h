@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QSet>
 #include <QMap>
+#include <QMenu>
+#include <QSystemTrayIcon>
 #include "network/zp_net_threadpool.h"
 #include "pipeline/zp_pipeline.h"
 #include "smartlink/st_client_table.h"
@@ -29,6 +31,7 @@ public:
 	void setLogger(STMsgLogger::st_logger * plogger);
 protected:
 	void changeEvent(QEvent *e);
+	void closeEvent(QCloseEvent * e);
 	QStandardItemModel * m_pMsgModelNetwork;
 	QStandardItemModel * m_pMsgModelCluster;
 	QStandardItemModel * m_pMsgModelDatabase;
@@ -53,6 +56,8 @@ protected:
 
 private:
 	Ui::ZPMainFrame *ui;
+	QSystemTrayIcon * m_IconTray ;
+	QMenu * m_pTrayMenu;
 	QLabel * m_pStatusLabel;
 	ZPNetwork::zp_net_Engine * m_netEngine;
 	ZPTaskEngine::zp_pipeline * m_taskEngine;
@@ -80,6 +85,8 @@ public slots:
 	void on_action_Start_Stop_triggered(bool);
 	void on_action_About_triggered();
 	void on_actionReload_config_file_triggered();
+	void on_actionShow_Window_triggered();
+	void on_actionExit_triggered();
 	void on_pushButton_addListener_clicked();
 	void on_pushButton_delListener_clicked();
 	void on_pushButton_listerner_apply_clicked();

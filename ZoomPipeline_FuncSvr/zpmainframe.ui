@@ -1112,7 +1112,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>19</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Control">
@@ -1156,6 +1156,10 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../QTcpClientTest/qtcpclienttest.qrc">
+     <normaloff>:/QTcpClientTest/Resources/cn3.png</normaloff>:/QTcpClientTest/Resources/cn3.png</iconset>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
@@ -1197,9 +1201,22 @@
     <string>Reload Config file</string>
    </property>
   </action>
+  <action name="actionShow_Window">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/Resources/Alienware (27).png</normaloff>:/icons/Resources/Alienware (27).png</iconset>
+   </property>
+   <property name="text">
+    <string>show&amp;Window</string>
+   </property>
+   <property name="toolTip">
+    <string>showMainWindow</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
+  <include location="../QTcpClientTest/qtcpclienttest.qrc"/>
   <include location="resource.qrc"/>
  </resources>
  <connections>
@@ -1248,22 +1265,6 @@
     <hint type="destinationlabel">
      <x>421</x>
      <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionExit</sender>
-   <signal>triggered()</signal>
-   <receiver>ZPMainFrame</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>277</x>
-     <y>206</y>
     </hint>
    </hints>
   </connection>

@@ -9,6 +9,7 @@
 #include <QMap>
 #include <QTcpSocket>
 #include <QSslSocket>
+#include <QIcon>
 #include "smartlink/st_clientnode_basetrans.h"
 #include "dialogaddressinput.h"
 using namespace ZPNetwork;
@@ -26,6 +27,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	,ui(new Ui::ZPMainFrame)
 	,m_pLogger(0)
 	,m_evtTableLastDays(7)
+	,m_IconTray(0)
 {
 	m_currentConfigFile = QCoreApplication::applicationFilePath()+".ini";
 	ui->setupUi(this);
@@ -59,6 +61,15 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	m_nTimerCheck =  startTimer(10000);
 	initUI();
 	LoadSettings(m_currentConfigFile);
+
+	m_pTrayMenu = new QMenu (this);
+	m_pTrayMenu->addAction(ui->actionShow_Window);
+	m_pTrayMenu->addAction(ui->actionExit);
+
+	m_IconTray = new QSystemTrayIcon(QIcon(":/icons/Resources/Backup drive.png"),this);
+	m_IconTray->setContextMenu(m_pTrayMenu);
+	m_IconTray->show();
+
 }
 
 ZPMainFrame::~ZPMainFrame()
@@ -106,6 +117,14 @@ void ZPMainFrame::changeEvent(QEvent *e)
 	switch (e->type()) {
 	case QEvent::LanguageChange:
 		ui->retranslateUi(this);
+		break;
+	case QEvent::WindowStateChange:
+		if (this->isMinimized()==true)
+		{
+			this->hide();
+			this->m_IconTray->showMessage(tr("Server still running"),
+										  tr("If you want to terminate server, just using exit Toolbar button."));
+		}
 		break;
 	default:
 		break;
@@ -560,7 +579,7 @@ void ZPMainFrame::forkServer(QString  config_file)
 
 	QString str_evtKeepDays = settings.value("Smartlink/evtKeepDays","7").toString();
 	int nDaysKeep = str_evtKeepDays.toInt();
-	if (nDaysKeep >=1 && nDaysKeep<=30)
+	if (nDaysKeep >=1 && nDaysKeep<=365)
 		m_evtTableLastDays = nDaysKeep;
 	else
 		m_evtTableLastDays = 7;
@@ -795,7 +814,7 @@ void ZPMainFrame::SaveSettings(QString  config_file)
 
 	QString str_evtKeepDays = ui->lineEdit_evtKeepDays->text();
 	int nDays = str_evtKeepDays.toInt();
-	if (nDays >=1 && nDays <=30)
+	if (nDays >=1 && nDays <=365)
 		settings.setValue("Smartlink/evtKeepDays",str_evtKeepDays);
 	else
 	{
@@ -974,3 +993,30 @@ void ZPMainFrame::LoadSettingsAndForkServer(const QString & configfile)
 		}
 }
 
+void ZPMainFrame::on_actionShow_Window_triggered()
+{
+	this->showNormal();
+}
+void  ZPMainFrame::closeEvent(QCloseEvent * e)
+{
+	if (this->isVisible()==true)
+	{
+		this->hide();
+		this->m_IconTray->showMessage(tr("Server still running"),
+									  tr("If you want to terminate server, just using exit Toolbar button."));
+		e->ignore();
+	}
+	else
+	{
+		e->accept();
+		this->m_IconTray->showMessage(tr("Server is  going to closed"),
+									  tr("Waiting for all unfinished progress..."));
+	}
+}
+
+void ZPMainFrame::on_actionExit_triggered()
+{
+	this->hide();
+	this->m_IconTray->setContextMenu(0);
+	this->close();
+}

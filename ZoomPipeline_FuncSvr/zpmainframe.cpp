@@ -588,7 +588,10 @@ void ZPMainFrame::forkServer(QString  config_file)
 	ZPNetwork::zp_netTransThread::RUBBISH_CAN_SIZE = nRabbishCanSize;
 
 	if (this->windowTitle().indexOf("(")==-1)
+	{
 		this->setWindowTitle(windowTitle() + "(" + strClusterPubName +")");
+		m_IconTray->setToolTip(windowTitle() + "(" + strClusterPubName +"), click right mouse button to pop menus.");
+	}
 }
 
 void ZPMainFrame::on_action_About_triggered()

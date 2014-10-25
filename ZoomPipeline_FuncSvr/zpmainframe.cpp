@@ -65,7 +65,7 @@ ZPMainFrame::ZPMainFrame(QWidget *parent)
 	m_pTrayMenu->addAction(ui->actionShow_Window);
 	m_pTrayMenu->addAction(ui->actionExit);
 
-	m_IconTray = new QSystemTrayIcon(QIcon(":/icons/Resources/Backup drive.png"),this);
+	m_IconTray = new QSystemTrayIcon(QIcon(":/icons/Resources/Color Classic.png"),this);
 	m_IconTray->setContextMenu(m_pTrayMenu);
 	m_IconTray->show();
 }
@@ -265,8 +265,12 @@ void  ZPMainFrame::on_evt_SocketError_Cluster(QObject * senderSock ,QAbstractSoc
 
 void  ZPMainFrame::timerEvent(QTimerEvent * e)
 {
+	static int lastRecieved = 0;
+	static int lastSent = 0;
 	if (e->timerId()==m_nTimerId)
 	{
+		killTimer(m_nTimerId);
+		m_nTimerId = -1;
 		//recording net status
 		QString str_msg;
 		QStringList lstListeners = m_netEngine->ListenerNames();
@@ -372,8 +376,23 @@ void  ZPMainFrame::timerEvent(QTimerEvent * e)
 				.arg(g_secRecieved*8/1024/2)
 				.arg(g_secSent*8/1024/2)
 				;
+		if (g_bytesRecieved != lastRecieved || g_bytesSent != lastSent)
+		{
+			static int ppIc = 0;
+			lastRecieved = g_bytesRecieved;
+			lastSent = g_bytesSent;
+			if (++ppIc % 2==0)
+				m_IconTray->setIcon(QIcon(":/icons/Resources/Color Classic Green.png"));
+			else
+				m_IconTray->setIcon(QIcon(":/icons/Resources/Color Classic, Performa 250, 275.png"));
+		}
+		else
+		{
+			m_IconTray->setIcon(QIcon(":/icons/Resources/Color Classic.png"));
+		}
 		g_secRecieved = g_secSent = 0;
 		m_pStatusLabel->setText(str);
+		m_nTimerId = startTimer(2000);
 	}
 	else if (e->timerId()==m_nTimerCheck)
 	{

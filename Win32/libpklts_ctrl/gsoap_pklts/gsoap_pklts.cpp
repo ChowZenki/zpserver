@@ -2,9 +2,11 @@
 #include "PKLTSCtrlService.nsmap"
 #include "../libpklts_ctrl/st_ctrl.h"
 #include "libpklts_ctrl_loader.h"
+pklts_ctrl * pCtrl = 0;
 int main(int argc, char ** argv)
 {
 	pklts_ctrl ctrl(_T("libpklts_ctrl.dll")); 
+	pCtrl = & ctrl;
 	if (ctrl.valid()==false)
 		return -1;
 	int nPort = 8080;
@@ -38,7 +40,7 @@ int main(int argc, char ** argv)
 
 int ns__deviceCtrl(struct soap * sp,struct ns__DeviceCtrlReq * req,struct ns__DeviceCtrlRsp * rsp)
 {
-
+	
 	return 0;
 }
 

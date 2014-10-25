@@ -9,6 +9,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_container", "test_cont
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gsoap_pklts", "gsoap_pklts\gsoap_pklts.vcxproj", "{1D07AFB4-28F9-482B-9BE3-6F88BB92970F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2D527A17-443F-48D1-8844-7036DE330E5D} = {2D527A17-443F-48D1-8844-7036DE330E5D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -80,6 +80,7 @@
     <ClCompile Include="stdsoap2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="libpklts_ctrl_loader.h" />
     <ClInclude Include="soapH.h" />
     <ClInclude Include="soapStub.h" />
     <ClInclude Include="stdsoap2.h" />

@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include "PKLTSCtrlService.nsmap"
-
+#include "../libpklts_ctrl/st_ctrl.h"
+#include "libpklts_ctrl_loader.h"
 int main(int argc, char ** argv)
 {
+	pklts_ctrl ctrl(_T("libpklts_ctrl.dll")); 
+	if (ctrl.valid()==false)
+		return -1;
 	int nPort = 8080;
 
 	struct soap fun_soap;

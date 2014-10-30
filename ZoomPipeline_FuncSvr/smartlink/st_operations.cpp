@@ -341,9 +341,52 @@ namespace ParkinglotsSvr{
 			res = false;
 		}
 		return res==true?0:1;
-		return 0;
 	}
+	quint8 st_operations::confirm_device(quint32 macid,const quint8 deviceID[/*24*/])
+	{
+		bool res = true;
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			QString sql = "select deviceid from sensorlist where deviceid = ?;";
+			query.prepare(sql);
+			QString devID = hex2ascii(deviceID,24);
+			query.addBindValue(devID);
 
+			if (true==query.exec())
+			{
+				if (false==query.next()) //need update
+				{
+					qWarning()<<tr("a Device :") + devID <<tr(" is not existed in sensorlist, but reported a DAL message.");
+					sql = "insert into sensorlist (deviceid ,macid, createtime) values (?,?,?);";
+					query.prepare(sql);
+					query.addBindValue(devID);
+					query.addBindValue(macid);
+					query.addBindValue(QDateTime::currentDateTimeUtc());
+					if (false==query.exec())
+					{
+						qCritical()<<tr("Database Access Error :")+query.lastError().text();
+						res = false;
+						db.close();
+					}
+
+				}
+
+			}
+			else
+			{
+				qCritical()<<tr("Database is not ready.");
+				res = false;
+			}
+		}
+		else
+		{
+			qCritical()<<tr("Database is not ready.");
+			res = false;
+		}
+		return res==true?0:1;
+	}
 	quint8 st_operations::del_old_device(quint32 /*macid*/,const quint8 deviceID[/*24*/])
 	{
 		bool res = true;
@@ -370,7 +413,7 @@ namespace ParkinglotsSvr{
 		return res==true?0:1;
 	}
 
-	quint8 st_operations::update_DAL_event(quint32 /*macid*/, const QByteArray &array_DAL)
+	quint8 st_operations::update_DAL_event(quint32 macid, const QByteArray &array_DAL)
 	{
 		quint8 res = 0;
 		const quint8 * ptr_rawdata = (const quint8 *)array_DAL.constData();
@@ -380,6 +423,7 @@ namespace ParkinglotsSvr{
 		//0xCBFE0001 is the sensor
 		if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x00 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
 		{
+			this->confirm_device(macid,pEvent->DeviceID);
 			switch (pEvent->DALEventID)
 			{
 			case 0x00:
@@ -400,6 +444,7 @@ namespace ParkinglotsSvr{
 		//0xCBFE0101 is the sensor
 		else if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x01 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
 		{
+			this->confirm_device(macid,pEvent->DeviceID);
 			if (pEvent->DALEventID == 0x00)
 			{
 				//Heartbeating
@@ -438,7 +483,7 @@ namespace ParkinglotsSvr{
 		return res;
 	}
 
-	quint8 st_operations::update_DAL_exception(quint32 /*macid*/, const QByteArray & array_DAL)
+	quint8 st_operations::update_DAL_exception(quint32 macid, const QByteArray & array_DAL)
 	{
 		quint8 res = 0;
 		const quint8 * ptr_rawdata = (const quint8 *)array_DAL.constData();
@@ -448,6 +493,7 @@ namespace ParkinglotsSvr{
 		//0xCBFE0001 is the sensor
 		if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x00 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
 		{
+			this->confirm_device(macid,pEvent->DeviceID);
 			int nStatus = 0;
 			if (pEvent->ExceptionID==1)
 				nStatus = 2;
@@ -500,6 +546,7 @@ namespace ParkinglotsSvr{
 		//0xCBFE0101 is the sensor
 		else if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x01 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
 		{
+			this->confirm_device(macid,pEvent->DeviceID);
 			int nStatus = 0;
 			if (pEvent->ExceptionID==1)
 				nStatus = 2;

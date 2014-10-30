@@ -28,6 +28,7 @@ namespace ParkinglotsSvr{
 		bool   insert_device_table (int nItems, QVector<QString> & vec_dev_names,QVector<QString> & vec_dev_nos,QVector<QString> & vec_dev_ids, quint32 macid);
 		bool   insert_mac_table(quint32 macID, QString macSerial,const stMsg_SendMacInfoReq_internal & info);
 		quint8 add_new_device(quint32 macid,const quint8 deviceID[/*24*/]);
+		quint8 confirm_device(quint32 macid,const quint8 deviceID[/*24*/]);
 		quint8 del_old_device(quint32 macid,const quint8 deviceID[/*24*/]);
 		quint8 update_DAL_event(quint32 macid, const QByteArray & array_DAL);
 		quint8 update_DAL_exception(quint32 macid, const QByteArray & array_DAL);

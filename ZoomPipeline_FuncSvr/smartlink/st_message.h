@@ -194,6 +194,7 @@ namespace ParkinglotsSvr{
 			stEvent_DeviceJoined evt_DeviceJoined;
 			stEvent_DeviceRemoved evt_DeviceRemoved;
 			stEvent_DeviceEvent evt_DeviceEvent;
+			stEvent_DeviceException evt_DeviceExecption;
 		} unEvent;
 	};
 

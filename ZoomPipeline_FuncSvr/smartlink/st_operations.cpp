@@ -22,6 +22,41 @@ namespace ParkinglotsSvr{
 		return str;
 	}
 
+	bool st_operations::log_to_macevent(quint32 macevt_sourceid,
+										quint32 macevt_destinid,
+										qint32  macevt_msgtype,
+										qint32  macevt_donecode,
+										QString macevt_ip,
+										QString macevt_comment
+										)
+	{
+		QString strSql = "insert into macevent(macevt_sourceid,macevt_destinid,macevt_msgtype,macevt_donecode,macevt_ip,macevt_comment, macevt_logtime)	VALUES (?,?,?,?,?,?,?);";
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			query.prepare(strSql);
+			query.addBindValue(macevt_sourceid);
+			query.addBindValue(macevt_destinid);
+			query.addBindValue(macevt_msgtype);
+			query.addBindValue(macevt_donecode);
+			query.addBindValue(macevt_ip);
+			query.addBindValue(macevt_comment);
+			query.addBindValue(QDateTime::currentDateTime().toUTC());
+			if (false==query.exec())
+			{
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
+				db.close();
+				return false;
+			}
+
+		}
+		else
+			qCritical()<<tr("Database is not ready.");
+		return true;
+
+	}
+
 	quint8 st_operations::regisit_host(QString serialnum, quint32 * host_id )
 	{
 		int DoneCode = 2;
@@ -437,6 +472,24 @@ namespace ParkinglotsSvr{
 					res = 1;
 					db.close();
 				}
+				else
+				{
+					sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
+					query.prepare(sql);
+					query.addBindValue(devID);
+					query.addBindValue(3);
+					query.addBindValue(0);
+					query.addBindValue((int)ParkinglotsSvr::DAL_TYPE_BOOL);
+					QString strVal = QString("%1").arg(pEvent->ExceptionID);
+					query.addBindValue(strVal);
+					query.addBindValue(QDateTime::currentDateTimeUtc());
+					if (false==query.exec())
+					{
+						qCritical()<<tr("Database Access Error :")+query.lastError().text();
+						res = 1;
+						db.close();
+					}
+				}
 			}
 			else
 			{
@@ -470,6 +523,24 @@ namespace ParkinglotsSvr{
 					qCritical()<<tr("Database Access Error :")+query.lastError().text();
 					res = 1;
 					db.close();
+				}
+				else
+				{
+					sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
+					query.prepare(sql);
+					query.addBindValue(devID);
+					query.addBindValue(3);
+					query.addBindValue(0);
+					query.addBindValue((int)ParkinglotsSvr::DAL_TYPE_BOOL);
+					QString strVal = QString("%1").arg(pEvent->ExceptionID);
+					query.addBindValue(strVal);
+					query.addBindValue(QDateTime::currentDateTimeUtc());
+					if (false==query.exec())
+					{
+						qCritical()<<tr("Database Access Error :")+query.lastError().text();
+						res = 1;
+						db.close();
+					}
 				}
 			}
 			else
@@ -833,6 +904,13 @@ namespace ParkinglotsSvr{
 		{
 			QSqlQuery query(db);
 			QString sql = QString("delete from sensorevent where eventtime <= adddate(now(),INTERVAL -%1 DAY);").arg(evtTableLastDays);
+			if (false==query.exec(sql))
+			{
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
+				res = false;
+				db.close();
+			}
+			sql = QString("delete from macevent where macevt_logtime <= adddate(now(),INTERVAL -%1 DAY);").arg(evtTableLastDays);
 			if (false==query.exec(sql))
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();

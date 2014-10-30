@@ -66,7 +66,13 @@ namespace ParkinglotsSvr{
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
 
-
+		dboper.log_to_macevent(pRawMsg->trans_header.SrcID,
+							   pRawMsg->trans_header.DstID,
+							   pRawMsg->trans_payload.app_layer.app_header.MsgType,
+							   reply.DoneCode,
+							   this->peerInfo(),
+							   tr("client regisit operation = ")	+ (reply.DoneCode==2?"false":"true")
+							   );
 
 		return reply.DoneCode==2?false:true;
 	}
@@ -116,6 +122,15 @@ namespace ParkinglotsSvr{
 		}
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
+
+		dboper.log_to_macevent(pRawMsg->trans_header.SrcID,
+							   pRawMsg->trans_header.DstID,
+							   pRawMsg->trans_payload.app_layer.app_header.MsgType,
+							   reply.DoneCode,
+							   this->peerInfo(),
+							   tr("client login operation = ")	+ (reply.DoneCode==3?"false":"true")
+							   );
+
 		return reply.DoneCode==3?false:true;
 	}
 
@@ -155,6 +170,20 @@ namespace ParkinglotsSvr{
 		reply.DateTime.Second = dtm.time().second();
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
+		QSqlDatabase db = m_pClientTable->dbRes()->databse(m_pClientTable->Database_UserAcct());
+		st_operations dboper(&db);
+		const PKLTS_Message * pRawMsg =
+				(const PKLTS_Message *)(
+					((const char *)(m_currentBlock.constData()))
+					);
+		dboper.log_to_macevent(pRawMsg->trans_header.SrcID,
+							   pRawMsg->trans_header.DstID,
+							   pRawMsg->trans_payload.app_layer.app_header.MsgType,
+							   reply.DoneCode,
+							   this->peerInfo(),
+							   tr("client time correction = ")	+ (reply.DoneCode!=0?"false":"true")
+							   );
+
 		return reply.DoneCode==0?true:false;
 	}
 	bool st_clientNodeAppLayer::RecieveDeviceListFromHost()
@@ -239,6 +268,16 @@ namespace ParkinglotsSvr{
 		bool res = dboper.insert_device_table(nItems,strDeviceNames,strDeviceNos,strDeviceIDs,this->uuid());
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
+
+		dboper.log_to_macevent(pRawMsg->trans_header.SrcID,
+							   pRawMsg->trans_header.DstID,
+							   pRawMsg->trans_payload.app_layer.app_header.MsgType,
+							   0,
+							   this->peerInfo(),
+							   tr("client send devlist = ")	+ ((!res)?"false":"true")
+							   );
+
+
 		return res;
 	}
 	bool st_clientNodeAppLayer::RecieveMacInfoFromHost()
@@ -295,6 +334,16 @@ namespace ParkinglotsSvr{
 		bool res = dboper.insert_mac_table(m_uuid,m_serialNum, m_macInfo);
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
+
+		dboper.log_to_macevent(pRawMsg->trans_header.SrcID,
+							   pRawMsg->trans_header.DstID,
+							   pRawMsg->trans_payload.app_layer.app_header.MsgType,
+							   0,
+							   this->peerInfo(),
+							   tr("client send macinfo = ")	+ ((!res)?"false":"true")
+							   );
+
+
 		return res;
 	}
 	bool st_clientNodeAppLayer::RecieveEventFromHost()
@@ -362,6 +411,15 @@ namespace ParkinglotsSvr{
 		}
 		//Send back
 		emit evt_SendDataToClient(this->sock(),array);
+
+		dboper.log_to_macevent(pRawMsg->trans_header.SrcID,
+							   pRawMsg->trans_header.DstID,
+							   pRawMsg->trans_payload.app_layer.app_header.MsgType,
+							   0,
+							   this->peerInfo(),
+							   tr("client send evt = ")	+ ((reply.DoneCode!=0)?"false":"true")
+							   );
+
 		return reply.DoneCode==0?true:false;
 	}
 }

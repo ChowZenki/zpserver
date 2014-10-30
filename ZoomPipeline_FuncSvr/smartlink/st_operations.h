@@ -32,6 +32,13 @@ namespace ParkinglotsSvr{
 		quint8 update_DAL_event(quint32 macid, const QByteArray & array_DAL);
 		quint8 update_DAL_exception(quint32 macid, const QByteArray & array_DAL);
 
+		bool log_to_macevent(quint32 macevt_sourceid,
+											quint32 macevt_destinid,
+											qint32  macevt_msgtype,
+											qint32  macevt_donecode,
+											QString macevt_ip,
+											QString macevt_comment
+											);
 	protected:
 		quint8 dal_sensor_0x00(const stEvent_DeviceEvent * pEvent,const quint8 * ptrDal, int nMaxLen);
 		quint8 dal_sensor_0x01(const stEvent_DeviceEvent * pEvent,const quint8 * ptrDal, int nMaxLen);

@@ -160,6 +160,7 @@ namespace ParkinglotsSvr{
 		}
 		else
 			qCritical()<<tr("Database is not ready.");
+		RecalcSensorStatics(host_id);
 		return DoneCode;
 	}
 
@@ -441,7 +442,7 @@ namespace ParkinglotsSvr{
 
 			}
 		}
-		//0xCBFE0101 is the sensor
+		//0xCBFE0101 is the router
 		else if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x01 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
 		{
 			this->confirm_device(macid,pEvent->DeviceID);
@@ -452,7 +453,7 @@ namespace ParkinglotsSvr{
 				if (db.isValid()==true && db.isOpen()==true )
 				{
 					QSqlQuery query(db);
-					QString sql = "update sensorlist set lastacttime = ? where deviceid = ?;";
+					QString sql = "update sensorlist set lastacttime = ?, status = 0 where deviceid = ? and status > 1;";
 					query.prepare(sql);
 					QString devID = hex2ascii(pEvent->DeviceID,24);
 					query.addBindValue(QDateTime::currentDateTimeUtc());
@@ -543,7 +544,7 @@ namespace ParkinglotsSvr{
 				res = 1;
 			}
 		}
-		//0xCBFE0101 is the sensor
+		//0xCBFE0101 is the Router
 		else if (pEvent->DeviceID[0] == 0x01 && pEvent->DeviceID[1] == 0x01 &&pEvent->DeviceID[2] == 0xFE &&pEvent->DeviceID[3] == 0xCB)
 		{
 			this->confirm_device(macid,pEvent->DeviceID);
@@ -634,6 +635,16 @@ namespace ParkinglotsSvr{
 							res = 1;
 							db.close();
 						}
+						sql = "update sensorlist set status = 0 where deviceid = ? and status > 1;";
+						query.prepare(sql);
+						query.addBindValue(devID);
+						if (false==query.exec())
+						{
+							qCritical()<<tr("Database Access Error :")+query.lastError().text();
+							res = 1;
+							db.close();
+						}
+
 						//update sensor event
 						sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
 						query.prepare(sql);
@@ -704,6 +715,17 @@ namespace ParkinglotsSvr{
 							res = 1;
 							db.close();
 						}
+						sql = "update sensorlist set status = 1 where deviceid = ?;";
+						query.prepare(sql);
+						query.addBindValue(devID);
+						if (false==query.exec())
+						{
+							qCritical()<<tr("Database Access Error :")+query.lastError().text();
+							res = 1;
+							db.close();
+						}
+
+
 						//update sensor event
 						sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
 						query.prepare(sql);
@@ -903,6 +925,17 @@ namespace ParkinglotsSvr{
 					res = 1;
 					db.close();
 				}
+
+				sql = "update sensorlist set status = 0 where deviceid = ? and status > 1;";
+				query.prepare(sql);
+				query.addBindValue(devID);
+				if (false==query.exec())
+				{
+					qCritical()<<tr("Database Access Error :")+query.lastError().text();
+					res = 1;
+					db.close();
+				}
+
 				//update sensor event
 				sql = "insert into sensorevent (deviceid, eventid, eventparamid, eventparamtype, eventparamvalue, eventtime) values (?, ?, ?, ?, ?, ?);";
 				query.prepare(sql);
@@ -971,5 +1004,30 @@ namespace ParkinglotsSvr{
 			res = false;
 		}
 		return res;
+	}
+
+	void st_operations::RecalcSensorStatics(quint32 macid)
+	{
+		QSqlDatabase & db = *m_pDb;
+		if (db.isValid()==true && db.isOpen()==true )
+		{
+			QSqlQuery query(db);
+			QString sql = "update maclist set sensornum = (select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0100%') , relaynum = (select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0101%'), ansensornum =(select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0100%' and status >0) ,anrelaynum = (select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0101%' and status >0) where macid = ?;";
+			query.prepare(sql);
+			query.addBindValue(macid);
+			query.addBindValue(macid);
+			query.addBindValue(macid);
+			query.addBindValue(macid);
+			query.addBindValue(macid);
+			if (false==query.exec())
+			{
+				qCritical()<<tr("Database Access Error :")+query.lastError().text();
+				db.close();
+			}
+		}
+		else
+		{
+			qCritical()<<tr("Database is not ready.");
+		}
 	}
 }

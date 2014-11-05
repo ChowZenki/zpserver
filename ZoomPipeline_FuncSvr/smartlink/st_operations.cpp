@@ -1012,14 +1012,14 @@ namespace ParkinglotsSvr{
 		if (db.isValid()==true && db.isOpen()==true )
 		{
 			QSqlQuery query(db);
-			QString sql = "update maclist set sensornum = (select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0100%') , relaynum = (select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0101%'), ansensornum =(select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0100%' and status >0) ,anrelaynum = (select count(deviceid) from parkinglots.sensorlist where macid = ? and deviceid like '0101%' and status >0) where macid = ?;";
-			query.prepare(sql);
-			query.addBindValue(macid);
-			query.addBindValue(macid);
-			query.addBindValue(macid);
-			query.addBindValue(macid);
-			query.addBindValue(macid);
-			if (false==query.exec())
+            QString sql = " update maclist set \
+                    sensornum = (select count(deviceid) from parkinglots.sensorlist where sensorlist.macid = maclist.macid and deviceid like '0100%') , \
+                    relaynum = (select count(deviceid) from parkinglots.sensorlist where sensorlist.macid = maclist.macid and deviceid like '0101%'), \
+                    ansensornum =(select count(deviceid) from parkinglots.sensorlist where sensorlist.macid = maclist.macid and deviceid like '0100%' and status >0) ,\
+                    anrelaynum = (select count(deviceid) from parkinglots.sensorlist where sensorlist.macid = maclist.macid and deviceid like '0101%' and status >0) \
+                    where macid >0;where macid = " + QString("%1").arg(macid) + ";";
+
+            if (false==query.exec(sql))
 			{
 				qCritical()<<tr("Database Access Error :")+query.lastError().text();
 				db.close();
